@@ -30,7 +30,7 @@ public class SubSubCategory {
 
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "subSubCategories")
-    private List<Quiz> quizes;
+    private List<Question> questions;
 
     @ManyToOne
     private SubCategory subCategories;
@@ -58,11 +58,11 @@ public class SubSubCategory {
         this.subCategories = subCategories;
     }
 
-    public List<Quiz> getQuizes(){
-        return quizes;
+    public List<Question> getQuestions(){
+        return questions;
     }
 
-    public void setQuizes(List<Quiz> quizes){
-        this.quizes = quizes;
+    public void setQuizes(List<Question> questions){
+        this.questions = questions;
     }
 }
