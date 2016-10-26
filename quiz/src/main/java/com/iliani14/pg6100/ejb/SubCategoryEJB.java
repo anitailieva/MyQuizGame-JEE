@@ -53,8 +53,9 @@ public class SubCategoryEJB {
     }
 
     public void deleteSubCategory(long id){
-        Query query = em.createQuery("DELETE FROM SubCategory s WHERE s.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        SubCategory subCategory = em.find(SubCategory.class, id);
+        if(subCategory != null){
+            em.remove(subCategory);
+        }
     }
 }

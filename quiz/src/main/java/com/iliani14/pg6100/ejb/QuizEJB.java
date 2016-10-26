@@ -58,8 +58,9 @@ public class QuizEJB {
     }
 
     public void deleteQuiz(long id){
-        Query query = em.createQuery("DELETE FROM Quiz q WHERE q.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        Quiz quiz = em.find(Quiz.class, id);
+        if(quiz != null){
+            em.remove(quiz);
+        }
     }
 }

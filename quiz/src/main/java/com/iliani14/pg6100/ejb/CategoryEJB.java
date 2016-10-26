@@ -19,9 +19,8 @@ public class CategoryEJB {
     private EntityManager em;
 
 
-    public Category createCategory(long id, String name){
+    public Category createCategory(String name){
         Category c = new Category();
-        c.setId(id);
         c.setName(name);
 
         em.persist(c);
@@ -49,9 +48,10 @@ public class CategoryEJB {
     }
 
     public void deleteCategory(long id){
-        Query query = em.createQuery("DELETE FROM SubCategory c WHERE c.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        Category category = em.find(Category.class, id);
+        if(category != null){
+            em.remove(category);
+        }
     }
 
 }
