@@ -61,4 +61,11 @@ public class SubSubCategoryEJB {
             em.remove(subSubCategory);
         }
     }
+    public void updateSubSubCategory(long id, String newName) {
+        SubSubCategory subSubCategory = em.find(SubSubCategory.class, id);
+        if (subSubCategory != null) {
+            subSubCategory.setName(newName);
+
+        }
+    }
 }

@@ -23,7 +23,7 @@ public class SubCategoryEJB {
     @EJB
     private CategoryEJB categoryEJB;
 
-    public SubCategory createSubCategory(Category category, String name){
+    public SubCategory createSubCategory(Category category, String name) {
         SubCategory sub = new SubCategory();
         sub.setName(name);
 
@@ -35,27 +35,36 @@ public class SubCategoryEJB {
         return sub;
     }
 
-    public SubCategory findSubCategoryById(long id){
+    public SubCategory findSubCategoryById(long id) {
         return em.find(SubCategory.class, id);
     }
 
-    public List<SubCategory> getAllSubCategories(){
+    public List<SubCategory> getAllSubCategories() {
         Query query = em.createNamedQuery(SubCategory.GET_ALL_SUBCATEGORIES);
         List<SubCategory> subCategories = query.getResultList();
 
         return subCategories;
     }
-    public SubCategory getSubCategoryByCategoryName(String categoryName){
+
+    public SubCategory getSubCategoryByCategoryName(String categoryName) {
         Query query = em.createNamedQuery(SubCategory.GET_SUBCATEGORY_BY_CATEGORY);
         query.setParameter("categoryName", categoryName);
 
         return (SubCategory) query.getSingleResult();
     }
 
-    public void deleteSubCategory(long id){
+    public void deleteSubCategory(long id) {
         SubCategory subCategory = em.find(SubCategory.class, id);
-        if(subCategory != null){
+        if (subCategory != null) {
             em.remove(subCategory);
+        }
+    }
+
+    public void updateSubCategory(long id, String newName) {
+        SubCategory subCategory = em.find(SubCategory.class, id);
+        if (subCategory != null) {
+            subCategory.setName(newName);
+
         }
     }
 }
