@@ -12,7 +12,7 @@ import java.util.List;
 
 @NamedQueries({
         @NamedQuery(name = Quiz.GET_ALL_QUIZES, query = "SELECT q FROM Quiz q"),
-        @NamedQuery(name = Quiz.GET_QUIZ_BY_SUBSUBCATEGORY, query = "SELECT q FROM Quiz q WHERE subSubCategories.name = :name")
+        @NamedQuery(name = Quiz.GET_QUIZ_BY_SUBSUBCATEGORY, query = "SELECT q FROM Quiz q WHERE q.subSubCategories.name = :name")
 })
 
 
