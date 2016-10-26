@@ -29,4 +29,19 @@ public class SubSubCategory {
     public void setId(String id) {
         this.id = id;
     }
+
+    public SubCategory getSubCategories(){
+        return subCategories;
+    }
+    public void setSubCategories(SubCategory subCategories){
+        this.subCategories = subCategories;
+    }
+
+    public List<Quiz> getQuizs(){
+        return quizs;
+    }
+
+    public void setQuizs(List<Quiz> quizs){
+        this.quizs = quizs;
+    }
 }
