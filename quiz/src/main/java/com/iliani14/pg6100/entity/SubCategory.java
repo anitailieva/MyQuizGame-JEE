@@ -23,7 +23,7 @@ public class SubCategory {
 
     @ManyToOne
     private Category category;
-    
+
     public String getId() {
         return id;
     }
