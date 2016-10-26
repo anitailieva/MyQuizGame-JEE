@@ -11,14 +11,14 @@ import java.util.List;
  */
 
 @NamedQueries({
-        @NamedQuery(name = SubCategory.GET_ALL_SUBATEGORIES, query = "SELECT s FROM SubCategory s"),
+        @NamedQuery(name = SubCategory.GET_ALL_SUBCATEGORIES, query = "SELECT s FROM SubCategory s"),
         @NamedQuery(name = SubCategory.GET_SUBCATEGORY_BY_CATEGORY, query = "SELECT s FROM SubCategory s WHERE category.name = :name")
 })
 
 @Entity
 public class SubCategory {
 
-    public static final String GET_ALL_SUBATEGORIES = "GET ALL SUBCATEGORIES";
+    public static final String GET_ALL_SUBCATEGORIES = "GET ALL SUBCATEGORIES";
     public static final String GET_SUBCATEGORY_BY_CATEGORY = "GET SUBCATEGORY BY CATEGORY";
 
     @Id @GeneratedValue
