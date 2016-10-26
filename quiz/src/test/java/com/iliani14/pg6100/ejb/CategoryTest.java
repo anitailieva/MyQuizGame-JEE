@@ -216,8 +216,6 @@ public class CategoryTest {
 
         assertEquals(subsub2, subSubCategoryEJB.getAllSubSubCategories().get(0).getName());
 
-
-
     }
 
 }
