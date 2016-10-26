@@ -1,0 +1,16 @@
+# IntelliJ project files
+/.idea/
+*.iml
+
+
+# Class files
+*.class
+
+
+# Target folder
+target/
+
+# Package Files #
+*.jar
+*.war
+*.ear
