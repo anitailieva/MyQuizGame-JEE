@@ -24,7 +24,7 @@ public class QuestionEJB {
     @EJB
     private SubSubCategoryEJB subSubCategoryEJB;
 
-    public Question createQuiz(SubSubCategory s, String text, List<String> answers, String theCorrectAnswer) {
+    public Question createQuestion(SubSubCategory s, String text, List<String> answers, String theCorrectAnswer) {
         Question q = new Question();
         q.setText(text);
         q.setAnswers(answers);
@@ -43,11 +43,11 @@ public class QuestionEJB {
         return em.find(Question.class, id);
     }
 
-    public List<Question> getAllQuizes() {
+    public List<Question> getAllQuestions() {
         Query query = em.createNamedQuery(Question.GET_ALL_QUESTIONS);
-        List<Question> quizes = query.getResultList();
+        List<Question> questions = query.getResultList();
 
-        return quizes;
+        return questions;
     }
 
     public Question getQuizBySubSubCategoryName(String subSubCategoryName) {
@@ -58,9 +58,9 @@ public class QuestionEJB {
     }
 
     public void deleteQuestion(long id) {
-        Question quiz = em.find(Question.class, id);
-        if (quiz != null) {
-            em.remove(quiz);
+        Question q = em.find(Question.class, id);
+        if (q != null) {
+            em.remove(q);
         }
     }
 
