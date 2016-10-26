@@ -15,7 +15,6 @@
         <module>restApi</module>
     </modules>
 
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hibernate.version>5.2.2.Final</hibernate.version>
@@ -27,7 +26,27 @@
         <swagger-version>1.5.10</swagger-version>
     </properties>
 
-     <dependencies>
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Internal modules used by other modules -->
+            <!--<dependency>
+                <groupId>org.pg6100</groupId>
+                <artifactId>utils</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.pg6100</groupId>
+                <artifactId>xmlAndJson</artifactId>
+                <version>${project.version}</version>
+            </dependency>-->
+            <dependency>
+                <groupId>me.contrapost</groupId>
+                <artifactId>quiz</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
 
             <!-- JEE -->
             <dependency>
@@ -161,8 +180,12 @@
             </dependency>
 
         </dependencies>
+    </dependencyManagement>
+
 
     <build>
+
+        <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -286,7 +309,7 @@
 
 
             </plugins>
+        </pluginManagement>
     </build>
-
 
 </project>
