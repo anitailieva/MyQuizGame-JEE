@@ -27,9 +27,7 @@
         <swagger-version>1.5.10</swagger-version>
     </properties>
 
-
-    <dependencyManagement>
-        <dependencies>
+     <dependencies>
 
             <!-- JEE -->
             <dependency>
@@ -163,12 +161,8 @@
             </dependency>
 
         </dependencies>
-    </dependencyManagement>
-
 
     <build>
-
-        <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -292,7 +286,6 @@
 
 
             </plugins>
-        </pluginManagement>
     </build>
 
 

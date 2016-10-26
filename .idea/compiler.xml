@@ -27,7 +27,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="myquiz" target="1.5" />
+      <module name="myquiz" target="1.8" />
       <module name="quiz" target="1.8" />
       <module name="restApi" target="1.8" />
     </bytecodeTargetLevel>
