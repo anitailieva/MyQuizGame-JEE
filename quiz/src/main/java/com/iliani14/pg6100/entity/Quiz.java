@@ -1,9 +1,6 @@
 package com.iliani14.pg6100.entity;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
@@ -13,8 +10,17 @@ import java.util.List;
  * Created by anitailieva on 26/10/2016.
  */
 
+@NamedQueries({
+        @NamedQuery(name = Quiz.GET_ALL_QUIZES, query = "SELECT q FROM Quiz q"),
+        @NamedQuery(name = Quiz.GET_QUIZ_BY_SUBSUBCATEGORY, query = "SELECT q FROM Quiz q WHERE subSubCategories.id = :id")
+})
+
+
 @Entity
 public class Quiz {
+
+        public static final String GET_ALL_QUIZES = "GET ALL QUIZES";
+        public static final String GET_QUIZ_BY_SUBSUBCATEGORY = "GET QUIZ BY SUBSUBCATEGORY";
 
 
     @Id
@@ -27,7 +33,7 @@ public class Quiz {
 
     @NotNull
     @Size(min = 1, max = 400)
-    private String answer;
+    private String theCorrectAnswer;
 
 
     @ElementCollection
@@ -58,14 +64,14 @@ public class Quiz {
         this.question = question;
     }
 
-    public String getAnswer(){
-        return answer;
+    public String getTheCorrectAnswer(){
+        return theCorrectAnswer;
     }
 
-    public void setAnswer(String answer){
-            this.answer = answer;
+    public void setTheCorrectAnswer(String theCorrectAnswer){
+            this.theCorrectAnswer = theCorrectAnswer;
 }
-    public void setAnswer(List<String> answers){
+    public void setAnswers(List<String> answers){
         this.answers = answers;
         }
 

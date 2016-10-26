@@ -8,16 +8,24 @@ import java.util.List;
  * Created by anitailieva on 26/10/2016.
  */
 
+@NamedQueries({
+        @NamedQuery(name = SubSubCategory.GET_ALL_SUBSUBCATEGORIES, query = "SELECT s FROM SubSubCategory s"),
+        @NamedQuery(name = SubSubCategory.GET_SUBSUBCATEGORY_BY_SUBCATEGORY, query = "SELECT s FROM SubSubCategory s WHERE subCategories.id = :id")
+})
+
+
 @Entity
 public class SubSubCategory {
 
+    public static final String GET_ALL_SUBSUBCATEGORIES = "GET ALL SUBSUBCATEGORIES";
+    public static final String GET_SUBSUBCATEGORY_BY_SUBCATEGORY = "GET SUBSUBCATEGORY BY SUBCATEGORY";
 
     @Id
     @Size(min = 1, max = 50)
     private String id;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "subSubCategories")
-    private List<Quiz> quizs;
+    private List<Quiz> quizes;
 
     @ManyToOne
     private SubCategory subCategories;
@@ -37,11 +45,11 @@ public class SubSubCategory {
         this.subCategories = subCategories;
     }
 
-    public List<Quiz> getQuizs(){
-        return quizs;
+    public List<Quiz> getQuizes(){
+        return quizes;
     }
 
-    public void setQuizs(List<Quiz> quizs){
-        this.quizs = quizs;
+    public void setQuizes(List<Quiz> quizes){
+        this.quizes = quizes;
     }
 }

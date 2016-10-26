@@ -9,8 +9,16 @@ import java.util.List;
  * Created by anitailieva on 26/10/2016.
  */
 
+@NamedQueries({
+        @NamedQuery(name = SubCategory.GET_ALL_SUBATEGORIES, query = "SELECT s FROM SubCategory s"),
+        @NamedQuery(name = SubCategory.GET_SUBCATEGORY_BY_CATEGORY, query = "SELECT s FROM SubCategory s WHERE category.id = :id")
+})
+
 @Entity
 public class SubCategory {
+
+    public static final String GET_ALL_SUBATEGORIES = "GET ALL SUBCATEGORIES";
+    public static final String GET_SUBCATEGORY_BY_CATEGORY = "GET SUBCATEGORY BY CATEGORY";
 
     @Id
     @Size(min = 1, max = 300)
