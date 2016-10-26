@@ -12,7 +12,7 @@ import java.util.List;
 
 @NamedQueries({
         @NamedQuery(name = SubCategory.GET_ALL_SUBCATEGORIES, query = "SELECT s FROM SubCategory s"),
-        @NamedQuery(name = SubCategory.GET_SUBCATEGORY_BY_CATEGORY, query = "SELECT s FROM SubCategory s WHERE category.name = :name")
+        @NamedQuery(name = SubCategory.GET_SUBCATEGORY_BY_CATEGORY, query = "SELECT s FROM SubCategory s WHERE s.category.name = :name")
 })
 
 @Entity
