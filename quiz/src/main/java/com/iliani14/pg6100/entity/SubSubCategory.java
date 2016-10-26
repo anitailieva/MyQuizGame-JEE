@@ -1,6 +1,7 @@
 package com.iliani14.pg6100.entity;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 
 @NamedQueries({
         @NamedQuery(name = SubSubCategory.GET_ALL_SUBSUBCATEGORIES, query = "SELECT s FROM SubSubCategory s"),
-        @NamedQuery(name = SubSubCategory.GET_SUBSUBCATEGORY_BY_SUBCATEGORY, query = "SELECT s FROM SubSubCategory s WHERE subCategories.id = :id")
+        @NamedQuery(name = SubSubCategory.GET_SUBSUBCATEGORY_BY_SUBCATEGORY, query = "SELECT s FROM SubSubCategory s WHERE subCategories.name = :name")
 })
 
 
@@ -20,9 +21,13 @@ public class SubSubCategory {
     public static final String GET_ALL_SUBSUBCATEGORIES = "GET ALL SUBSUBCATEGORIES";
     public static final String GET_SUBSUBCATEGORY_BY_SUBCATEGORY = "GET SUBSUBCATEGORY BY SUBCATEGORY";
 
-    @Id
+    @Id @GeneratedValue
+    private long id;
+
+    @NotNull
     @Size(min = 1, max = 50)
-    private String id;
+    private String name;
+
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "subSubCategories")
     private List<Quiz> quizes;
@@ -30,13 +35,21 @@ public class SubSubCategory {
     @ManyToOne
     private SubCategory subCategories;
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 
     public SubCategory getSubCategories(){
         return subCategories;

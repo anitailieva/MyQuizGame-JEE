@@ -12,7 +12,7 @@ import java.util.List;
 
 @NamedQueries({
         @NamedQuery(name = Quiz.GET_ALL_QUIZES, query = "SELECT q FROM Quiz q"),
-        @NamedQuery(name = Quiz.GET_QUIZ_BY_SUBSUBCATEGORY, query = "SELECT q FROM Quiz q WHERE subSubCategories.id = :id")
+        @NamedQuery(name = Quiz.GET_QUIZ_BY_SUBSUBCATEGORY, query = "SELECT q FROM Quiz q WHERE subSubCategories.name = :name")
 })
 
 
@@ -23,9 +23,8 @@ public class Quiz {
         public static final String GET_QUIZ_BY_SUBSUBCATEGORY = "GET QUIZ BY SUBSUBCATEGORY";
 
 
-    @Id
-    @Size(min = 1, max = 50)
-    private String id;
+    @Id @GeneratedValue
+    private long id;
 
     @NotNull
     @Size(min = 1, max = 400)
@@ -42,11 +41,11 @@ public class Quiz {
     @ManyToOne
     private SubSubCategory subSubCategories;
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
