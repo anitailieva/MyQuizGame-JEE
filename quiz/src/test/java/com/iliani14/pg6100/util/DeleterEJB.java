@@ -1,10 +1,14 @@
 package com.iliani14.pg6100.util;
 
+import com.iliani14.pg6100.entity.Question;
+import com.iliani14.pg6100.entity.SubSubCategory;
+
 import javax.ejb.Stateless;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.List;
 
 /**
  * Created by anitailieva on 26/10/2016.
@@ -34,6 +38,16 @@ public class DeleterEJB {
 
         Query query = em.createQuery("delete from " + name);
         query.executeUpdate();
+    }
+
+
+    public void deleteQuestions(){
+        List<Question> questions = em.createNamedQuery(Question.GET_ALL_QUESTIONS).getResultList();
+        for(Question q: questions){
+            SubSubCategory subSubCategory = em.find(SubSubCategory.class, q.getSubSubCategories().getId());
+            subSubCategory.getQuestions().remove(q);
+        }
+
     }
 
 }
