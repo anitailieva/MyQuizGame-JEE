@@ -57,8 +57,8 @@ public class CategoryTest {
 
     @Test
     public void testCreateCategory(){
-        Category c = categoryEJB.createCategory("Science");
-        assertNotNull(c.getId());
+        long c = categoryEJB.createCategory("Science");
+        assertNotNull(c);
     }
 
     @Test
@@ -109,16 +109,16 @@ public class CategoryTest {
 
     @Test
     public void testCreateSubCategory() {
-        Category c = categoryEJB.createCategory("Science");
-        SubCategory sc = subCategoryEJB.createSubCategory(c, "Computer Science");
+        long c = categoryEJB.createCategory("Science");
+        long sc = subCategoryEJB.createSubCategory(c, "Computer Science");
 
-        assertNotNull(sc.getId());
+        assertNotNull(sc);
     }
 
 
     @Test
     public void testSubCategoryWithName() {
-        Category c = categoryEJB.createCategory("Science");
+        long c = categoryEJB.createCategory("Science");
         subCategoryEJB.createSubCategory(c, "Computer Science");
 
         List<SubCategory> subCategories = subCategoryEJB.getAllSubCategories();
@@ -130,7 +130,7 @@ public class CategoryTest {
 
     @Test
     public void testDeleteSubCategory(){
-        Category c = categoryEJB.createCategory("Science");
+        long c = categoryEJB.createCategory("Science");
         subCategoryEJB.createSubCategory(c, "Computer Science");
 
         List<SubCategory> subCategories = subCategoryEJB.getAllSubCategories();
@@ -148,7 +148,7 @@ public class CategoryTest {
         String sub1 = "Computer Science";
         String sub2 = "Football";
 
-        Category c = categoryEJB.createCategory("Science");
+        long c = categoryEJB.createCategory("Science");
         subCategoryEJB.createSubCategory(c, "Computer Science");
         assertEquals(sub1, subCategoryEJB.getAllSubCategories().get(0).getName());
 
@@ -162,18 +162,18 @@ public class CategoryTest {
 
     @Test
     public void testCreateSubSubCategory() {
-        Category c = categoryEJB.createCategory("Science");
-        SubCategory sub = subCategoryEJB.createSubCategory(c, "Computer Science");
-        SubSubCategory subsub = subSubCategoryEJB.createSubSubCategory(sub, "IOS");
+        long c = categoryEJB.createCategory("Science");
+        long sub = subCategoryEJB.createSubCategory(c, "Computer Science");
+        long subsub = subSubCategoryEJB.createSubSubCategory(sub, "IOS");
 
-        assertNotNull(subsub.getId());
+        assertNotNull(subsub);
     }
 
 
     @Test
     public void testSubSubCategoryWithName() {
-        Category c = categoryEJB.createCategory("Science");
-        SubCategory sub = subCategoryEJB.createSubCategory(c, "Computer Science");
+        long c = categoryEJB.createCategory("Science");
+        long sub = subCategoryEJB.createSubCategory(c, "Computer Science");
         subSubCategoryEJB.createSubSubCategory(sub, "IOS");
 
         List<SubSubCategory> subSubCategories = subSubCategoryEJB.getAllSubSubCategories();
@@ -185,8 +185,8 @@ public class CategoryTest {
 
     @Test
     public void testDeleteSubSubCategory(){
-        Category c = categoryEJB.createCategory("Science");
-        SubCategory sub = subCategoryEJB.createSubCategory(c, "Computer Science");
+        long c = categoryEJB.createCategory("Science");
+        long sub = subCategoryEJB.createSubCategory(c, "Computer Science");
         subSubCategoryEJB.createSubSubCategory(sub, "IOS");
 
         List<SubSubCategory> subSubCategories = subSubCategoryEJB.getAllSubSubCategories();
@@ -203,8 +203,8 @@ public class CategoryTest {
         String subsub1 = "IOS";
         String subsub2 = "JEE";
 
-        Category c = categoryEJB.createCategory("Science");
-        SubCategory sub = subCategoryEJB.createSubCategory(c, "Computer Science");
+        long c = categoryEJB.createCategory("Science");
+        long sub = subCategoryEJB.createSubCategory(c, "Computer Science");
         subSubCategoryEJB.createSubSubCategory(sub, subsub1);
 
         assertEquals(subsub1, subSubCategoryEJB.getAllSubSubCategories().get(0).getName());

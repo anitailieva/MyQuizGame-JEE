@@ -15,12 +15,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.ejb.EJB;
-import javax.ejb.EJBException;
 import java.util.Arrays;
 import java.util.List;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
 
 /**
  * Created by anitailieva on 26/10/2016.
@@ -55,6 +54,7 @@ public class QuestionTest {
     @Before
     @After
     public void clearDatabase(){
+        deleterEJB.deleteQuestions();
         deleterEJB.deleteEntities(SubSubCategory.class);
         deleterEJB.deleteEntities(SubCategory.class);
         deleterEJB.deleteEntities(Category.class);
@@ -64,43 +64,64 @@ public class QuestionTest {
 
     @Test
     public void testCreateQuestion(){
-        Category c = categoryEJB.createCategory("Science");
-        SubCategory sc = subCategoryEJB.createSubCategory(c, "Computer Science");
-        SubSubCategory ssc = subSubCategoryEJB.createSubSubCategory(sc, "C#");
+        long c = categoryEJB.createCategory("Science");
+        long sc = subCategoryEJB.createSubCategory(c, "Computer Science");
+        long ssc = subSubCategoryEJB.createSubSubCategory(sc, "C#");
 
         List<String> answers = Arrays.asList("1995", "2000", "2010", "1990");
         String theCorrectAnswer = "2000";
 
-        Question question = questionEJB.createQuestion(ssc, "When was C# created?", answers, theCorrectAnswer);
+        long question = questionEJB.createQuestion(ssc, "When was C# created?", answers, theCorrectAnswer);
 
-        assertNotNull(question.getId());
+        assertNotNull(question);
 
     }
 
-    @Test(expected = EJBException.class)
-    public void testEmptyQuestion(){
-        Category c = categoryEJB.createCategory("Science");
-        SubCategory sc = subCategoryEJB.createSubCategory(c, "Computer Science");
-        SubSubCategory ssc = subSubCategoryEJB.createSubSubCategory(sc, "C#");
-
-
-        String answer = "2000";
-        List<String> ans = Arrays.asList("1995", "2000", "2010", "1990");
-
-
-        Question q = questionEJB.createQuestion(ssc, "", ans, answer);
-
-        assertNull(q.getText());
-    }
 
     @Test
     public void testDeleteQuestion(){
+        long c = categoryEJB.createCategory("Science");
+        long sc = subCategoryEJB.createSubCategory(c, "Computer Science");
+        long ssc = subSubCategoryEJB.createSubSubCategory(sc, "C#");
 
+        List<String> answers = Arrays.asList("1995", "2000", "2010", "1990");
+        String theCorrectAnswer = "2000";
+
+        questionEJB.createQuestion(ssc, "When was C# created?", answers, theCorrectAnswer);
+
+        List<Question> questions = questionEJB.getAllQuestions();
+        assertEquals(1, questions.size());
+
+        long id = questions.get(0).getId();
+        questionEJB.deleteQuestion(id);
+
+        assertEquals(0, questionEJB.getAllQuestions().size());
     }
 
-    @Test
-    public void updateQuestion() {
 
+
+    @Test
+    public void testUpdateQuestion() {
+        long c = categoryEJB.createCategory("Science");
+        long sc = subCategoryEJB.createSubCategory(c, "Computer Science");
+        long ssc = subSubCategoryEJB.createSubSubCategory(sc, "C#");
+
+        String question1 = "When was Java created?";
+        List<String> answers = Arrays.asList("1995", "2000", "2010", "1990");
+        String theCorrectAnswer = "1995";
+
+        questionEJB.createQuestion(ssc, question1, answers, theCorrectAnswer);
+
+        assertEquals(question1, questionEJB.getAllQuestions().get(0).getText());
+
+        List<Question> questions = questionEJB.getAllQuestions();
+
+        long id = questions.get(0).getId();
+        String question2 = "What year was Java created?";
+
+        questionEJB.updateQuestion(id, question2);
+
+        assertEquals(question2, questionEJB.getAllQuestions().get(0).getText());
 
     }
 
