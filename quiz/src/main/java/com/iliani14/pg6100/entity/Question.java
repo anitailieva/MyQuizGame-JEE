@@ -1,5 +1,7 @@
 package com.iliani14.pg6100.entity;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -26,7 +28,7 @@ public class Question {
     @Id @GeneratedValue
     private long id;
 
-    @NotNull
+    @NotBlank
     @Size(min = 1, max = 400)
     private String text;
 

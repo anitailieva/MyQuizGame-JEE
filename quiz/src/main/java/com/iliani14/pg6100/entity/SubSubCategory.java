@@ -1,7 +1,8 @@
 package com.iliani14.pg6100.entity;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class SubSubCategory {
     @Id @GeneratedValue
     private long id;
 
-    @NotNull
+    @NotBlank
     @Size(min = 1, max = 50)
     private String name;
 
