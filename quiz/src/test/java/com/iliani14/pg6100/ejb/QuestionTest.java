@@ -15,10 +15,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
 
 /**
  * Created by anitailieva on 26/10/2016.
@@ -73,6 +75,22 @@ public class QuestionTest {
 
         assertNotNull(question.getId());
 
+    }
+
+    @Test(expected = EJBException.class)
+    public void testEmptyQuestion(){
+        Category c = categoryEJB.createCategory("Science");
+        SubCategory sc = subCategoryEJB.createSubCategory(c, "Computer Science");
+        SubSubCategory ssc = subSubCategoryEJB.createSubSubCategory(sc, "C#");
+
+
+        String answer = "2000";
+        List<String> ans = Arrays.asList("1995", "2000", "2010", "1990");
+
+
+        Question q = questionEJB.createQuestion(ssc, "", ans, answer);
+
+        assertNull(q.getText());
     }
 
     @Test
