@@ -30,7 +30,7 @@ public class SubSubCategory {
     private String name;
 
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "subSubCategories")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "subSubCategories", orphanRemoval = true)
     private List<Question> questions;
 
     @ManyToOne
