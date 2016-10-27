@@ -24,8 +24,8 @@ public class QuestionEJB {
     @EJB
     private SubSubCategoryEJB subSubCategoryEJB;
 
-    public Question createQuestion(SubSubCategory s, String text, List<String> answers, String theCorrectAnswer) {
-        SubSubCategory subsub = subSubCategoryEJB.findSubSubCategoryById(s.getId());
+    public Long createQuestion(long subsubId, String text, List<String> answers, String theCorrectAnswer) {
+        SubSubCategory subsub = subSubCategoryEJB.findSubSubCategoryById(subsubId);
         Question q = new Question();
         q.setText(text);
         q.setAnswers(answers);
@@ -39,7 +39,7 @@ public class QuestionEJB {
 
         em.persist(subsub);
 
-        return q;
+        return q.getId();
     }
 
     public Question findQuestionById(long id) {

@@ -23,8 +23,8 @@ public class SubCategoryEJB {
     @EJB
     private CategoryEJB categoryEJB;
 
-    public SubCategory createSubCategory(Category category, String name) {
-        Category c = categoryEJB.findCategoryById(category.getId());
+    public Long createSubCategory(long categoryId, String name) {
+        Category c = categoryEJB.findCategoryById(categoryId);
         SubCategory sub = new SubCategory();
         sub.setName(name);
         sub.setCategory(c);
@@ -34,7 +34,7 @@ public class SubCategoryEJB {
         c.getSubCategories().add(sub);
         em.persist(c);
 
-        return sub;
+        return sub.getId();
     }
 
     public SubCategory findSubCategoryById(long id) {

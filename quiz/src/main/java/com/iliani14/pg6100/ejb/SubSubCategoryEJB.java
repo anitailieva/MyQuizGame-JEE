@@ -24,8 +24,8 @@ public class SubSubCategoryEJB {
     private SubCategoryEJB subCategoryEJB;
 
 
-    public SubSubCategory createSubSubCategory(SubCategory subCategory, String name){
-        SubCategory sub = subCategoryEJB.findSubCategoryById(subCategory.getId());
+    public Long createSubSubCategory(long subCategoryId, String name){
+        SubCategory sub = subCategoryEJB.findSubCategoryById(subCategoryId);
         SubSubCategory subsub = new SubSubCategory();
         subsub.setName(name);
         subsub.setSubCategories(sub);
@@ -36,7 +36,7 @@ public class SubSubCategoryEJB {
         em.persist(sub);
 
 
-        return subsub;
+        return subsub.getId();
     }
 
     public SubSubCategory findSubSubCategoryById(long id){

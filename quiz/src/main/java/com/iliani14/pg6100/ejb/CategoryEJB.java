@@ -19,13 +19,13 @@ public class CategoryEJB {
     private EntityManager em;
 
 
-    public Category createCategory(String name){
+    public Long createCategory(String name){
         Category c = new Category();
         c.setName(name);
 
         em.persist(c);
 
-        return c;
+        return c.getId();
 
     }
 
