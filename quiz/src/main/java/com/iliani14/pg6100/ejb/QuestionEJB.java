@@ -60,6 +60,7 @@ public class QuestionEJB {
         return (Question) query.getResultList();
     }
 
+
     public void deleteQuestion(long id) {
         Question q = em.find(Question.class, id);
         if (q == null) {
@@ -72,7 +73,7 @@ public class QuestionEJB {
     }
 
     public void updateQuestion(long id, String newName) {
-         Question question= em.find(Question.class, id);
+        Question question= em.find(Question.class, id);
         if (question != null) {
             question.setText(newName);
 
