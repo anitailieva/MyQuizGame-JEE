@@ -26,7 +26,7 @@ public class Question {
 
 
     @Id @GeneratedValue
-    private long id;
+    private Long id;
 
     @NotBlank
     @Size(min = 1, max = 400)
@@ -43,11 +43,11 @@ public class Question {
     @ManyToOne
     private SubSubCategory subSubCategories;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

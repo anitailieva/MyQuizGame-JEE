@@ -23,7 +23,7 @@ public class SubSubCategory {
     public static final String GET_SUBSUBCATEGORY_BY_SUBCATEGORY = "GET SUBSUBCATEGORY BY SUBCATEGORY";
 
     @Id @GeneratedValue
-    private long id;
+    private Long id;
 
     @NotBlank
     @Size(min = 1, max = 50)
@@ -36,11 +36,11 @@ public class SubSubCategory {
     @ManyToOne
     private SubCategory subCategories;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public String getName() {

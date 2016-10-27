@@ -24,7 +24,7 @@ public class Category {
     public static final String GET_CATEGORY_BY_NAME = "GET CATEGORY BY NAME";
 
     @Id @GeneratedValue
-    private long id;
+    private Long id;
 
 
     @NotBlank
@@ -35,11 +35,11 @@ public class Category {
     private List<SubCategory> subCategories;
 
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
