@@ -24,13 +24,15 @@ public class SubCategoryEJB {
     private CategoryEJB categoryEJB;
 
     public SubCategory createSubCategory(Category category, String name) {
+        Category c = categoryEJB.findCategoryById(category.getId());
         SubCategory sub = new SubCategory();
         sub.setName(name);
+        sub.setCategory(c);
 
         em.persist(sub);
 
-        Category c = categoryEJB.findCategoryById(category.getId());
         c.getSubCategories().add(sub);
+        em.persist(c);
 
         return sub;
     }
