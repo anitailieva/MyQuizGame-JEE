@@ -57,7 +57,8 @@ public class CategoryEJB {
     public void updateCategory(long id, String newName){
         Category category = em.find(Category.class, id);
         if(category!=null)
-            {category.setName(newName);
+            {
+                category.setName(newName);
 
         }
     }

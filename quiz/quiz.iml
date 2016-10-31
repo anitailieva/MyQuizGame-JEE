@@ -114,5 +114,11 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.jboss.shrinkwrap:shrinkwrap-impl-base:1.2.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.jboss.shrinkwrap:shrinkwrap-spi:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:19.0" level="project" />
+    <orderEntry type="library" name="Maven: org.jacoco:org.jacoco.core:unknown" level="project" />
+    <orderEntry type="library" name="Maven: org.wildfly.arquillian:wildfly-arquillian-container-managed:unknown" level="project" />
+    <orderEntry type="library" name="Maven: junit:junit:unknown" level="project" />
+    <orderEntry type="library" name="Maven: org.jboss.arquillian.junit:arquillian-junit-container:unknown" level="project" />
+    <orderEntry type="library" name="Maven: javax:javaee-api:unknown" level="project" />
+    <orderEntry type="library" name="Maven: org.jboss.arquillian.extension:arquillian-jacoco:unknown" level="project" />
   </component>
 </module>

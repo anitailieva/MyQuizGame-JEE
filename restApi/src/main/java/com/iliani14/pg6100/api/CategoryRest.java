@@ -103,6 +103,7 @@ public class CategoryRest implements CategoryRestApi {
     public void deleteSubSubCategory(Long id) {
         subSubCategoryEJB.deleteSubSubCategory(id);
     }
+
     private WebApplicationException wrapException(Exception e) throws WebApplicationException {
 
         /*

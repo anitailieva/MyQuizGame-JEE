@@ -96,7 +96,7 @@ public interface CategoryRestApi {
 
     @ApiOperation("Delete a category")
     @DELETE
-    @Path("/{id}")
+    @Path("/id/{id}")
     void deleteCategory(
             @ApiParam("Category Id")
             @PathParam("id")

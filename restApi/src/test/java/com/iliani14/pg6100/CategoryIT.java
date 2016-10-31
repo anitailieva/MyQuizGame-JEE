@@ -1,39 +1,33 @@
 package com.iliani14.pg6100;
 
 import com.iliani14.pg6100.dto.CategoryDto;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.core.Is.is;
 
 
 /**
  * Created by anitailieva on 28/10/2016.
  */
-public class CategoryIT{
+public class CategoryIT extends CategoryTestBase {
 
-
-    @BeforeClass
-    public static  void initClass() {
-        JBossUtil.waitForJBoss(10);
-
-        //RestAssured configs shared by all tests
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;
-        RestAssured.basePath = "/myquiz/api/category";
-        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+    @Test
+    public void testCleanDB() {
+        get().then()
+                .statusCode(200)
+                .body("size()", is(0));
     }
-
 
     @Test
     public void testGetAllCategories() {
-        RestAssured.get().then().body("size()", is(0));
+        get().then().body("size()", is(0));
 
         createSomeCategories();
 
-        RestAssured.get().then().body("size()", is(4));
+        get().then().body("size()", is(4));
 
     }
     private void createSomeCategories(){
@@ -45,7 +39,7 @@ public class CategoryIT{
 
 
     private void createCategories(String name){
-        RestAssured.given().contentType(ContentType.JSON)
+        given().contentType(ContentType.JSON)
                 .body(new CategoryDto(null, name))
                 .post()
                 .then()
