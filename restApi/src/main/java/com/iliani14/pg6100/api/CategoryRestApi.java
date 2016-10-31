@@ -55,7 +55,7 @@ public interface CategoryRestApi {
 
     @ApiOperation("Get a category by id")
     @GET
-    @Path("/{id}")
+    @Path("id/{id}")
     CategoryDto getCategoryById(
             @ApiParam("The id of the category")
             @PathParam("id")

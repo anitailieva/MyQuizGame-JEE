@@ -30,6 +30,32 @@ public class CategoryIT extends CategoryTestBase {
         get().then().body("size()", is(4));
 
     }
+
+    @Test
+    public void testCreateAndGet(){
+    String name = "Science";
+        CategoryDto dto = new CategoryDto(null, name);
+
+        get().then().statusCode(200).body("size()", is(0));
+
+        String id = given().contentType(ContentType.JSON)
+                .body(dto)
+                .post()
+                .then()
+                .statusCode(200)
+                .extract().asString();
+
+        get().then().statusCode(200).body("size()", is(1));
+
+        given().pathParam("id", id)
+                .get("/id/{id}")
+                .then()
+                .statusCode(200)
+                .body("id", is(id))
+                .body("name", is(name));
+    }
+
+
     private void createSomeCategories(){
         createCategories("Science");
         createCategories("Sports");
@@ -46,6 +72,8 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200);
 
     }
+
+
 
 
 
