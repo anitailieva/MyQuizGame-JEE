@@ -17,7 +17,6 @@ public class CategoryConverter {
 
     private CategoryConverter(){}
 
-
     public static CategoryDto transform(Category entity){
         Objects.requireNonNull(entity);
 
@@ -31,7 +30,8 @@ public class CategoryConverter {
     public static List<CategoryDto> transform(List<Category> entities){
         Objects.requireNonNull(entities);
 
-        return entities.stream().map(CategoryConverter::transform)
+        return entities.stream()
+                .map(CategoryConverter::transform)
                 .collect(Collectors.toList());
     }
 }
