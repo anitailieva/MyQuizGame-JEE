@@ -35,29 +35,55 @@ public class CategoryRest implements CategoryRestApi {
         if(dto.id != null) {
             throw new WebApplicationException("Cannot specify id for a newly generated category", 400);
         }
-        Long c;
+        Long id;
         try{
-            c = categoryEJB.createCategory(dto.name);
+            id = categoryEJB.createCategory(dto.name);
         }catch (Exception e){
 
             throw wrapException(e);
         }
 
-        return c;
+        return id;
 
     }
 
     @Override
     public Long createSubCategory(SubCategoryDto dto) {
-        if(dto.id != null) {
-            throw new WebApplicationException("Cannot specify id for a newly generated category", 400);
+
+        if (dto.id != null) {
+            throw new WebApplicationException("Cannot specify id for a newly generated subcategory", 400);
         }
-        return null;
+
+        if (dto.categoryId == null){
+            throw new WebApplicationException("Cannot specify category id", 400);
+        }
+        Long id;
+        try{
+            id = subCategoryEJB.createSubCategory(Long.parseLong(dto.categoryId), dto.name);
+        }catch (Exception e){
+            throw  wrapException(e);
+        }
+        return id;
     }
 
     @Override
     public Long createSubSubCategory(SubSubCategoryDto dto) {
-         return null;
+        if (dto.id != null){
+            throw new WebApplicationException("Cannot specify id for a newly generated subsubcategory", 400);
+        }
+
+        if (dto.subcategoryId != null){
+            throw new WebApplicationException("Cannot specify subcategory id", 400);
+        }
+
+        Long id;
+        try{
+            id = subSubCategoryEJB.createSubSubCategory(Long.parseLong(dto.subcategoryId), dto.name);
+        }catch (Exception e){
+            throw wrapException(e);
+        }
+
+        return id;
     }
 
     @Override
@@ -65,19 +91,21 @@ public class CategoryRest implements CategoryRestApi {
         return CategoryConverter.transform(categoryEJB.getAllCategories());
     }
 
+    @Override
     public CategoryDto getCategoryById(Long id) {
         return CategoryConverter.transform(categoryEJB.findCategoryById(id));
     }
 
     @Override
-    public List<SubCategoryDto> getSubCategories() {
-        return SubCategoryConverter.transform(subCategoryEJB.getAllSubCategories());
+    public List<SubCategoryDto> getSubCategoriesByCategoryId(Long id) {
+        return SubCategoryConverter.transform(subCategoryEJB.getSubCategoriesByCategoryId(id));
     }
 
     @Override
-    public SubCategoryDto getSubCategoryById(Long subId) {
-        return SubCategoryConverter.transform(subCategoryEJB.findSubCategoryById(subId));
+    public SubCategoryDto getSubCategoryByCategoryIdAndOwnId(Long categoryId, Long id) {
+        return SubCategoryConverter.transform(subCategoryEJB.getSubCategoryByCategoryIdAndOwnId(categoryId, id));
     }
+
 
     @Override
     public List<SubSubCategoryDto> getSubSubCategories() {
@@ -102,6 +130,46 @@ public class CategoryRest implements CategoryRestApi {
     @Override
     public void deleteSubSubCategory(Long id) {
         subSubCategoryEJB.deleteSubSubCategory(id);
+    }
+
+    @Override
+    public void update(Long id, CategoryDto dto) {
+        long theId;
+                try{
+                    theId = Long.parseLong(dto.id);
+                }catch (Exception e){
+                    throw new WebApplicationException("Invalid id: "+dto.id, 400);
+
+                }
+
+        if(id != theId){
+            // in this case, 409 (Conflict) sounds more appropriate than the generic 400
+            throw new WebApplicationException("Now allowed to change the id of the resource", 409);
+        }
+
+        if(categoryEJB.findCategoryById(id) == null){
+            throw new WebApplicationException("Not allowed to create a news with PUT, and cannot find news with id: "+id, 404);
+        }
+
+
+        try{
+            categoryEJB.updateCategory(id, dto.name);
+        }catch (Exception e){
+        throw wrapException(e);
+        }
+    }
+
+    @Override
+    public void updateName(Long id, String name) {
+        if(categoryEJB.findCategoryById(id) == null){
+            throw new WebApplicationException("Cannot find news with id: "+id, 404);
+        }
+
+        try {
+            categoryEJB.updateCategory(id, name );
+        } catch (Exception e){
+            throw wrapException(e);
+        }
     }
 
     private WebApplicationException wrapException(Exception e) throws WebApplicationException {
