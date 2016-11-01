@@ -23,7 +23,7 @@ public class CategoryDto {
 
     @ApiModelProperty("The name of the category")
     public String name;
-    
+
     public CategoryDto(){}
 
     public CategoryDto(String id, String name){
