@@ -23,7 +23,7 @@ public class SubCategoryEJB {
     @EJB
     private CategoryEJB categoryEJB;
 
-    public Long createSubCategory(long categoryId, String name) {
+    public Long createSubCategory(Long categoryId, String name) {
         Category c = categoryEJB.findCategoryById(categoryId);
         SubCategory sub = new SubCategory();
         sub.setName(name);
@@ -37,7 +37,7 @@ public class SubCategoryEJB {
         return sub.getId();
     }
 
-    public SubCategory findSubCategoryById(long id) {
+    public SubCategory findSubCategoryById(Long id) {
         return em.find(SubCategory.class, id);
     }
 
@@ -48,21 +48,37 @@ public class SubCategoryEJB {
         return subCategories;
     }
 
+    public List<SubCategory> getSubCategoriesByCategoryId(Long categoryId) {
+        Query query = em.createQuery("SELECT s FROM SubCategory s WHERE s.category.id = ?1");
+        query.setParameter(1, categoryId);
+
+        return query.getResultList();
+    }
     public SubCategory getSubCategoryByCategoryName(String categoryName) {
         Query query = em.createNamedQuery(SubCategory.GET_SUBCATEGORY_BY_CATEGORY);
         query.setParameter("categoryName", categoryName);
 
         return (SubCategory) query.getSingleResult();
     }
+    public SubCategory getSubCategoryByCategoryIdAndOwnId(Long categoryId, Long id) {
+        Query query = em.createQuery("SELECT s FROM SubCategory s WHERE s.category.id = ?1 AND s.id = ?2");
+        query.setParameter(1, categoryId);
+        query.setParameter(2, id);
 
-    public void deleteSubCategory(long id) {
+        try {
+            return (SubCategory) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    public void deleteSubCategory(Long id) {
         SubCategory subCategory = em.find(SubCategory.class, id);
         if (subCategory != null) {
             em.remove(subCategory);
         }
     }
 
-    public void updateSubCategory(long id, String newName) {
+    public void updateSubCategory(Long id, String newName) {
         SubCategory subCategory = em.find(SubCategory.class, id);
         if (subCategory != null) {
             subCategory.setName(newName);
