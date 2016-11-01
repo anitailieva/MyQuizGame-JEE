@@ -24,7 +24,7 @@ public class QuestionEJB {
     @EJB
     private SubSubCategoryEJB subSubCategoryEJB;
 
-    public Long createQuestion(long subsubId, String text, List<String> answers, String theCorrectAnswer) {
+    public Long createQuestion(Long subsubId, String text, List<String> answers, String theCorrectAnswer) {
         SubSubCategory subsub = subSubCategoryEJB.findSubSubCategoryById(subsubId);
         Question q = new Question();
         q.setText(text);
@@ -42,7 +42,7 @@ public class QuestionEJB {
         return q.getId();
     }
 
-    public Question findQuestionById(long id) {
+    public Question findQuestionById(Long id) {
         return em.find(Question.class, id);
     }
 
@@ -61,7 +61,7 @@ public class QuestionEJB {
     }
 
 
-    public void deleteQuestion(long id) {
+    public void deleteQuestion(Long id) {
         Question q = em.find(Question.class, id);
         if (q == null) {
             return;
@@ -72,7 +72,7 @@ public class QuestionEJB {
         em.remove(q);
     }
 
-    public void updateQuestion(long id, String newName) {
+    public void updateQuestion(Long id, String newName) {
         Question question= em.find(Question.class, id);
         if (question != null) {
             question.setText(newName);
