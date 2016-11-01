@@ -128,7 +128,7 @@ public class CategoryIT extends CategoryTestBase {
         get("/id/" + id).then().body("name", is(anotherName));
     }
     @Test
-    public void testGetAllSubCategories() {
+    public void testCreateAndGetSubCategories() {
         String name = "Sports";
         CategoryDto dto = new CategoryDto(null, name);
 
