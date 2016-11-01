@@ -24,7 +24,7 @@ public class SubSubCategoryEJB {
     private SubCategoryEJB subCategoryEJB;
 
 
-    public Long createSubSubCategory(long subCategoryId, String name){
+    public Long createSubSubCategory(Long subCategoryId, String name){
         SubCategory sub = subCategoryEJB.findSubCategoryById(subCategoryId);
         SubSubCategory subsub = new SubSubCategory();
         subsub.setName(name);
@@ -39,7 +39,7 @@ public class SubSubCategoryEJB {
         return subsub.getId();
     }
 
-    public SubSubCategory findSubSubCategoryById(long id){
+    public SubSubCategory findSubSubCategoryById(Long id){
         return em.find(SubSubCategory.class, id);
 
     }
@@ -58,13 +58,13 @@ public class SubSubCategoryEJB {
         return (SubSubCategory) query.getResultList();
     }
 
-    public void deleteSubSubCategory(long id){
+    public void deleteSubSubCategory(Long id){
         SubSubCategory subSubCategory = em.find(SubSubCategory.class, id);
         if(subSubCategory != null){
             em.remove(subSubCategory);
         }
     }
-    public void updateSubSubCategory(long id, String newName) {
+    public void updateSubSubCategory(Long id, String newName) {
         SubSubCategory subSubCategory = em.find(SubSubCategory.class, id);
         if (subSubCategory != null) {
             subSubCategory.setName(newName);
