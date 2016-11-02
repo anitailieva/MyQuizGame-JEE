@@ -26,6 +26,7 @@ import static junit.framework.TestCase.assertNotNull;
  */
 @RunWith(Arquillian.class)
 public class QuestionTest {
+    private List<String> answers = Arrays.asList("1995", "2000", "2010", "1990");
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -68,7 +69,6 @@ public class QuestionTest {
         long sc = subCategoryEJB.createSubCategory(c, "Computer Science");
         long ssc = subSubCategoryEJB.createSubSubCategory(sc, "C#");
 
-        List<String> answers = Arrays.asList("1995", "2000", "2010", "1990");
         String theCorrectAnswer = "2000";
 
         long question = questionEJB.createQuestion(ssc, "When was C# created?", answers, theCorrectAnswer);
@@ -84,7 +84,6 @@ public class QuestionTest {
         long sc = subCategoryEJB.createSubCategory(c, "Computer Science");
         long ssc = subSubCategoryEJB.createSubSubCategory(sc, "C#");
 
-        List<String> answers = Arrays.asList("1995", "2000", "2010", "1990");
         String theCorrectAnswer = "2000";
 
         questionEJB.createQuestion(ssc, "When was C# created?", answers, theCorrectAnswer);
@@ -107,12 +106,11 @@ public class QuestionTest {
         long ssc = subSubCategoryEJB.createSubSubCategory(sc, "C#");
 
         String question1 = "When was Java created?";
-        List<String> answers = Arrays.asList("1995", "2000", "2010", "1990");
         String theCorrectAnswer = "1995";
 
         questionEJB.createQuestion(ssc, question1, answers, theCorrectAnswer);
 
-        assertEquals(question1, questionEJB.getAllQuestions().get(0).getText());
+        assertEquals(question1, questionEJB.getAllQuestions().get(0).getQuestion());
 
         List<Question> questions = questionEJB.getAllQuestions();
 
@@ -121,7 +119,25 @@ public class QuestionTest {
 
         questionEJB.updateQuestion(id, question2);
 
-        assertEquals(question2, questionEJB.getAllQuestions().get(0).getText());
+        assertEquals(question2, questionEJB.getAllQuestions().get(0).getQuestion());
+
+    }
+
+    @Test
+    public void testGetQuestionBySubSubcategoryName(){
+        String subsubcategoryName = "Java EE";
+
+        long category = categoryEJB.createCategory("Science");
+        long subcategory = subCategoryEJB.createSubCategory(category, "Computer Science");
+        long subsubcategory = subSubCategoryEJB.createSubSubCategory(subcategory, subsubcategoryName);
+
+        String q = "Some question";
+        String correctAnswer = "Correct";
+        questionEJB.createQuestion(subsubcategory,  q, answers, correctAnswer);
+
+        List<Question> questions = questionEJB.getQuestionBySubSubCategoryName(subsubcategoryName);
+
+        assertEquals(subsubcategoryName, questions.get(0).getSubSubCategories().getName());
 
     }
 
