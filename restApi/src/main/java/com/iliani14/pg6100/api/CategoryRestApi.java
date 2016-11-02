@@ -62,7 +62,7 @@ public interface CategoryRestApi {
             Long id);
 
 
-    @ApiOperation("Get all the subcategories")
+    @ApiOperation("Get all the subcategories by category id")
     @GET
     @Consumes(MediaType.TEXT_PLAIN)
     @Path("/{id}/subcategories")
@@ -85,22 +85,38 @@ public interface CategoryRestApi {
             Long id
     );
 
-    @ApiOperation("Get all the subsubcategories")
+    @ApiOperation("Get all the subsubcategories by category id and subcategory id")
     @GET
-    @Path("/{id}/subsubcategories")
-    List<SubSubCategoryDto> getSubSubCategories();
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/{id}/subcategories/{subcategoryId}/subsubcategories")
+    List<SubSubCategoryDto> getSubSubCatBySubCategoryIdAndSubCategoryId(
+            @ApiParam("Category Id")
+            @PathParam("id")
+            Long categoryId,
+
+            @ApiParam("Subcategory Id")
+            @PathParam("subcategoryId")
+            Long subCategoryId
+    );
 
 
-    @ApiOperation("Get a subsubcategory")
+    @ApiOperation("Get a subsubcategory by category id, subcategory id and own id")
     @GET
-    @Path("/{subcategory_id}/subsubcategories/{id}")
-    SubSubCategoryDto getSubSubCategoryId(
-            @ApiParam("SubSubCategory id")
+    @Path("{categoryId}/subcategories/{subcategoryId}/subsubcategories/{id}")
+    SubSubCategoryDto getSubSubCategoryIdSubCategoryIdAndOwnId(
+            @ApiParam("Category id")
+            @PathParam("categoryId")
+            Long categoryId,
+
+            @ApiParam("Subcategory Id")
+            @PathParam("subcategoryId")
+            Long subcategoryId,
+
+            @ApiParam("Subsubcategory id")
             @PathParam("id")
             Long id
 
     );
-
 
     @ApiOperation("Delete a category")
     @DELETE
