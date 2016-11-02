@@ -24,20 +24,17 @@ public class QuestionEJB {
     @EJB
     private SubSubCategoryEJB subSubCategoryEJB;
 
-    public Long createQuestion(Long subsubId, String text, List<String> answers, String theCorrectAnswer) {
+    public Long createQuestion(Long subsubId, String question, List<String> answers, String theCorrectAnswer) {
+
         SubSubCategory subsub = subSubCategoryEJB.findSubSubCategoryById(subsubId);
         Question q = new Question();
-        q.setText(text);
+        q.setQuestion(question);
         q.setAnswers(answers);
         q.setTheCorrectAnswer(theCorrectAnswer);
         q.setSubSubCategories(subsub);
 
-        em.persist(q);
-
-
         subsub.getQuestions().add(q);
-
-        em.persist(subsub);
+        em.persist(q);
 
         return q.getId();
     }
@@ -53,11 +50,11 @@ public class QuestionEJB {
         return questions;
     }
 
-    public Question getQuizBySubSubCategoryName(String subSubCategoryName) {
+    public List<Question> getQuestionBySubSubCategoryName(String subSubCategoryName) {
         Query query = em.createNamedQuery(Question.GET_QUESTION_BY_SUBSUBCATEGORY);
-        query.setParameter("subSubCategoryName", subSubCategoryName);
+        query.setParameter(1, subSubCategoryName);
 
-        return (Question) query.getResultList();
+        return query.getResultList();
     }
 
 
@@ -75,7 +72,7 @@ public class QuestionEJB {
     public void updateQuestion(Long id, String newName) {
         Question question= em.find(Question.class, id);
         if (question != null) {
-            question.setText(newName);
+            question.setQuestion(newName);
 
         }
     }
