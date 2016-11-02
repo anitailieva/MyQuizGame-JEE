@@ -51,11 +51,36 @@ public class SubSubCategoryEJB {
         return subSubCategories;
     }
 
-    public SubSubCategory getSubSubCategoryBySubCategoryName(String subCategoryName){
-        Query query = em.createNamedQuery(SubSubCategory.GET_SUBSUBCATEGORY_BY_SUBCATEGORY);
-        query.setParameter("subCategoryName", subCategoryName);
 
-        return (SubSubCategory) query.getResultList();
+    public List<SubSubCategory> getSubSubCategoriesByCategoryIdAndSubCategoryId(Long categoryId, Long subcategoryId){
+        Query query = em.createQuery("SELECT s FROM SubSubCategory s WHERE s.subCategories.category.id = ?1 " +
+                "AND s.subCategories.id = ?2");
+        query.setParameter(1, categoryId);
+        query.setParameter(2, subcategoryId);
+
+        return query.getResultList();
+
+    }
+    public SubSubCategory getSubSubCategoryByCategoryIdSubCategoryIdAndId(Long categoryId, Long subcategoryId, Long id){
+        Query query = em.createQuery("SELECT s FROM SubSubCategory s WHERE s.subCategories.category.id = ?1 " +
+                "AND s.subCategories.id = ?2 AND s.id = ?3");
+        query.setParameter(1, categoryId);
+        query.setParameter(2, subcategoryId);
+        query.setParameter(3, id);
+
+        try {
+            return (SubSubCategory) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
+    public List<SubSubCategory> getSubSubCategoryBySubCategoryName(String subCategoryName){
+        Query query = em.createNamedQuery(SubSubCategory.GET_SUBSUBCATEGORY_BY_SUBCATEGORY);
+        query.setParameter(1, subCategoryName);
+
+        return query.getResultList();
     }
 
     public void deleteSubSubCategory(Long id){
