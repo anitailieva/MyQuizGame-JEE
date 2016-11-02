@@ -12,7 +12,7 @@ import java.util.List;
 
 @NamedQueries({
         @NamedQuery(name = SubSubCategory.GET_ALL_SUBSUBCATEGORIES, query = "SELECT s FROM SubSubCategory s"),
-        @NamedQuery(name = SubSubCategory.GET_SUBSUBCATEGORY_BY_SUBCATEGORY, query = "SELECT s FROM SubSubCategory s WHERE s.subCategories.name = :name")
+        @NamedQuery(name = SubSubCategory.GET_SUBSUBCATEGORY_BY_SUBCATEGORY, query = "SELECT s FROM SubSubCategory s WHERE s.subCategories.name = ?1")
 })
 
 
@@ -63,7 +63,7 @@ public class SubSubCategory {
         return questions;
     }
 
-    public void setQuizes(List<Question> questions){
+    public void setQuestions(List<Question> questions){
         this.questions = questions;
     }
 }
