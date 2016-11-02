@@ -14,7 +14,7 @@ import java.util.List;
 
 @NamedQueries({
         @NamedQuery(name = Question.GET_ALL_QUESTIONS, query = "SELECT q FROM Question q"),
-        @NamedQuery(name = Question.GET_QUESTION_BY_SUBSUBCATEGORY, query = "SELECT q FROM Question q WHERE q.subSubCategories.name = :name")
+        @NamedQuery(name = Question.GET_QUESTION_BY_SUBSUBCATEGORY, query = "SELECT q FROM Question q WHERE q.subSubCategories.name = ?1")
 })
 
 
@@ -30,7 +30,7 @@ public class Question {
 
     @NotBlank
     @Size(min = 1, max = 400)
-    private String text;
+    private String question;
 
     @NotNull
     @Size(min = 1, max = 400)
@@ -58,11 +58,11 @@ public class Question {
         this.subSubCategories = subSubCategories;
     }
 
-    public String getText(){
-        return text;
+    public String getQuestion(){
+        return question;
     }
-    public void setText(String text){
-        this.text = text;
+    public void setQuestion(String question){
+        this.question = question;
     }
 
     public String getTheCorrectAnswer(){
