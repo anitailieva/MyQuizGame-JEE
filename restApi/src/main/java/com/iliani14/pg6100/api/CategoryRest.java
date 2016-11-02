@@ -108,13 +108,14 @@ public class CategoryRest implements CategoryRestApi {
 
 
     @Override
-    public List<SubSubCategoryDto> getSubSubCategories() {
-        return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());
+    public List<SubSubCategoryDto> getSubSubCatBySubCategoryIdAndSubCategoryId(Long id, Long subcategoryId) {
+    return SubSubCategoryConverter.transform(subSubCategoryEJB.getSubSubCategoriesByCategoryIdAndSubCategoryId(id, subcategoryId));
+
     }
 
     @Override
-    public SubSubCategoryDto getSubSubCategoryId(Long id) {
-        return SubSubCategoryConverter.transform(subSubCategoryEJB.findSubSubCategoryById(id));
+    public SubSubCategoryDto getSubSubCategoryIdSubCategoryIdAndOwnId(Long categoryId, Long subcategoryId, Long id) {
+        return SubSubCategoryConverter.transform(subSubCategoryEJB.getSubSubCategoryByCategoryIdSubCategoryIdAndId(categoryId, subcategoryId, id));
     }
 
     @Override
