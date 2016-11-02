@@ -62,11 +62,13 @@ public class CategoryTest {
     }
 
     @Test
-    public void testCategoryWithName() {
-        categoryEJB.createCategory("Science");
-        List<Category> categories = categoryEJB.getAllCategories();
+    public void testCategoryByName() {
+        String name = "Science";
+        categoryEJB.createCategory(name);
 
-        assertTrue(categories.stream().anyMatch(c -> c.getName().equals("Science")));
+        Category categories = categoryEJB.getCategoryByName(name);
+
+        assertEquals(name, categories.getName());
 
     }
     @Test
@@ -161,6 +163,31 @@ public class CategoryTest {
     }
 
     @Test
+    public void testGetSubCategoryByCategoryName(){
+        String categoryName = "Science";
+        String subcategoryName = "Computer Science";
+
+        long category = categoryEJB.createCategory(categoryName);
+        subCategoryEJB.createSubCategory(category, subcategoryName);
+
+        List<SubCategory> subCategories = subCategoryEJB.getSubCategoryByCategoryName(categoryName);
+
+        assertEquals(categoryName, subCategories.get(0).getCategory().getName());
+    }
+
+    @Test
+    public void testGetSubCategoryByCategoryIdAndId(){
+        long category = categoryEJB.createCategory("Sports");
+        long subCategory = subCategoryEJB.createSubCategory(category, "Football");
+
+        SubCategory subcategory = subCategoryEJB.getSubCategoryByCategoryIdAndOwnId(category, subCategory);
+
+        assertEquals(category, subcategory.getCategory().getId().longValue());
+
+        assertEquals(subCategory, subcategory.getId().longValue());
+    }
+
+    @Test
     public void testCreateSubSubCategory() {
         long c = categoryEJB.createCategory("Science");
         long sub = subCategoryEJB.createSubCategory(c, "Computer Science");
@@ -179,8 +206,49 @@ public class CategoryTest {
         List<SubSubCategory> subSubCategories = subSubCategoryEJB.getAllSubSubCategories();
 
         assertTrue(subSubCategories.stream().anyMatch(s -> s.getName().equals("IOS")));
+    }
 
+    @Test
+    public void testGetSubSubCategoryBySubCategoryName(){
+        String categoryName = "Science";
+        String subcategoryName = "Computer Science";
+        String subsubcategoryName = "Java EE";
 
+        long category = categoryEJB.createCategory(categoryName);
+        long subcategory = subCategoryEJB.createSubCategory(category, subcategoryName);
+        subSubCategoryEJB.createSubSubCategory(subcategory, subsubcategoryName);
+
+        List<SubSubCategory> subsubcategories = subSubCategoryEJB.getSubSubCategoryBySubCategoryName(subcategoryName);
+
+        assertEquals(subcategoryName, subsubcategories.get(0).getSubCategories().getName());
+
+    }
+    @Test
+    public void testGetSubSubCategoryByCategoryIdAndSubCategoryId(){
+        long category = categoryEJB.createCategory("Movies");
+        long subcategory = subCategoryEJB.createSubCategory(category, "Thriller");
+        subSubCategoryEJB.createSubSubCategory(subcategory, "Most watched");
+
+        List<SubSubCategory> subsubcategory = subSubCategoryEJB.getSubSubCategoriesByCategoryIdAndSubCategoryId(category, subcategory);
+
+        assertEquals(category, subsubcategory.get(0).getSubCategories().getCategory().getId().longValue());
+
+        assertEquals(subcategory, subsubcategory.get(0).getSubCategories().getId().longValue());
+    }
+
+    @Test
+    public void testGetSubSubCategoryByCategoryIdSubCategoryIdAndOwnId(){
+        long cat = categoryEJB.createCategory("Movies");
+        long subcat = subCategoryEJB.createSubCategory(cat, "Action");
+        long subsubcat = subSubCategoryEJB.createSubSubCategory(subcat, "Top Rated");
+
+        SubSubCategory subsubcategory = subSubCategoryEJB.getSubSubCategoryByCategoryIdSubCategoryIdAndId(cat, subcat, subsubcat);
+
+        assertEquals(cat, subsubcategory.getSubCategories().getCategory().getId().longValue());
+
+        assertEquals(subcat, subsubcategory.getSubCategories().getId().longValue());
+
+        assertEquals(subsubcat, subsubcategory.getId().longValue());
     }
 
     @Test
