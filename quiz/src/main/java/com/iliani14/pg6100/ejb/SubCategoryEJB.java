@@ -54,11 +54,11 @@ public class SubCategoryEJB {
 
         return query.getResultList();
     }
-    public SubCategory getSubCategoryByCategoryName(String categoryName) {
+    public List<SubCategory> getSubCategoryByCategoryName(String categoryName) {
         Query query = em.createNamedQuery(SubCategory.GET_SUBCATEGORY_BY_CATEGORY);
-        query.setParameter("categoryName", categoryName);
+        query.setParameter(1, categoryName);
 
-        return (SubCategory) query.getSingleResult();
+        return query.getResultList();
     }
     public SubCategory getSubCategoryByCategoryIdAndOwnId(Long categoryId, Long id) {
         Query query = em.createQuery("SELECT s FROM SubCategory s WHERE s.category.id = ?1 AND s.id = ?2");
