@@ -12,7 +12,7 @@ public class SubCategoryDto {
     @ApiModelProperty("The id of the subcategory")
     public String id;
 
-    @ApiModelProperty("The name of the parent category")
+    @ApiModelProperty("The id of the category")
     public String categoryId;
 
     @ApiModelProperty("The name of the subcategory")
