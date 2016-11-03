@@ -35,16 +35,16 @@ public interface CategoryRestApi {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created subcategory")
     Long createSubCategory(
-            @ApiParam("Id of category, name")
+            @ApiParam("Id of subcategory, id of category and subcategory name")
                     SubCategoryDto dto);
 
     @ApiOperation("Create a subsubcategory")
     @POST
-    @Path("/subcategories/subsubcategories")
+    @Path("/subsubcategories")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created subsubcategory")
     Long createSubSubCategory(
-            @ApiParam("Id of the subcategory, name of subsubcategory ")
+            @ApiParam("Id of the subsubcategory, Id of the subcategory and name of subsubcategory ")
                     SubSubCategoryDto dto);
 
 
@@ -85,6 +85,11 @@ public interface CategoryRestApi {
             Long id
     );
 
+    @ApiOperation("Get all the subcategories")
+    @GET
+    @Path("/subcategories")
+    List<SubCategoryDto> getAllSubCategories();
+
     @ApiOperation("Get all the subsubcategories by category id and subcategory id")
     @GET
     @Consumes(MediaType.TEXT_PLAIN)
@@ -117,6 +122,11 @@ public interface CategoryRestApi {
             Long id
 
     );
+
+    @ApiOperation("Get all the subsubcategories")
+    @GET
+    @Path("/subsubcategories")
+    List<SubSubCategoryDto> getAllSubSubCategories();
 
     @ApiOperation("Delete a category")
     @DELETE
