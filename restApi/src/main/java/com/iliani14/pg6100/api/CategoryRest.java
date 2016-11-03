@@ -72,13 +72,14 @@ public class CategoryRest implements CategoryRestApi {
             throw new WebApplicationException("Cannot specify id for a newly generated subsubcategory", 400);
         }
 
-        if (dto.subcategoryId != null){
+        if (dto.subcategoryId == null){
             throw new WebApplicationException("Cannot specify subcategory id", 400);
         }
 
         Long id;
+        Long parentId = Long.parseLong(dto.subcategoryId);
         try{
-            id = subSubCategoryEJB.createSubSubCategory(Long.parseLong(dto.subcategoryId), dto.name);
+            id = subSubCategoryEJB.createSubSubCategory(parentId, dto.name);
         }catch (Exception e){
             throw wrapException(e);
         }
@@ -90,6 +91,14 @@ public class CategoryRest implements CategoryRestApi {
     public List<CategoryDto> get() {
         return CategoryConverter.transform(categoryEJB.getAllCategories());
     }
+
+
+    @Override
+    public List<SubCategoryDto> getAllSubCategories() { return SubCategoryConverter.transform(subCategoryEJB.getAllSubCategories());}
+
+
+    @Override
+    public List<SubSubCategoryDto> getAllSubSubCategories() { return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());}
 
     @Override
     public CategoryDto getCategoryById(Long id) {
