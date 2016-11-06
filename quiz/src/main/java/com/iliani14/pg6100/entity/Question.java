@@ -37,7 +37,7 @@ public class Question {
     private String theCorrectAnswer;
 
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> answers;
 
     @ManyToOne
