@@ -55,7 +55,7 @@ public interface CategoryRestApi {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created question")
     Long createQuestion(
-            @ApiParam("Id of the question, the question, id of subsubcategory, list of answers and the correct answer")
+            @ApiParam("Id of the question, id of subsubcategory,  the question, list of answers and the correct answer")
                         QuestionDto dto);
 
     @ApiOperation("Get all the categories")
@@ -112,7 +112,6 @@ public interface CategoryRestApi {
 
     @ApiOperation("Get a question by id")
     @GET
-    @Consumes(MediaType.TEXT_PLAIN)
     @Path("/questions/id/{id}")
     QuestionDto getQuestionById(
             @ApiParam("id")
@@ -147,6 +146,16 @@ public interface CategoryRestApi {
                     Long id);
 
 
+
+    @ApiOperation("Delete a question")
+    @DELETE
+    @Path("/questions/id/{id}")
+    void deleteQuestion(
+            @ApiParam("Question Id")
+            @PathParam("id")
+                    Long id
+    );
+
     @ApiOperation("Update an existing category")
     @PUT
     @Path("/id/{id}")
@@ -158,7 +167,6 @@ public interface CategoryRestApi {
             //
             @ApiParam("The category that will replace the old one. But cannot change its id.")
                     CategoryDto dto);
-
 
     @ApiOperation("Update the name of a category")
     @PUT
@@ -197,6 +205,19 @@ public interface CategoryRestApi {
 
             @ApiParam("The subsubcategory name which will replace the old one")
                     String name
+    );
+
+    @ApiOperation("Update the text of a question")
+    @PUT
+    @Path("/questions/id/{id}/question")
+    @Consumes(MediaType.TEXT_PLAIN)
+    void updateQuestion(
+            @ApiParam("id")
+            @PathParam("id")
+                    Long id,
+
+            @ApiParam("The subsubcategory name which will replace the old one")
+                    String question
     );
 
 }
