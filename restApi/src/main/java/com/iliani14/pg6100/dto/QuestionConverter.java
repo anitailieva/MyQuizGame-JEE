@@ -20,16 +20,16 @@ public class QuestionConverter {
         dto.id = String.valueOf(entity.getId());
         dto.subSubCategoryId = String.valueOf(entity.getSubSubCategories().getId());
         dto.question = entity.getQuestion();
-        dto.answersList = entity.getAnswers();
-        dto.correctAnswer = entity.getTheCorrectAnswer();
+        dto.answers= entity.getAnswers();
+        dto.theCorrectAnswer = entity.getTheCorrectAnswer();
 
         return dto;
     }
 
-    public static List<QuestionDto> transform(List<Question> quizes){
-        Objects.requireNonNull(quizes);
+    public static List<QuestionDto> transform(List<Question> questions){
+        Objects.requireNonNull(questions);
 
-        return quizes.stream()
+        return questions.stream()
                 .map(QuestionConverter::transform)
                 .collect(Collectors.toList());
     }
