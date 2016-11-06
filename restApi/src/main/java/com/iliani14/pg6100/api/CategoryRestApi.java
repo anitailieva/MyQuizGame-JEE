@@ -1,6 +1,7 @@
 package com.iliani14.pg6100.api;
 
 import com.iliani14.pg6100.dto.CategoryDto;
+import com.iliani14.pg6100.dto.QuestionDto;
 import com.iliani14.pg6100.dto.SubCategoryDto;
 import com.iliani14.pg6100.dto.SubSubCategoryDto;
 import io.swagger.annotations.Api;
@@ -48,6 +49,15 @@ public interface CategoryRestApi {
                     SubSubCategoryDto dto);
 
 
+    @ApiOperation("Create a question")
+    @POST
+    @Path("/questions")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @ApiResponse(code = 200, message = "The id of the newly created question")
+    Long createQuestion(
+            @ApiParam("Id of the question, the question, id of subsubcategory, list of answers and the correct answer")
+                        QuestionDto dto);
+
     @ApiOperation("Get all the categories")
     @GET
     List<CategoryDto> get();
@@ -59,74 +69,56 @@ public interface CategoryRestApi {
     CategoryDto getCategoryById(
             @ApiParam("The id of the category")
             @PathParam("id")
-            Long id);
+                    Long id);
 
-
-    @ApiOperation("Get all the subcategories by category id")
-    @GET
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/subcategories")
-    List<SubCategoryDto> getSubCategoriesByCategoryId(
-            @ApiParam("categoryId")
-            @PathParam("id")
-            Long id);
-
-
-    @ApiOperation("Get a subcategory by category id and own id")
-    @GET
-    @Path("/{categoryId}/subcategories/{id}")
-    SubCategoryDto getSubCategoryByCategoryIdAndOwnId(
-            @ApiParam("Category id")
-            @PathParam("categoryId")
-            Long categoryId,
-
-            @ApiParam("The of the subCategory")
-            @PathParam("id")
-            Long id
-    );
 
     @ApiOperation("Get all the subcategories")
     @GET
     @Path("/subcategories")
     List<SubCategoryDto> getAllSubCategories();
 
-    @ApiOperation("Get all the subsubcategories by category id and subcategory id")
+
+    @ApiOperation("Get a subcategory by id")
     @GET
     @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/{id}/subcategories/{subcategoryId}/subsubcategories")
-    List<SubSubCategoryDto> getSubSubCatBySubCategoryIdAndSubCategoryId(
-            @ApiParam("Category Id")
+    @Path("/subcategories/id/{id}")
+    SubCategoryDto getSubCategoryById(
+            @ApiParam("id")
             @PathParam("id")
-            Long categoryId,
-
-            @ApiParam("Subcategory Id")
-            @PathParam("subcategoryId")
-            Long subCategoryId
-    );
+                    Long id);
 
 
-    @ApiOperation("Get a subsubcategory by category id, subcategory id and own id")
-    @GET
-    @Path("{categoryId}/subcategories/{subcategoryId}/subsubcategories/{id}")
-    SubSubCategoryDto getSubSubCategoryIdSubCategoryIdAndOwnId(
-            @ApiParam("Category id")
-            @PathParam("categoryId")
-            Long categoryId,
-
-            @ApiParam("Subcategory Id")
-            @PathParam("subcategoryId")
-            Long subcategoryId,
-
-            @ApiParam("Subsubcategory id")
-            @PathParam("id")
-            Long id
-
-    );
 
     @ApiOperation("Get all the subsubcategories")
     @GET
     @Path("/subsubcategories")
     List<SubSubCategoryDto> getAllSubSubCategories();
+
+    @ApiOperation("Get a subsubcategory by id")
+    @GET
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/subsubcategories/id/{id}")
+    SubSubCategoryDto getSubSubCategoryById(
+            @ApiParam("id")
+            @PathParam("id")
+                    Long id
+    );
+
+    @ApiOperation("Get all questions")
+    @GET
+    @Path("/questions")
+    List<QuestionDto> getAllQuestions();
+
+
+    @ApiOperation("Get a question by id")
+    @GET
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/questions/id/{id}")
+    QuestionDto getQuestionById(
+            @ApiParam("id")
+            @PathParam("id")
+                    Long id);
+
 
     @ApiOperation("Delete a category")
     @DELETE
@@ -134,25 +126,25 @@ public interface CategoryRestApi {
     void deleteCategory(
             @ApiParam("Category Id")
             @PathParam("id")
-            Long id);
+                    Long id);
 
 
     @ApiOperation("Delete a subcategory")
     @DELETE
-    @Path("/subcategories/{id}")
+    @Path("/subcategories/id/{id}")
     void deleteSubCategory(
             @ApiParam("SubCategory Id")
             @PathParam("id")
-            Long id
+                    Long id
     );
 
     @ApiOperation("Delete a subsubcategory")
     @DELETE
-    @Path("/subsubcategories/{id}")
+    @Path("/subsubcategories/id/{id}")
     void deleteSubSubCategory(
             @ApiParam("SubSubCategory id")
             @PathParam("id")
-            Long id);
+                    Long id);
 
 
     @ApiOperation("Update an existing category")
@@ -165,19 +157,46 @@ public interface CategoryRestApi {
                     Long id,
             //
             @ApiParam("The category that will replace the old one. But cannot change its id.")
-                   CategoryDto dto);
+                    CategoryDto dto);
 
 
-    @ApiOperation("Update the name of en existing category")
+    @ApiOperation("Update the name of a category")
     @PUT
     @Path("/id/{id}/name")
     @Consumes(MediaType.TEXT_PLAIN)
-    void updateName(
-        @ApiParam("id")
-        @PathParam("id")
-        Long id,
+    void updateCategoryName(
+            @ApiParam("id")
+            @PathParam("id")
+                    Long id,
 
-        @ApiParam("The category name which will replace the old one")
-        String name
+            @ApiParam("The category name which will replace the old one")
+                    String name
     );
+
+    @ApiOperation("Update the name of a subcategory")
+    @PUT
+    @Path("/subcategories/id/{id}/name")
+    @Consumes(MediaType.TEXT_PLAIN)
+    void updateSubCategoryName(
+            @ApiParam("id")
+            @PathParam("id")
+                    Long id,
+
+            @ApiParam("The subcategory name which will replace the old one")
+                    String name
+    );
+
+    @ApiOperation("Update the name of a subsubcategory")
+    @PUT
+    @Path("/subsubcategories/id/{id}/name")
+    @Consumes(MediaType.TEXT_PLAIN)
+    void updateSubSubCategoryName(
+            @ApiParam("id")
+            @PathParam("id")
+                    Long id,
+
+            @ApiParam("The subsubcategory name which will replace the old one")
+                    String name
+    );
+
 }
