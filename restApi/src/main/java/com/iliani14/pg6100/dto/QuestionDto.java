@@ -21,20 +21,20 @@ public class QuestionDto {
     public String question;
 
     @ApiModelProperty("The answers for the question")
-    public List<String> answersList;
+    public List<String> answers;
 
     @ApiModelProperty("The correct answer")
-    public String correctAnswer;
+    public String theCorrectAnswer;
 
 
     public QuestionDto(){}
 
-    public QuestionDto(String id, String parentId, String question, List<String> answers, String theCorrectAnswer) {
+    public QuestionDto(String id, String subSubCategoryId, String question, List<String> answers, String theCorrectAnswer) {
         this.id = id;
-        this.subSubCategoryId = parentId;
+        this.subSubCategoryId = subSubCategoryId;
         this.question = question;
-        answersList = answers;
-        this.correctAnswer = theCorrectAnswer;
+        this.answers = answers;
+        this.theCorrectAnswer = theCorrectAnswer;
 
     }
 }
