@@ -106,7 +106,7 @@ public class CategoryRest implements CategoryRestApi {
         Long id;
         Long parentId = Long.parseLong(dto.subSubCategoryId);
         try{
-            id = questionEJB.createQuestion(parentId, dto.question, dto.answersList, dto.correctAnswer);
+            id = questionEJB.createQuestion(parentId, dto.question, dto.answers, dto.theCorrectAnswer);
         }catch (Exception e){
 
             throw wrapException(e);
@@ -164,6 +164,11 @@ public class CategoryRest implements CategoryRestApi {
     @Override
     public void deleteSubSubCategory(Long id) {
         subSubCategoryEJB.deleteSubSubCategory(id);
+    }
+
+    @Override
+    public void deleteQuestion(Long id) { questionEJB.deleteQuestion(id);
+
     }
 
     @Override
@@ -230,6 +235,20 @@ public class CategoryRest implements CategoryRestApi {
         }catch (Exception e){
             throw  wrapException(e);
         }
+    }
+
+    @Override
+    public void updateQuestion(Long id, String question) {
+        if(questionEJB.findQuestionById(id) == null) {
+            throw new WebApplicationException("Cannot find question with id: "+id, 404);
+        }
+
+        try{
+            questionEJB.updateQuestion(id, question);
+        }catch (Exception e) {
+            throw wrapException(e);
+        }
+
     }
 
     private WebApplicationException wrapException(Exception e) throws WebApplicationException {
