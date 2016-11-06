@@ -8,6 +8,7 @@ import com.iliani14.pg6100.dto.SubSubCategoryDto;
 import io.restassured.http.ContentType;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.restassured.RestAssured.*;
@@ -19,6 +20,47 @@ import static org.hamcrest.core.Is.is;
  * Created by anitailieva on 28/10/2016.
  */
 public class CategoryIT extends CategoryTestBase {
+
+    private String createCategory(String name) {
+        return given().contentType(ContentType.JSON)
+                .body(new CategoryDto(null, name))
+                .post()
+                .then()
+                .statusCode(200)
+                .extract().asString();
+    }
+
+
+    private String createParentCategory() {
+        return createCategory("The parent category");
+    }
+
+    private String createSubCategory(String categoryId, String name) {
+        return given().contentType(ContentType.JSON)
+                .body(new SubCategoryDto(null, categoryId, name))
+                .post("/subcategories")
+                .then()
+                .statusCode(200)
+                .extract().asString();
+    }
+
+    private String createSubSubCategory(String subCategoryId, String name) {
+        return given().contentType(ContentType.JSON)
+                .body(new SubSubCategoryDto(null, subCategoryId, name))
+                .post("/subsubcategories")
+                .then()
+                .statusCode(200)
+                .extract().asString();
+    }
+
+    private String createQuestion(String subsubcategoryId, String question, List<String> answers, String correctAnswer) {
+        return given().contentType(ContentType.JSON)
+                .body(new QuestionDto(null, subsubcategoryId, question, answers, correctAnswer))
+                .post("/questions")
+                .then()
+                .statusCode(200)
+                .extract().asString();
+    }
 
     @Test
     public void testCleanDB() {
@@ -47,7 +89,7 @@ public class CategoryIT extends CategoryTestBase {
     }
 
     @Test
-    public void testCreateAndGetCategory(){
+    public void testCreateAndGetCategory() {
         String name = "Science";
         CategoryDto dto = new CategoryDto(null, name);
 
@@ -71,7 +113,7 @@ public class CategoryIT extends CategoryTestBase {
     }
 
     @Test
-    public void testDeleteCategory(){
+    public void testDeleteCategory() {
         String id = given().contentType(ContentType.JSON)
                 .body(new CategoryDto(null, "Movies"))
                 .post()
@@ -128,7 +170,7 @@ public class CategoryIT extends CategoryTestBase {
 
 
     @Test
-    public void testGetAllSubcategories(){
+    public void testGetAllSubcategories() {
         get("/subcategories").then().body("size()", is(0));
 
         String category = createCategory("Science");
@@ -176,7 +218,7 @@ public class CategoryIT extends CategoryTestBase {
     }
 
     @Test
-    public void testDeleteSubcategory(){
+    public void testDeleteSubcategory() {
         String id = given().contentType(ContentType.JSON)
                 .body(new SubCategoryDto(null, createParentCategory(), "SUB name"))
                 .post("/subcategories")
@@ -315,46 +357,133 @@ public class CategoryIT extends CategoryTestBase {
     }
 
 
-    private String createCategory(String name){
-        return given().contentType(ContentType.JSON)
-                .body(new CategoryDto(null, name))
-                .post()
+    @Test
+    public void testGetAllQuestions() {
+        String category = createCategory("Science");
+        String subcategory1 = createSubCategory(category, "Subcategory1");
+        String subsubcategory1 = createSubSubCategory(subcategory1, "Subsubcategory1");
+
+
+        List<String> answers = new ArrayList<>();
+        answers.add("one");
+        answers.add("two");
+        answers.add("three");
+        answers.add("four");
+        String theCorrectAnswer1 = answers.get(2);
+        String theCorrectAnswer2 = answers.get(3);
+        String theCorrectAnswer3 = answers.get(0);
+
+        String question1 = createQuestion(subsubcategory1, "Question1", answers, theCorrectAnswer1);
+        String question2 = createQuestion(subsubcategory1, "Question2", answers, theCorrectAnswer2);
+        String question3 = createQuestion(subsubcategory1, "Question3", answers, theCorrectAnswer3);
+
+
+        get("/questions").then().body("size()", is(3));
+
+        given().get("/questions")
                 .then()
                 .statusCode(200)
-                .extract().asString();
+                .body("id", hasItems(question1, question2, question3))
+                .body("question", hasItems("Question1", "Question2", "Question3"));
+
     }
 
-    private String createParentCategory() {
-        return createCategory("The parent category");
-    }
 
-    private String createSubCategory(String categoryId, String name) {
-        return given().contentType(ContentType.JSON)
-                .body(new SubCategoryDto(null, categoryId, name))
-                .post("/subcategories")
-                .then()
-                .statusCode(200)
-                .extract().asString();
-    }
+    @Test
+    public void testCreateAndGetQuestion() {
+        String category = createCategory("Science");
+        String subcategory = createSubCategory(category, "Subcategory");
+        String subsubcategory = createSubSubCategory(subcategory, "Subsubcategory");
 
-    private String createSubSubCategory(String subCategoryId, String name) {
-        return given().contentType(ContentType.JSON)
-                .body(new SubSubCategoryDto(null, subCategoryId, name))
-                .post("/subsubcategories")
-                .then()
-                .statusCode(200)
-                .extract().asString();
-    }
+        String question = "Question";
 
-    private String createQuestion(String subsubcategoryId, String question, List<String> answers, String correctAnswer) {
-        return given().contentType(ContentType.JSON)
-                .body(new QuestionDto(null, subsubcategoryId, question, answers, correctAnswer))
+        List<String> answers = new ArrayList<>();
+        answers.add("1");
+        answers.add("2");
+        answers.add("3");
+        answers.add("4");
+        String theCorrectAnswer = answers.get(1);
+
+        QuestionDto dto = new QuestionDto(null, subsubcategory, question, answers, theCorrectAnswer);
+
+        String id = given().contentType(ContentType.JSON)
+                .body(dto)
                 .post("/questions")
                 .then()
                 .statusCode(200)
                 .extract().asString();
+
+        get().then().statusCode(200).body("size()", is(1));
+
+
+        given().pathParam("id", id)
+                .get("/questions/id/{id}")
+                .then()
+                .statusCode(200)
+                .body("id", is(id))
+                .body("subSubCategoryId", is(subsubcategory))
+                .body("question", is(question))
+                .body("answers", is(answers))
+                .body("theCorrectAnswer", is(theCorrectAnswer));
     }
-    
+
+
+    @Test
+    public void testDeleteQuestion() {
+        List<String> answers = new ArrayList<>();
+        answers.add("one");
+        answers.add("two");
+        answers.add("three");
+        answers.add("four");
+
+        String id = given().contentType(ContentType.JSON)
+                .body(new QuestionDto(null, createSubSubCategory(createSubCategory(createCategory("Science"), "Computer Science"),
+                        "Java EE"), "Question", answers, "four"))
+                .post("/questions")
+                .then()
+                .statusCode(200)
+                .extract().asString();
+
+        get("/questions").then().body("id", contains(id));
+
+        delete("/questions/id/" + id);
+
+        get("/questions").then().body("id", not(contains(id)));
+
+
+    }
+
+    @Test
+    public void testUpdateQuestion() {
+        List<String> answers = new ArrayList<>();
+        answers.add("one");
+        answers.add("two");
+        answers.add("three");
+        answers.add("four");
+
+        String question = "Question";
+        String id = given().contentType(ContentType.JSON)
+                .body(new QuestionDto(null, createSubSubCategory(createSubCategory(createCategory("Science"), "Computer Science"),
+                        "Java EE"), question, answers, "four"))
+                .post("/questions")
+                .then()
+                .statusCode(200)
+                .extract().asString();
+
+
+        get("/questions/id/" + id).then().body("question", is(question));
+
+        String newQuestion = "New question";
+
+        given().contentType(ContentType.TEXT)
+                .body(newQuestion)
+                .pathParam("id", id)
+                .put("/questions/id/{id}/question")
+                .then()
+                .statusCode(204);
+
+        get("/questions/id/" + id).then().body("question", is(newQuestion));
+
+    }
+
 }
-
-
