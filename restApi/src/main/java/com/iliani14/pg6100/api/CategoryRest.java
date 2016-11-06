@@ -3,6 +3,7 @@ package com.iliani14.pg6100.api;
 import com.google.common.base.Throwables;
 import com.iliani14.pg6100.dto.*;
 import com.iliani14.pg6100.ejb.CategoryEJB;
+import com.iliani14.pg6100.ejb.QuestionEJB;
 import com.iliani14.pg6100.ejb.SubCategoryEJB;
 import com.iliani14.pg6100.ejb.SubSubCategoryEJB;
 
@@ -29,6 +30,9 @@ public class CategoryRest implements CategoryRestApi {
 
     @EJB
     private SubSubCategoryEJB subSubCategoryEJB;
+
+    @EJB
+    private QuestionEJB questionEJB;
 
     @Override
     public Long createCategory(CategoryDto dto) {
@@ -88,17 +92,43 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
-    public List<CategoryDto> get() {
-        return CategoryConverter.transform(categoryEJB.getAllCategories());
+    public Long createQuestion(QuestionDto dto) {
+
+        if(dto.id != null){
+            throw new WebApplicationException("Cannot specify id for a newly generated question", 400);
+        }
+
+        if (dto.subSubCategoryId == null){
+            throw new WebApplicationException("Cannot specify subsubcategory id", 400);
+        }
+
+
+        Long id;
+        Long parentId = Long.parseLong(dto.subSubCategoryId);
+        try{
+            id = questionEJB.createQuestion(parentId, dto.question, dto.answersList, dto.correctAnswer);
+        }catch (Exception e){
+
+            throw wrapException(e);
+        }
+
+        return id;
+
     }
 
+    @Override
+    public List<CategoryDto> get() {return CategoryConverter.transform(categoryEJB.getAllCategories());}
 
     @Override
     public List<SubCategoryDto> getAllSubCategories() { return SubCategoryConverter.transform(subCategoryEJB.getAllSubCategories());}
 
-
     @Override
     public List<SubSubCategoryDto> getAllSubSubCategories() { return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());}
+
+    @Override
+    public List<QuestionDto> getAllQuestions() { return QuestionConverter.transform(questionEJB.getAllQuestions());
+    }
+
 
     @Override
     public CategoryDto getCategoryById(Long id) {
@@ -106,26 +136,20 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
-    public List<SubCategoryDto> getSubCategoriesByCategoryId(Long id) {
-        return SubCategoryConverter.transform(subCategoryEJB.getSubCategoriesByCategoryId(id));
+    public SubCategoryDto getSubCategoryById(Long id) {
+        return SubCategoryConverter.transform(subCategoryEJB.findSubCategoryById(id));
     }
 
     @Override
-    public SubCategoryDto getSubCategoryByCategoryIdAndOwnId(Long categoryId, Long id) {
-        return SubCategoryConverter.transform(subCategoryEJB.getSubCategoryByCategoryIdAndOwnId(categoryId, id));
-    }
-
-
-    @Override
-    public List<SubSubCategoryDto> getSubSubCatBySubCategoryIdAndSubCategoryId(Long id, Long subcategoryId) {
-    return SubSubCategoryConverter.transform(subSubCategoryEJB.getSubSubCategoriesByCategoryIdAndSubCategoryId(id, subcategoryId));
-
+    public SubSubCategoryDto getSubSubCategoryById(Long id) {
+        return SubSubCategoryConverter.transform(subSubCategoryEJB.findSubSubCategoryById(id));
     }
 
     @Override
-    public SubSubCategoryDto getSubSubCategoryIdSubCategoryIdAndOwnId(Long categoryId, Long subcategoryId, Long id) {
-        return SubSubCategoryConverter.transform(subSubCategoryEJB.getSubSubCategoryByCategoryIdSubCategoryIdAndId(categoryId, subcategoryId, id));
+    public QuestionDto getQuestionById(Long id) {
+        return QuestionConverter.transform(questionEJB.findQuestionById(id));
     }
+
 
     @Override
     public void deleteCategory(Long id) {
@@ -145,12 +169,12 @@ public class CategoryRest implements CategoryRestApi {
     @Override
     public void update(Long id, CategoryDto dto) {
         long theId;
-                try{
-                    theId = Long.parseLong(dto.id);
-                }catch (Exception e){
-                    throw new WebApplicationException("Invalid id: "+dto.id, 400);
+        try{
+            theId = Long.parseLong(dto.id);
+        }catch (Exception e){
+            throw new WebApplicationException("Invalid id: "+dto.id, 400);
 
-                }
+        }
 
         if(id != theId){
             // in this case, 409 (Conflict) sounds more appropriate than the generic 400
@@ -158,27 +182,53 @@ public class CategoryRest implements CategoryRestApi {
         }
 
         if(categoryEJB.findCategoryById(id) == null){
-            throw new WebApplicationException("Not allowed to create a news with PUT, and cannot find news with id: "+id, 404);
+            throw new WebApplicationException("Not allowed to create a category with PUT, and cannot find category with id: "+id, 404);
         }
 
 
         try{
             categoryEJB.updateCategory(id, dto.name);
         }catch (Exception e){
-        throw wrapException(e);
+            throw wrapException(e);
         }
     }
 
     @Override
-    public void updateName(Long id, String name) {
+    public void updateCategoryName(Long id, String name) {
         if(categoryEJB.findCategoryById(id) == null){
-            throw new WebApplicationException("Cannot find news with id: "+id, 404);
+            throw new WebApplicationException("Cannot find category with id: "+id, 404);
         }
 
         try {
             categoryEJB.updateCategory(id, name );
         } catch (Exception e){
             throw wrapException(e);
+        }
+    }
+
+    @Override
+    public void updateSubCategoryName(Long id, String name) {
+        if(subCategoryEJB.findSubCategoryById(id) == null){
+            throw new WebApplicationException("Cannot find subcategory with id: "+id, 404);
+        }
+
+        try {
+            subCategoryEJB.updateSubCategory(id, name);
+        } catch (Exception e){
+            throw wrapException(e);
+        }
+    }
+
+    @Override
+    public void updateSubSubCategoryName(Long id, String name) {
+        if(subSubCategoryEJB.findSubSubCategoryById(id) == null) {
+            throw new WebApplicationException("Cannot find subsubcategory with id: "+id, 404);
+        }
+
+        try{
+            subSubCategoryEJB.updateSubSubCategory(id, name);
+        }catch (Exception e){
+            throw  wrapException(e);
         }
     }
 
