@@ -6,6 +6,7 @@ import com.iliani14.pg6100.ejb.CategoryEJB;
 import com.iliani14.pg6100.ejb.QuestionEJB;
 import com.iliani14.pg6100.ejb.SubCategoryEJB;
 import com.iliani14.pg6100.ejb.SubSubCategoryEJB;
+import io.swagger.annotations.ApiParam;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -13,6 +14,8 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import java.util.List;
 
 /**
@@ -131,7 +134,7 @@ public class CategoryRest implements CategoryRestApi {
 
 
     @Override
-    public CategoryDto getCategoryById(Long id) {
+    public CategoryDto getById(Long id) {
         return CategoryConverter.transform(categoryEJB.findCategoryById(id));
     }
 
@@ -249,6 +252,36 @@ public class CategoryRest implements CategoryRestApi {
             throw wrapException(e);
         }
 
+    }
+
+    // Deprecated methods
+
+    @Override
+    public Response deprecatedGetById(@ApiParam(ID_PARAM) Long id) {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("category/" + id).build())
+                .build();
+    }
+
+    @Override
+    public Response deprecatedGetSubCategoryById(@ApiParam(SUB_ID_PARAM) Long id) {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("category/subcategories/" + id).build())
+                .build();
+    }
+
+    @Override
+    public Response deprecatedGetSubSubCategoryById(@ApiParam(SUB_SUB_ID_PARAM) Long id) {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("category/subsubcategories/" + id).build())
+                .build();
+    }
+
+    @Override
+    public Response deprecatedGetQuestionById(@ApiParam(QUESTION_ID_PARAM) Long id) {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("category/questions/" + id).build())
+                .build();
     }
 
     private WebApplicationException wrapException(Exception e) throws WebApplicationException {
