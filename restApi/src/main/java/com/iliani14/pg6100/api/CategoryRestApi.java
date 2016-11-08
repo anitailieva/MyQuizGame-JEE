@@ -4,13 +4,11 @@ import com.iliani14.pg6100.dto.CategoryDto;
 import com.iliani14.pg6100.dto.QuestionDto;
 import com.iliani14.pg6100.dto.SubCategoryDto;
 import com.iliani14.pg6100.dto.SubSubCategoryDto;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -18,12 +16,22 @@ import java.util.List;
  */
 @Api(value = "/category", description = "Handling and retrieving categories" )
 @Path("/category")
-@Produces(MediaType.APPLICATION_JSON)
+@Produces({
+        Formats.V1_JSON,
+        Formats.BASE_JSON
+})
 public interface CategoryRestApi {
+
+    String ID_PARAM = "The numeric id of the category";
+    String SUB_ID_PARAM = "The numeric id of the subcategory";
+    String SUB_SUB_ID_PARAM = "The numeric id of the subsubcategory";
+    String QUESTION_ID_PARAM = "The numeric id of the question";
+
 
     @ApiOperation("Create a category")
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes({Formats.V1_JSON, Formats.BASE_JSON})
+    @Produces(Formats.BASE_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created category")
     Long createCategory(
             @ApiParam("Name and id of the category")
@@ -33,7 +41,8 @@ public interface CategoryRestApi {
     @ApiOperation("Create a subcategory")
     @POST
     @Path("/subcategories")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes({Formats.V1_JSON, Formats.BASE_JSON})
+    @Produces(Formats.BASE_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created subcategory")
     Long createSubCategory(
             @ApiParam("Id of subcategory, id of category and subcategory name")
@@ -42,7 +51,8 @@ public interface CategoryRestApi {
     @ApiOperation("Create a subsubcategory")
     @POST
     @Path("/subsubcategories")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes({Formats.V1_JSON, Formats.BASE_JSON})
+    @Produces(Formats.BASE_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created subsubcategory")
     Long createSubSubCategory(
             @ApiParam("Id of the subsubcategory, Id of the subcategory and name of subsubcategory ")
@@ -52,7 +62,8 @@ public interface CategoryRestApi {
     @ApiOperation("Create a question")
     @POST
     @Path("/questions")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes({Formats.V1_JSON, Formats.BASE_JSON})
+    @Produces(Formats.BASE_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created question")
     Long createQuestion(
             @ApiParam("Id of the question, id of subsubcategory,  the question, list of answers and the correct answer")
@@ -63,11 +74,11 @@ public interface CategoryRestApi {
     List<CategoryDto> get();
 
 
-    @ApiOperation("Get a category by id")
+    @ApiOperation("Get a category specified by id")
     @GET
-    @Path("/id/{id}")
-    CategoryDto getCategoryById(
-            @ApiParam("The id of the category")
+    @Path("/{id}")
+    CategoryDto getById(
+            @ApiParam(ID_PARAM)
             @PathParam("id")
                     Long id);
 
@@ -80,10 +91,9 @@ public interface CategoryRestApi {
 
     @ApiOperation("Get a subcategory by id")
     @GET
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/subcategories/id/{id}")
+    @Path("subcategories/{id}")
     SubCategoryDto getSubCategoryById(
-            @ApiParam("id")
+            @ApiParam(SUB_ID_PARAM)
             @PathParam("id")
                     Long id);
 
@@ -94,12 +104,12 @@ public interface CategoryRestApi {
     @Path("/subsubcategories")
     List<SubSubCategoryDto> getAllSubSubCategories();
 
+
     @ApiOperation("Get a subsubcategory by id")
     @GET
-    @Consumes(MediaType.TEXT_PLAIN)
-    @Path("/subsubcategories/id/{id}")
+    @Path("/subsubcategories/{id}")
     SubSubCategoryDto getSubSubCategoryById(
-            @ApiParam("id")
+            @ApiParam(SUB_SUB_ID_PARAM)
             @PathParam("id")
                     Long id
     );
@@ -112,9 +122,9 @@ public interface CategoryRestApi {
 
     @ApiOperation("Get a question by id")
     @GET
-    @Path("/questions/id/{id}")
+    @Path("/questions/{id}")
     QuestionDto getQuestionById(
-            @ApiParam("id")
+            @ApiParam(QUESTION_ID_PARAM)
             @PathParam("id")
                     Long id);
 
@@ -123,7 +133,7 @@ public interface CategoryRestApi {
     @DELETE
     @Path("/id/{id}")
     void deleteCategory(
-            @ApiParam("Category Id")
+            @ApiParam(ID_PARAM)
             @PathParam("id")
                     Long id);
 
@@ -132,7 +142,7 @@ public interface CategoryRestApi {
     @DELETE
     @Path("/subcategories/id/{id}")
     void deleteSubCategory(
-            @ApiParam("SubCategory Id")
+            @ApiParam(SUB_ID_PARAM)
             @PathParam("id")
                     Long id
     );
@@ -141,7 +151,7 @@ public interface CategoryRestApi {
     @DELETE
     @Path("/subsubcategories/id/{id}")
     void deleteSubSubCategory(
-            @ApiParam("SubSubCategory id")
+            @ApiParam(SUB_SUB_ID_PARAM)
             @PathParam("id")
                     Long id);
 
@@ -151,7 +161,7 @@ public interface CategoryRestApi {
     @DELETE
     @Path("/questions/id/{id}")
     void deleteQuestion(
-            @ApiParam("Question Id")
+            @ApiParam(QUESTION_ID_PARAM)
             @PathParam("id")
                     Long id
     );
@@ -161,7 +171,7 @@ public interface CategoryRestApi {
     @Path("/id/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     void update(
-            @ApiParam("id")
+            @ApiParam(ID_PARAM)
             @PathParam("id")
                     Long id,
             //
@@ -173,7 +183,7 @@ public interface CategoryRestApi {
     @Path("/id/{id}/name")
     @Consumes(MediaType.TEXT_PLAIN)
     void updateCategoryName(
-            @ApiParam("id")
+            @ApiParam(ID_PARAM)
             @PathParam("id")
                     Long id,
 
@@ -186,7 +196,7 @@ public interface CategoryRestApi {
     @Path("/subcategories/id/{id}/name")
     @Consumes(MediaType.TEXT_PLAIN)
     void updateSubCategoryName(
-            @ApiParam("id")
+            @ApiParam(SUB_ID_PARAM)
             @PathParam("id")
                     Long id,
 
@@ -199,7 +209,7 @@ public interface CategoryRestApi {
     @Path("/subsubcategories/id/{id}/name")
     @Consumes(MediaType.TEXT_PLAIN)
     void updateSubSubCategoryName(
-            @ApiParam("id")
+            @ApiParam(SUB_SUB_ID_PARAM)
             @PathParam("id")
                     Long id,
 
@@ -212,12 +222,67 @@ public interface CategoryRestApi {
     @Path("/questions/id/{id}/question")
     @Consumes(MediaType.TEXT_PLAIN)
     void updateQuestion(
-            @ApiParam("id")
+            @ApiParam(QUESTION_ID_PARAM)
             @PathParam("id")
                     Long id,
 
             @ApiParam("The subsubcategory name which will replace the old one")
                     String question
     );
+
+    // Deprecated
+
+    @ApiOperation("Get a category by id")
+    @ApiResponses({
+            @ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")
+    })
+    @GET
+    @Path("/id/{id}")
+    @Deprecated
+    Response deprecatedGetById(
+            @ApiParam(ID_PARAM)
+            @PathParam("id")
+                    Long id);
+
+
+
+   @ApiOperation("Get a subcategory by id")
+   @ApiResponses({
+            @ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")
+    })
+    @GET
+    @Path("/subcategories/id/{id}")
+    @Deprecated
+    Response deprecatedGetSubCategoryById(
+            @ApiParam(SUB_ID_PARAM)
+            @PathParam("id")
+            Long id);
+
+
+    @ApiOperation("Get a subsubcategory by id")
+    @ApiResponses({
+            @ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")
+    })
+    @GET
+    @Path("/subsubcategories/id/{id}")
+    @Deprecated
+    Response deprecatedGetSubSubCategoryById(
+            @ApiParam(SUB_SUB_ID_PARAM)
+            @PathParam("id")
+            Long id);
+
+    @ApiOperation("Get a question by id")
+    @ApiResponses({
+            @ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")
+    })
+    @GET
+    @Path("/questions/id/{id}")
+    @Deprecated
+    Response deprecatedGetQuestionById(
+            @ApiParam(QUESTION_ID_PARAM)
+            @PathParam("id")
+                    Long id);
+
+
 
 }
