@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +23,8 @@ public class SubSubCategory {
     public static final String GET_ALL_SUBSUBCATEGORIES = "GET ALL SUBSUBCATEGORIES";
     public static final String GET_SUBSUBCATEGORY_BY_SUBCATEGORY = "GET SUBSUBCATEGORY BY SUBCATEGORY";
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     @NotBlank
@@ -43,6 +45,7 @@ public class SubSubCategory {
     public void setId(Long id) {
         this.id = id;
     }
+
     public String getName() {
         return name;
     }
@@ -52,18 +55,24 @@ public class SubSubCategory {
     }
 
 
-    public SubCategory getSubCategories(){
+    public SubCategory getSubCategories() {
         return subCategories;
     }
-    public void setSubCategories(SubCategory subCategories){
+
+    public void setSubCategories(SubCategory subCategories) {
         this.subCategories = subCategories;
     }
 
-    public List<Question> getQuestions(){
+    public List<Question> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<Question> questions){
+    public void setQuestions(List<Question> questions) {
         this.questions = questions;
     }
+
+    public List<Question> getListOfQuestions() {
+        return new ArrayList<>(getQuestions());
+    }
+
 }
