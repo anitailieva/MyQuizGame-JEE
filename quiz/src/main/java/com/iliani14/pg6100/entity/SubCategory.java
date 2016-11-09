@@ -6,6 +6,8 @@ import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by anitailieva on 26/10/2016.
@@ -22,7 +24,8 @@ public class SubCategory {
     public static final String GET_ALL_SUBCATEGORIES = "GET ALL SUBCATEGORIES";
     public static final String GET_SUBCATEGORY_BY_CATEGORY = "GET SUBCATEGORY BY CATEGORY";
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     @NotBlank
@@ -38,8 +41,8 @@ public class SubCategory {
     private Category category;
 
 
-    public List<SubSubCategory> getSubSubCategories(){
-        if(subSubCategories == null){
+    public List<SubSubCategory> getSubSubCategories() {
+        if (subSubCategories == null) {
             return new ArrayList<>();
         }
 
@@ -65,15 +68,26 @@ public class SubCategory {
     }
 
 
-    public void setSubSubCategories(List<SubSubCategory> subSubCategories){
+    public void setSubSubCategories(List<SubSubCategory> subSubCategories) {
         this.subSubCategories = subSubCategories;
     }
-    public Category getCategory(){
+
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(Category category){
+    public void setCategory(Category category) {
         this.category = category;
+    }
+
+
+    public List<Question> getListOfQuestions() {
+        List<Question> questions = new ArrayList<>();
+        for (SubSubCategory s : getSubSubCategories()) {
+            questions = Stream.concat(questions.stream(), s.getQuestions().stream()).collect(Collectors.toList());
+        }
+        return questions;
+
     }
 
 }
