@@ -1,5 +1,6 @@
 package com.iliani14.pg6100.ejb;
 
+import com.iliani14.pg6100.entity.Question;
 import com.iliani14.pg6100.entity.SubCategory;
 import com.iliani14.pg6100.entity.SubSubCategory;
 
@@ -9,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by anitailieva on 26/10/2016.
@@ -96,4 +98,9 @@ public class SubSubCategoryEJB {
 
         }
     }
-}
+
+        public List<SubSubCategory> getAllSubSubCategoriesWithAtLeastOneQuiz() {
+            List<Question> questions = em.createNamedQuery(Question.GET_ALL_QUESTIONS).getResultList();
+            return questions.stream().map(Question::getSubSubCategories).collect(Collectors.toList());
+        }
+    }
