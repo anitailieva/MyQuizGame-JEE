@@ -2,12 +2,14 @@ package com.iliani14.pg6100.ejb;
 
 import com.iliani14.pg6100.entity.Category;
 import com.iliani14.pg6100.entity.SubCategory;
+import com.iliani14.pg6100.entity.SubSubCategory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -85,4 +87,9 @@ public class SubCategoryEJB {
 
         }
     }
+
+    public List<SubSubCategory> getAllSubSubCategoriesForSubCategory(Long id) {
+        return new ArrayList<>(findSubCategoryById(id).getSubSubCategories());
+    }
+
 }
