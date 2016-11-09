@@ -6,6 +6,7 @@ import com.iliani14.pg6100.ejb.CategoryEJB;
 import com.iliani14.pg6100.ejb.QuestionEJB;
 import com.iliani14.pg6100.ejb.SubCategoryEJB;
 import com.iliani14.pg6100.ejb.SubSubCategoryEJB;
+import com.iliani14.pg6100.entity.SubSubCategory;
 import io.swagger.annotations.ApiParam;
 
 import javax.ejb.EJB;
@@ -16,6 +17,7 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -175,6 +177,43 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
+    public List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz() {
+        return CategoryConverter.transform(new ArrayList<>(categoryEJB.getAllCategoriesWithAtLeastOneQuiz()));
+    }
+
+    @Override
+    public List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz() {
+        return SubSubCategoryConverter.transform(new ArrayList<SubSubCategory>(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz()));
+    }
+
+    @Override
+    public List<SubCategoryDto> getAllSubCategoriesFromCategory(@ApiParam(ID_PARAM) Long id) {
+        return SubCategoryConverter.transform(categoryEJB.getAllSubCategoriesForACategory(id));
+    }
+
+    @Override
+    public List<SubCategoryDto> getAllSubCategoriesByParentId(@ApiParam(ID_PARAM) Long id) {
+        return SubCategoryConverter.transform(categoryEJB.getAllSubCategoriesForACategory(id));
+    }
+
+    @Override
+    public List<SubSubCategoryDto> getAllSubSubCategoriesFromSubCategory(@ApiParam(SUB_ID_PARAM) Long id) {
+        return SubSubCategoryConverter.transform(subCategoryEJB.getAllSubSubCategoriesForSubCategory(id));
+    }
+
+    @Override
+    public List<SubSubCategoryDto> getAllSubSubCategoriesFromParent(@ApiParam(SUB_ID_PARAM) Long id) {
+        return SubSubCategoryConverter.transform(subCategoryEJB.getAllSubSubCategoriesForSubCategory(id));
+
+    }
+
+    @Override
+    public List<QuestionDto> getAllQuestionsWithParent(@ApiParam(ID_PARAM) Long id) {
+        return QuestionConverter.transform(categoryEJB.getAllQuizzesForCategory(id));
+    }
+
+
+    @Override
     public void update(Long id, CategoryDto dto) {
         long theId;
         try{
@@ -281,6 +320,36 @@ public class CategoryRest implements CategoryRestApi {
     public Response deprecatedGetQuestionById(@ApiParam(QUESTION_ID_PARAM) Long id) {
         return Response.status(301)
                 .location(UriBuilder.fromUri("category/questions/" + id).build())
+                .build();
+    }
+
+
+
+    @Override
+    public Response deprecatedGetAllSubCategoriesFromCategory(@ApiParam(ID_PARAM) Long id) {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("category/" + id + "/subcategories").build())
+                .build();
+    }
+
+    @Override
+    public Response deprecatedGetAllSubCategoriesByParentId(@ApiParam(ID_PARAM) Long id) {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("category/" + id + "/subcategories").build())
+                .build();
+    }
+
+    @Override
+    public Response deprecatedGetAllSubSubCategoriesFromSubCategory(@ApiParam(SUB_ID_PARAM) Long id) {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("category//subcategories/" + id + "/subsubcategories").build())
+                .build();
+    }
+
+    @Override
+    public Response deprecatedGetAllSubSubCategoriesFromParent(@ApiParam(SUB_ID_PARAM) Long id) {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("category//subcategories/" + id + "/subsubcategories").build())
                 .build();
     }
 
