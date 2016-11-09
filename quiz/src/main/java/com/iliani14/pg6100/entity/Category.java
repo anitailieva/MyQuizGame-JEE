@@ -6,6 +6,8 @@ import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -62,4 +64,17 @@ public class Category {
         this.subCategories = subCategories;
     }
 
+    public List<Question> getListOfQuestions() {
+
+        List<SubSubCategory> subSubCategories = new ArrayList<>();
+        for(SubCategory s: getSubCategories()) {
+            subSubCategories = Stream.concat(s.getSubSubCategories().stream(), subSubCategories.stream()).collect(Collectors.toList());
+        }
+
+        List<Question> questions = new ArrayList<>();
+        for(SubSubCategory ssb: subSubCategories) {
+            questions = Stream.concat(questions.stream(), ssb.getQuestions().stream()).collect(Collectors.toList());
+        }
+        return questions;
+    }
 }
