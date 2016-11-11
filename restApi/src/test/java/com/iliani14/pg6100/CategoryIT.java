@@ -14,6 +14,7 @@ import java.util.List;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 
 
 /**
@@ -168,6 +169,32 @@ public class CategoryIT extends CategoryTestBase {
         get("/id/" + id).then().body("name", is(anotherName));
     }
 
+    @Test
+    public void testPatchCategory() {
+        String name1 = "Science";
+
+        String id = createCategory(name1);
+
+        String name2 = "Sports";
+
+        given().contentType("application/merge-patch+json")
+                .body("{\"name\":\"" + name2 + "\"}")
+                .patch("/id/" + id)
+                .then()
+                .statusCode(204);
+
+        CategoryDto categoryDto = given().port(8080)
+                .baseUri("http://localhost")
+                .accept(ContentType.JSON)
+                .get("/id/" + id)
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(CategoryDto.class);
+
+        assertEquals(name2, categoryDto.name);
+        assertEquals(id, categoryDto.id);
+    }
 
     @Test
     public void testGetAllSubcategories() {
