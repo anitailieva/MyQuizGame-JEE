@@ -1,5 +1,7 @@
 package com.iliani14.pg6100.api;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 import com.iliani14.pg6100.dto.*;
 import com.iliani14.pg6100.ejb.CategoryEJB;
@@ -39,6 +41,8 @@ public class CategoryRest implements CategoryRestApi {
     @EJB
     private QuestionEJB questionEJB;
 
+    //CATEGORY
+
     @Override
     public Long createCategory(CategoryDto dto) {
         if(dto.id != null) {
@@ -55,6 +59,104 @@ public class CategoryRest implements CategoryRestApi {
         return id;
 
     }
+
+    @Override
+    public CategoryDto getById(Long id) {
+        return CategoryConverter.transform(categoryEJB.findCategoryById(id));
+    }
+
+    @Override
+    public List<CategoryDto> get() {return CategoryConverter.transform(categoryEJB.getAllCategories());}
+
+
+    @Override
+    public void updateCategoryName(Long id, String name) {
+        if(categoryEJB.findCategoryById(id) == null){
+            throw new WebApplicationException("Cannot find category with id: "+id, 404);
+        }
+
+        try {
+            categoryEJB.updateCategory(id, name );
+        } catch (Exception e){
+            throw wrapException(e);
+        }
+    }
+
+    @Override
+    public void patchCategory(@ApiParam(ID_PARAM) Long id, @ApiParam("Modifying the category") String jsonPatch) {
+
+
+        CategoryDto dto = CategoryConverter.transform(categoryEJB.findCategoryById(id));
+
+        if( dto == null){
+            throw new WebApplicationException("Cannot find category with id " + id, 404);
+        }
+
+        ObjectMapper jackson = new ObjectMapper();
+        JsonNode jsonNode;
+        try{
+            jsonNode = jackson.readValue(jsonPatch,JsonNode.class);
+        }catch (Exception e){
+            throw new WebApplicationException("Invalid JSON data as input: " + e.getMessage(), 400);
+        }
+        if(jsonNode.has("id")) {
+            throw new WebApplicationException(
+                    "Cannot modify the category id from " + id + " to " + jsonNode.get("id"), 409);
+        }
+
+        String newName = dto.name;
+
+        if(jsonNode.has("name")) {
+            JsonNode nameNode = jsonNode.get("name");
+            if (nameNode.isNull()) {
+                newName = null;
+            } else if (nameNode.isTextual()) {
+                newName = nameNode.asText();
+            } else {
+                throw new WebApplicationException("Invalid JSON. Non-string title", 400);
+
+            }
+        }
+
+        categoryEJB.updateCategory(id, newName);
+    }
+
+    @Override
+    public void update(Long id, CategoryDto dto) {
+        long theId;
+        try{
+            theId = Long.parseLong(dto.id);
+        }catch (Exception e){
+            throw new WebApplicationException("Invalid id: "+dto.id, 400);
+
+        }
+
+        if(id != theId){
+            // in this case, 409 (Conflict) sounds more appropriate than the generic 400
+            throw new WebApplicationException("Now allowed to change the id of the resource", 409);
+        }
+
+        if(categoryEJB.findCategoryById(id) == null){
+            throw new WebApplicationException("Not allowed to create a category with PUT, and cannot find category with id: "+id, 404);
+        }
+
+
+        try{
+            categoryEJB.updateCategory(id, dto.name);
+        }catch (Exception e){
+            throw wrapException(e);
+        }
+    }
+
+
+
+    @Override
+    public void deleteCategory(Long id) {
+        categoryEJB.deleteCategory(id);
+    }
+
+
+    //SUBCATEGORY
 
     @Override
     public Long createSubCategory(SubCategoryDto dto) {
@@ -74,6 +176,37 @@ public class CategoryRest implements CategoryRestApi {
         }
         return id;
     }
+
+
+    @Override
+    public SubCategoryDto getSubCategoryById(Long id) {
+        return SubCategoryConverter.transform(subCategoryEJB.findSubCategoryById(id));
+    }
+
+    @Override
+    public List<SubCategoryDto> getAllSubCategories() { return SubCategoryConverter.transform(subCategoryEJB.getAllSubCategories());}
+
+
+    @Override
+    public void updateSubCategoryName(Long id, String name) {
+        if(subCategoryEJB.findSubCategoryById(id) == null){
+            throw new WebApplicationException("Cannot find subcategory with id: "+id, 404);
+        }
+
+        try {
+            subCategoryEJB.updateSubCategory(id, name);
+        } catch (Exception e){
+            throw wrapException(e);
+        }
+    }
+
+    @Override
+    public void deleteSubCategory(Long id) {
+        subCategoryEJB.deleteSubCategory(id);
+    }
+
+
+    //SUBSUBCATEGORY
 
     @Override
     public Long createSubSubCategory(SubSubCategoryDto dto) {
@@ -95,6 +228,36 @@ public class CategoryRest implements CategoryRestApi {
 
         return id;
     }
+    @Override
+    public SubSubCategoryDto getSubSubCategoryById(Long id) {
+        return SubSubCategoryConverter.transform(subSubCategoryEJB.findSubSubCategoryById(id));
+    }
+
+
+    @Override
+    public List<SubSubCategoryDto> getAllSubSubCategories() { return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());}
+
+
+    @Override
+    public void updateSubSubCategoryName(Long id, String name) {
+        if(subSubCategoryEJB.findSubSubCategoryById(id) == null) {
+            throw new WebApplicationException("Cannot find subsubcategory with id: "+id, 404);
+        }
+
+        try{
+            subSubCategoryEJB.updateSubSubCategory(id, name);
+        }catch (Exception e){
+            throw  wrapException(e);
+        }
+    }
+
+    @Override
+    public void deleteSubSubCategory(Long id) {
+        subSubCategoryEJB.deleteSubSubCategory(id);
+    }
+
+
+    //QUESTION
 
     @Override
     public Long createQuestion(QuestionDto dto) {
@@ -122,13 +285,9 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
-    public List<CategoryDto> get() {return CategoryConverter.transform(categoryEJB.getAllCategories());}
-
-    @Override
-    public List<SubCategoryDto> getAllSubCategories() { return SubCategoryConverter.transform(subCategoryEJB.getAllSubCategories());}
-
-    @Override
-    public List<SubSubCategoryDto> getAllSubSubCategories() { return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());}
+    public QuestionDto getQuestionById(Long id) {
+        return QuestionConverter.transform(questionEJB.findQuestionById(id));
+    }
 
     @Override
     public List<QuestionDto> getAllQuestions() { return QuestionConverter.transform(questionEJB.getAllQuestions());
@@ -136,45 +295,25 @@ public class CategoryRest implements CategoryRestApi {
 
 
     @Override
-    public CategoryDto getById(Long id) {
-        return CategoryConverter.transform(categoryEJB.findCategoryById(id));
+    public void updateQuestion(Long id, String question) {
+        if(questionEJB.findQuestionById(id) == null) {
+            throw new WebApplicationException("Cannot find question with id: "+id, 404);
+        }
+
+        try{
+            questionEJB.updateQuestion(id, question);
+        }catch (Exception e) {
+            throw wrapException(e);
+        }
+
     }
-
-    @Override
-    public SubCategoryDto getSubCategoryById(Long id) {
-        return SubCategoryConverter.transform(subCategoryEJB.findSubCategoryById(id));
-    }
-
-    @Override
-    public SubSubCategoryDto getSubSubCategoryById(Long id) {
-        return SubSubCategoryConverter.transform(subSubCategoryEJB.findSubSubCategoryById(id));
-    }
-
-    @Override
-    public QuestionDto getQuestionById(Long id) {
-        return QuestionConverter.transform(questionEJB.findQuestionById(id));
-    }
-
-
-    @Override
-    public void deleteCategory(Long id) {
-        categoryEJB.deleteCategory(id);
-    }
-
-    @Override
-    public void deleteSubCategory(Long id) {
-        subCategoryEJB.deleteSubCategory(id);
-    }
-
-    @Override
-    public void deleteSubSubCategory(Long id) {
-        subSubCategoryEJB.deleteSubSubCategory(id);
-    }
-
     @Override
     public void deleteQuestion(Long id) { questionEJB.deleteQuestion(id);
 
     }
+
+
+    // METHODS RETRIEVING A LIST ...
 
     @Override
     public List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz() {
@@ -213,87 +352,8 @@ public class CategoryRest implements CategoryRestApi {
     }
 
 
-    @Override
-    public void update(Long id, CategoryDto dto) {
-        long theId;
-        try{
-            theId = Long.parseLong(dto.id);
-        }catch (Exception e){
-            throw new WebApplicationException("Invalid id: "+dto.id, 400);
 
-        }
-
-        if(id != theId){
-            // in this case, 409 (Conflict) sounds more appropriate than the generic 400
-            throw new WebApplicationException("Now allowed to change the id of the resource", 409);
-        }
-
-        if(categoryEJB.findCategoryById(id) == null){
-            throw new WebApplicationException("Not allowed to create a category with PUT, and cannot find category with id: "+id, 404);
-        }
-
-
-        try{
-            categoryEJB.updateCategory(id, dto.name);
-        }catch (Exception e){
-            throw wrapException(e);
-        }
-    }
-
-    @Override
-    public void updateCategoryName(Long id, String name) {
-        if(categoryEJB.findCategoryById(id) == null){
-            throw new WebApplicationException("Cannot find category with id: "+id, 404);
-        }
-
-        try {
-            categoryEJB.updateCategory(id, name );
-        } catch (Exception e){
-            throw wrapException(e);
-        }
-    }
-
-    @Override
-    public void updateSubCategoryName(Long id, String name) {
-        if(subCategoryEJB.findSubCategoryById(id) == null){
-            throw new WebApplicationException("Cannot find subcategory with id: "+id, 404);
-        }
-
-        try {
-            subCategoryEJB.updateSubCategory(id, name);
-        } catch (Exception e){
-            throw wrapException(e);
-        }
-    }
-
-    @Override
-    public void updateSubSubCategoryName(Long id, String name) {
-        if(subSubCategoryEJB.findSubSubCategoryById(id) == null) {
-            throw new WebApplicationException("Cannot find subsubcategory with id: "+id, 404);
-        }
-
-        try{
-            subSubCategoryEJB.updateSubSubCategory(id, name);
-        }catch (Exception e){
-            throw  wrapException(e);
-        }
-    }
-
-    @Override
-    public void updateQuestion(Long id, String question) {
-        if(questionEJB.findQuestionById(id) == null) {
-            throw new WebApplicationException("Cannot find question with id: "+id, 404);
-        }
-
-        try{
-            questionEJB.updateQuestion(id, question);
-        }catch (Exception e) {
-            throw wrapException(e);
-        }
-
-    }
-
-    // Deprecated methods
+    // DEPRECATED METHODS
 
     @Override
     public Response deprecatedGetById(@ApiParam(ID_PARAM) Long id) {
