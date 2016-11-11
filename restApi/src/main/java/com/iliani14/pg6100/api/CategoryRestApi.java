@@ -5,6 +5,7 @@ import com.iliani14.pg6100.dto.QuestionDto;
 import com.iliani14.pg6100.dto.SubCategoryDto;
 import com.iliani14.pg6100.dto.SubSubCategoryDto;
 import io.swagger.annotations.*;
+import io.swagger.jaxrs.PATCH;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -17,7 +18,7 @@ import java.util.List;
 @Api(value = "/category", description = "Handling and retrieving categories" )
 @Path("/category")
 @Produces({
-        Formats.V1_JSON,
+        Formats.V2_JSON,
         Formats.BASE_JSON
 })
 public interface CategoryRestApi {
@@ -32,7 +33,7 @@ public interface CategoryRestApi {
 
     @ApiOperation("Create a category")
     @POST
-    @Consumes({Formats.V1_JSON, Formats.BASE_JSON})
+    @Consumes({Formats.V2_JSON, Formats.BASE_JSON})
     @Produces(Formats.BASE_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created category")
     Long createCategory(
@@ -79,6 +80,16 @@ public interface CategoryRestApi {
                     String name
     );
 
+    @ApiOperation("Modify the category")
+    @Path("/id/{id}")
+    @PATCH
+    @Consumes(Formats.V2_JSON)
+    void patchCategory(@ApiParam(ID_PARAM)
+                       @PathParam("id")
+                        Long id,
+
+                       @ApiParam("Modifying the category")
+                               String jsonPatch);
 
     @ApiOperation("Delete a category")
     @DELETE
@@ -94,7 +105,7 @@ public interface CategoryRestApi {
     @ApiOperation("Create a subcategory")
     @POST
     @Path("/subcategories")
-    @Consumes({Formats.V1_JSON, Formats.BASE_JSON})
+    @Consumes({Formats.V2_JSON, Formats.BASE_JSON})
     @Produces(Formats.BASE_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created subcategory")
     Long createSubCategory(
@@ -142,7 +153,7 @@ public interface CategoryRestApi {
     @ApiOperation("Create a subsubcategory")
     @POST
     @Path("/subsubcategories")
-    @Consumes({Formats.V1_JSON, Formats.BASE_JSON})
+    @Consumes({Formats.V2_JSON, Formats.BASE_JSON})
     @Produces(Formats.BASE_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created subsubcategory")
     Long createSubSubCategory(
@@ -191,7 +202,7 @@ public interface CategoryRestApi {
     @ApiOperation("Create a question")
     @POST
     @Path("/questions")
-    @Consumes({Formats.V1_JSON, Formats.BASE_JSON})
+    @Consumes({Formats.V2_JSON, Formats.BASE_JSON})
     @Produces(Formats.BASE_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created question")
     Long createQuestion(
