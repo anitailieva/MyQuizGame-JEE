@@ -85,7 +85,6 @@ public class CategoryRest implements CategoryRestApi {
     @Override
     public void patchCategory(@ApiParam(ID_PARAM) Long id, @ApiParam("Modifying the category") String jsonPatch) {
 
-
         CategoryDto dto = CategoryConverter.transform(categoryEJB.findCategoryById(id));
 
         if( dto == null){
@@ -201,6 +200,52 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
+    public void patchSubCategory(@ApiParam(ID_PARAM) Long id, @ApiParam("Modifying the subcategory") String jsonPatch) {
+
+        SubCategoryDto dto = SubCategoryConverter.transform(subCategoryEJB.findSubCategoryById(id));
+
+        if( dto == null) {
+            throw new WebApplicationException("Cannot find subcategory with id " + id, 404);
+        }
+
+        ObjectMapper jackson = new ObjectMapper();
+        JsonNode jsonNode;
+
+        try{
+            jsonNode = jackson.readValue(jsonPatch, JsonNode.class);
+        }catch (Exception e) {
+            throw new WebApplicationException("Invalid JSON data as input: " + e.getMessage(), 400);
+        }
+
+        if (jsonNode.has("id")) {
+            throw new WebApplicationException(
+                    "Cannot modify the subcategory id from " + id + " to " + jsonNode.get("id"), 409);
+        }
+
+
+        if(jsonNode.has("categoryId")) {
+            throw new WebApplicationException(
+                    "Cannot modify the subcategory's id", 409);
+        }
+
+        String anotherName = dto.name;
+
+        if (jsonNode.has("name")) {
+            JsonNode nameNode = jsonNode.get("name");
+            if (nameNode.isNull()) {
+                anotherName= dto.name;
+            } else
+            if (nameNode.isTextual()) {
+                anotherName = nameNode.asText();
+            } else {
+                throw new WebApplicationException("Invalid JSON. Non-string name", 400);
+            }
+        }
+
+        subCategoryEJB.updateSubCategory(id, anotherName);
+    }
+
+    @Override
     public void deleteSubCategory(Long id) {
         subCategoryEJB.deleteSubCategory(id);
     }
@@ -249,6 +294,48 @@ public class CategoryRest implements CategoryRestApi {
         }catch (Exception e){
             throw  wrapException(e);
         }
+    }
+
+    @Override
+    public void patchSubSubCategory(@ApiParam(ID_PARAM) Long id, @ApiParam("Modifying the subsubcategory") String jsonPatch) {
+
+        SubSubCategoryDto dto = SubSubCategoryConverter.transform(subSubCategoryEJB.findSubSubCategoryById(id));
+
+        if(dto == null) {
+            throw new WebApplicationException("Cannot find subsubcategory with id " + id, 404);
+        }
+        ObjectMapper jackson = new ObjectMapper();
+        JsonNode jsonNode;
+
+        try{
+        jsonNode = jackson.readValue(jsonPatch, JsonNode.class);
+        }catch (Exception e) {
+            throw new WebApplicationException("Invalid JSON data as input: " + e.getMessage(), 400);
+        }
+
+        if(jsonNode.has("id")) {
+            throw new WebApplicationException(
+                    "Cannot modify the subsubcategory's id from " + id + " to " + jsonNode.get("id"), 409);
+        }
+        if(jsonNode.has("subcategoryId")) {
+            throw new WebApplicationException(
+                    "Cannot modify the id of subsubcategory", 400);
+        }
+
+        String someName = dto.name;
+
+        if(jsonNode.has("name")) {
+            JsonNode jn = jsonNode.get("name");
+            if(jn.isNull()) {
+                someName = dto.name;
+            } else if(jn.isTextual()) {
+                someName = jn.asText();
+            } else {
+                throw new WebApplicationException("Invalid JSON", 400);
+            }
+        }
+
+        subSubCategoryEJB.updateSubSubCategory(id, someName);
     }
 
     @Override
@@ -307,6 +394,12 @@ public class CategoryRest implements CategoryRestApi {
         }
 
     }
+
+    @Override
+    public void patchQuestion(@ApiParam(ID_PARAM) Long id, @ApiParam("Modifying the question") String jsonPatch) {
+
+    }
+
     @Override
     public void deleteQuestion(Long id) { questionEJB.deleteQuestion(id);
 
@@ -351,8 +444,6 @@ public class CategoryRest implements CategoryRestApi {
         return QuestionConverter.transform(categoryEJB.getAllQuizzesForCategory(id));
     }
 
-
-
     // DEPRECATED METHODS
 
     @Override
@@ -383,8 +474,6 @@ public class CategoryRest implements CategoryRestApi {
                 .build();
     }
 
-
-
     @Override
     public Response deprecatedGetAllSubCategoriesFromCategory(@ApiParam(ID_PARAM) Long id) {
         return Response.status(301)
@@ -398,13 +487,11 @@ public class CategoryRest implements CategoryRestApi {
                 .location(UriBuilder.fromUri("category/" + id + "/subcategories").build())
                 .build();
     }
-
     @Override
     public Response deprecatedGetAllSubSubCategoriesFromSubCategory(@ApiParam(SUB_ID_PARAM) Long id) {
         return Response.status(301)
                 .location(UriBuilder.fromUri("category//subcategories/" + id + "/subsubcategories").build())
-                .build();
-    }
+                .build();}
 
     @Override
     public Response deprecatedGetAllSubSubCategoriesFromParent(@ApiParam(SUB_ID_PARAM) Long id) {
@@ -414,13 +501,6 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     private WebApplicationException wrapException(Exception e) throws WebApplicationException {
-
-        /*
-            Errors:
-            4xx: the user has done something wrong, eg asking for something that does not exist (404)
-            5xx: internal server error (eg, could be a bug in the code)
-         */
-
         Throwable cause = Throwables.getRootCause(e);
         if (cause instanceof ConstraintViolationException) {
             return new WebApplicationException("Invalid constraints on input: " + cause.getMessage(), 400);
