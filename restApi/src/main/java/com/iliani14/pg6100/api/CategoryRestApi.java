@@ -140,6 +140,18 @@ public interface CategoryRestApi {
                     String name
     );
 
+    @ApiOperation("Modify the subcategory")
+    @Path("/subcategories/id/{id}")
+    @PATCH
+    @Consumes(Formats.V2_JSON)
+    void patchSubCategory(@ApiParam(ID_PARAM)
+                       @PathParam("id")
+                               Long id,
+
+                       @ApiParam("Modifying the subcategory")
+                               String jsonPatch);
+
+
     @ApiOperation("Delete a subcategory")
     @DELETE
     @Path("/subcategories/id/{id}")
@@ -189,6 +201,19 @@ public interface CategoryRestApi {
                     String name
     );
 
+    @ApiOperation("Modify the subsubcategory")
+    @Path("/subsubcategories/id/{id}")
+    @PATCH
+    @Consumes(Formats.V2_JSON)
+    void patchSubSubCategory(@ApiParam(ID_PARAM)
+                          @PathParam("id")
+                                  Long id,
+
+                          @ApiParam("Modifying the subsubcategory")
+                                  String jsonPatch);
+
+
+
     @ApiOperation("Delete a subsubcategory")
     @DELETE
     @Path("/subsubcategories/id/{id}")
@@ -237,6 +262,17 @@ public interface CategoryRestApi {
             @ApiParam("The subsubcategory name which will replace the old one")
                     String question
     );
+
+    @ApiOperation("Modify the question")
+    @Path("/questions/id/{id}")
+    @PATCH
+    @Consumes(Formats.V2_JSON)
+    void patchQuestion(@ApiParam(ID_PARAM)
+                          @PathParam("id")
+                                  Long id,
+
+                          @ApiParam("Modifying the question")
+                                  String jsonPatch);
 
 
     @ApiOperation("Delete a question")
