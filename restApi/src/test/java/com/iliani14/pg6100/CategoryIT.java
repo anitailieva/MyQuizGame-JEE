@@ -288,6 +288,31 @@ public class CategoryIT extends CategoryTestBase {
         get("/subcategories/id/" + id).then().body("name", is(newName));
 
     }
+    @Test
+    public void testPatchSubCategory() {
+        String subcategoryName = "Subcategory";
+
+        String id = createSubCategory(createParentCategory(), subcategoryName);
+
+        String newSubcategoryName = "New Subcategory";
+
+        given().contentType("application/merge-patch+json")
+        .body("{\"name\":\"" + newSubcategoryName + "\"}")
+                .patch("/subcategories/id/" + id)
+                .then()
+                .statusCode(204);
+
+        SubCategoryDto dto = given()
+                .accept(ContentType.JSON)
+                .get("/subcategories/id/" + id)
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(SubCategoryDto.class);
+
+        assertEquals(newSubcategoryName, dto.name);
+        assertEquals(id, dto.id);
+    }
 
     @Test
     public void testGetAllSubSubcategories() {
@@ -381,6 +406,35 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(204);
 
         get("/subsubcategories/id/" + id).then().body("name", is(newName));
+    }
+
+    @Test
+    public void testPatchSubSubCategory() {
+
+        String name1 = "Name";
+
+        String id = createSubSubCategory(createSubCategory(createParentCategory(), "SubCategory"), name1);
+
+        String name2 = "New name";
+
+        given().contentType("application/merge-patch+json")
+                .body("{\"name\":\"" + name2 + "\"}")
+                .patch("/subsubcategories/id/" + id)
+                .then()
+                .statusCode(204);
+
+        SubSubCategoryDto dto = given()
+                .accept(ContentType.JSON)
+                .get("/subsubcategories/id/" + id)
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(SubSubCategoryDto.class);
+
+        assertEquals(name2, dto.name);
+        assertEquals(id, dto.id);
+
+
     }
 
 
