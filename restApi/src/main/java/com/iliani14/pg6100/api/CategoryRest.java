@@ -8,6 +8,7 @@ import com.iliani14.pg6100.ejb.CategoryEJB;
 import com.iliani14.pg6100.ejb.QuestionEJB;
 import com.iliani14.pg6100.ejb.SubCategoryEJB;
 import com.iliani14.pg6100.ejb.SubSubCategoryEJB;
+import com.iliani14.pg6100.entity.Category;
 import com.iliani14.pg6100.entity.SubSubCategory;
 import io.swagger.annotations.ApiParam;
 
@@ -409,14 +410,23 @@ public class CategoryRest implements CategoryRestApi {
     // METHODS RETRIEVING A LIST ...
 
     @Override
-    public List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz() {
-        return CategoryConverter.transform(new ArrayList<>(categoryEJB.getAllCategoriesWithAtLeastOneQuiz()));
+    public List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz(@ApiParam("Category with at least one quiz") String withQuizzes) {
+        if(withQuizzes != null && withQuizzes.isEmpty()) {
+            return CategoryConverter.transform(new ArrayList<Category>(categoryEJB.getAllCategoriesWithAtLeastOneQuiz()));
+        }
+
+        return CategoryConverter.transform(categoryEJB.getAllCategories());
     }
 
     @Override
-    public List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz() {
-        return SubSubCategoryConverter.transform(new ArrayList<SubSubCategory>(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz()));
+    public List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz(@ApiParam("Subsubcategory with at least one quiz") String withQuizzes) {
+        if(withQuizzes != null && withQuizzes.isEmpty()) {
+            return SubSubCategoryConverter.transform(new ArrayList<SubSubCategory>(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz()));
+        }
+
+        return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());
     }
+
 
     @Override
     public List<SubCategoryDto> getAllSubCategoriesFromCategory(@ApiParam(ID_PARAM) Long id) {
@@ -490,14 +500,30 @@ public class CategoryRest implements CategoryRestApi {
     @Override
     public Response deprecatedGetAllSubSubCategoriesFromSubCategory(@ApiParam(SUB_ID_PARAM) Long id) {
         return Response.status(301)
-                .location(UriBuilder.fromUri("category//subcategories/" + id + "/subsubcategories").build())
+                .location(UriBuilder.fromUri("category/subcategories/" + id + "/subsubcategories").build())
                 .build();}
 
     @Override
     public Response deprecatedGetAllSubSubCategoriesFromParent(@ApiParam(SUB_ID_PARAM) Long id) {
         return Response.status(301)
-                .location(UriBuilder.fromUri("category//subcategories/" + id + "/subsubcategories").build())
+                .location(UriBuilder.fromUri("category/subcategories/" + id + "/subsubcategories").build())
                 .build();
+    }
+
+    @Override
+    public Response deprecatedGetAllCategoriesWithAtLeastOneQuiz() {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("category/").queryParam("withQuizzes", "")
+                .build())
+                .build();
+    }
+
+    @Override
+    public Response deprecatedGetAllSubSubCategoriesWithAtLeastOneQuiz() {
+        return Response.status(301)
+                .location(UriBuilder.fromUri("category/subsubcategories/").queryParam("withQuizzes")
+                .build())
+                        .build();
     }
 
     private WebApplicationException wrapException(Exception e) throws WebApplicationException {
