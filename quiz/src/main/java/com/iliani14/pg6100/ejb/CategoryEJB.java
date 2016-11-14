@@ -4,6 +4,7 @@ import com.iliani14.pg6100.entity.Category;
 import com.iliani14.pg6100.entity.Question;
 import com.iliani14.pg6100.entity.SubCategory;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
+
 
 /**
  * Created by anitailieva on 26/10/2016.
@@ -23,6 +27,8 @@ public class CategoryEJB {
     @PersistenceContext
     private EntityManager em;
 
+    @EJB
+    private QuestionEJB questionEJB;
 
     public Long createCategory(String name){
         Category c = new Category();
@@ -69,7 +75,7 @@ public class CategoryEJB {
     }
 
     public List<Category> getAllCategoriesWithAtLeastOneQuiz() {
-        List<Question> questions = em.createNamedQuery(Question.GET_ALL_QUESTIONS).getResultList();
+        List<Question> questions = questionEJB.getAllQuestions();
 
         if(questions.size() == 0) {
             return new ArrayList<>();
@@ -78,7 +84,7 @@ public class CategoryEJB {
         Set<Long> categories = questions
                 .stream()
                 .map(q -> q.getSubSubCategories().getSubCategories().getCategory().getId())
-                .collect(Collectors.toSet());
+                .collect(toSet());
 
 
         return getAllCategories()
