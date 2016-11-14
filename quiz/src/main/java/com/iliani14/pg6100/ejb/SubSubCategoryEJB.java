@@ -9,7 +9,9 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -101,6 +103,20 @@ public class SubSubCategoryEJB {
 
         public List<SubSubCategory> getAllSubSubCategoriesWithAtLeastOneQuiz() {
             List<Question> questions = em.createNamedQuery(Question.GET_ALL_QUESTIONS).getResultList();
-            return questions.stream().map(Question::getSubSubCategories).collect(Collectors.toList());
-        }
+
+            if(questions.size() == 0) {
+                return new ArrayList<>();
+            }
+
+            Set<Long> subsubcategories = questions
+                    .stream()
+                    .map(q -> q.getSubSubCategories().getId())
+                    .collect(Collectors.toSet());
+
+
+            return getAllSubSubCategories()
+                    .stream()
+                    .filter(c -> subsubcategories.contains(c.getId()))
+                    .collect(Collectors.toList());
     }
+}
