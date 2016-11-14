@@ -244,7 +244,7 @@ public interface CategoryRestApi {
 
     @ApiOperation("Get a question by id")
     @GET
-    @Path("/questions/{id}")
+    @Path("/questions/id/{id}")
     QuestionDto getQuestionById(
             @ApiParam(QUESTION_ID_PARAM)
             @PathParam("id")
@@ -285,22 +285,18 @@ public interface CategoryRestApi {
     );
 
 
+
     @ApiOperation("Get all categories with at least one quiz")
     @GET
-    List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz(
-            @ApiParam("Category with at least one quiz")
-            @QueryParam("withQuizzes")
-            String withQuizzes
-    );
+    @Path("/withQuizzes")
+    List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz();
 
 
     @ApiOperation("Get all subsubcategories with at least one quiz")
     @GET
-    List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz(
-            @ApiParam("Subsubcategory with at least one quiz")
-            @QueryParam("withQuizzes")
-                    String withQuizzes
-    );
+    @Path("/withQuizzes/subsubcategories")
+    List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz();
+
 
 
     @ApiOperation("Get all subcategories with a specified category id")
@@ -312,14 +308,6 @@ public interface CategoryRestApi {
             Long id
     );
 
-    @ApiOperation("Get all subcategories with a specified parent id")
-    @GET
-    @Path("/{id}/subcategories")
-    List<SubCategoryDto> getAllSubCategoriesByParentId(
-            @ApiParam(ID_PARAM)
-            @PathParam("id")
-                    Long id
-    );
 
     @ApiOperation("Get all subsubcategories with a specified subcategory id")
     @GET
@@ -330,16 +318,7 @@ public interface CategoryRestApi {
                     Long id
     );
 
-    @ApiOperation("Get all subsubcategories with a specified parent id")
-    @GET
-    @Path("/subcategories/{id}/subsubcategories")
-    List<SubSubCategoryDto> getAllSubSubCategoriesFromParent(
-            @ApiParam(SUB_ID_PARAM)
-            @PathParam("id")
-                    Long id
-    );
-
-    @ApiOperation("Get all questions with parent category/sub/subsub specified by id")
+    @ApiOperation("Get all questions with parent specified by id")
     @GET
     @Path("/quizzes/parent/{id}")
     List<QuestionDto> getAllQuestionsWithParent(@ApiParam(ID_PARAM)
@@ -455,23 +434,9 @@ public interface CategoryRestApi {
                     Long id
     );
 
-    @ApiOperation("Get all categories with at least one quiz")
-    @ApiResponses({
-            @ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")
-    })
-    @GET
-    @Path("/withQuizzes")
-    @Deprecated
-    Response deprecatedGetAllCategoriesWithAtLeastOneQuiz();
+
+    //withQuizzes
 
 
-    @ApiOperation("Get all subsubcategories with at least one quiz")
-    @ApiResponses({
-            @ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")
-    })
-    @GET
-    @Path("/withQuizzes/subsubcategories")
-    @Deprecated
-    Response deprecatedGetAllSubSubCategoriesWithAtLeastOneQuiz();
-
+    ///withQuizzes/subsubcategories
 }

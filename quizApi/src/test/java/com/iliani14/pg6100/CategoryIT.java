@@ -31,7 +31,6 @@ public class CategoryIT extends CategoryTestBase {
                 .extract().asString();
     }
 
-
     private String createParentCategory() {
         return createCategory("The parent category");
     }
@@ -62,6 +61,17 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
     }
+
+    private List<String> getAnswers() {
+        List<String> answers = new ArrayList<>();
+        answers.add("1");
+        answers.add("2");
+        answers.add("3");
+        answers.add("4");
+
+        return answers;
+    }
+
 
     @Test
     public void testCleanDB() {
@@ -433,11 +443,7 @@ public class CategoryIT extends CategoryTestBase {
 
         assertEquals(name2, dto.name);
         assertEquals(id, dto.id);
-
-
     }
-
-
     @Test
     public void testGetAllQuestions() {
         String category = createCategory("Science");
@@ -445,11 +451,8 @@ public class CategoryIT extends CategoryTestBase {
         String subsubcategory1 = createSubSubCategory(subcategory1, "Subsubcategory1");
 
 
-        List<String> answers = new ArrayList<>();
-        answers.add("one");
-        answers.add("two");
-        answers.add("three");
-        answers.add("four");
+        List<String> answers = getAnswers();
+
         String theCorrectAnswer1 = answers.get(2);
         String theCorrectAnswer2 = answers.get(3);
         String theCorrectAnswer3 = answers.get(0);
@@ -468,8 +471,6 @@ public class CategoryIT extends CategoryTestBase {
                 .body("question", hasItems("Question1", "Question2", "Question3"));
 
     }
-
-
     @Test
     public void testCreateAndGetQuestion() {
         String category = createCategory("Science");
@@ -478,11 +479,8 @@ public class CategoryIT extends CategoryTestBase {
 
         String question = "Question";
 
-        List<String> answers = new ArrayList<>();
-        answers.add("1");
-        answers.add("2");
-        answers.add("3");
-        answers.add("4");
+        List<String> answers = getAnswers();
+
         String theCorrectAnswer = answers.get(1);
 
         QuestionDto dto = new QuestionDto(null, subsubcategory, question, answers, theCorrectAnswer);
@@ -507,15 +505,9 @@ public class CategoryIT extends CategoryTestBase {
                 .body("answers", is(answers))
                 .body("theCorrectAnswer", is(theCorrectAnswer));
     }
-
-
     @Test
     public void testDeleteQuestion() {
-        List<String> answers = new ArrayList<>();
-        answers.add("one");
-        answers.add("two");
-        answers.add("three");
-        answers.add("four");
+        List<String> answers = getAnswers();
 
         String id = given().contentType(ContentType.JSON)
                 .body(new QuestionDto(null, createSubSubCategory(createSubCategory(createCategory("Science"), "Computer Science"),
@@ -533,7 +525,6 @@ public class CategoryIT extends CategoryTestBase {
 
 
     }
-
     @Test
     public void testUpdateQuestion() {
         List<String> answers = new ArrayList<>();
@@ -567,4 +558,217 @@ public class CategoryIT extends CategoryTestBase {
 
     }
 
+
+    @Test
+    public void testPatchQuestion() {
+        String question1 = "Question1";
+        List<String> answers = getAnswers();
+        String correctAnswer = "CorrectAnswer";
+
+        String id = createQuestion(createSubSubCategory(createSubCategory(createParentCategory(), "Sub"), "Subsub"), question1,
+                answers, correctAnswer);
+
+        String updatedQuestion = "Updated";
+
+        given().contentType("application/merge-patch+json")
+                .body("{\"question\":\"" + updatedQuestion + "\"}")
+                .patch("/questions/id/" + id)
+                .then()
+                .statusCode(204);
+
+            QuestionDto dto = given()
+                    .accept(ContentType.JSON)
+                    .get("/questions/id/" + id)
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .as(QuestionDto.class);
+
+        assertEquals(updatedQuestion, dto.question);
+        assertEquals(id, dto.id);
+
+    }
+
+    @Test
+    public void testGetAllCategoriesWithAtLeastOneQuiz() {
+        String cat1 = createCategory("Category1");
+        String cat2 = createCategory("Category2");
+        String cat3 = createCategory("Category3");
+
+        String sub1 = createSubCategory(cat1, "Sub1");
+        String sub2 = createSubCategory(cat2, "Sub2");
+        String sub3 = createSubCategory(cat3, "Sub3");
+
+        String subsub1 = createSubSubCategory(sub1, "Subsub1");
+        String subsub2 = createSubSubCategory(sub1, "Subsub1");
+        String subsub3 = createSubSubCategory(sub1, "Subsub1");
+        String subsub4 = createSubSubCategory(sub2, "Subsub2");
+        String subsub5 = createSubSubCategory(sub2, "Subsub2");
+        String subsub6 = createSubSubCategory(sub2, "Subsub2");
+
+
+        List<String> answers = getAnswers();
+
+        String theCorrectAnswer1 = answers.get(2);
+
+        createQuestion(subsub1, "QUESTION1", answers, theCorrectAnswer1);
+        createQuestion(subsub1, "QUESTION2", answers, theCorrectAnswer1);
+        createQuestion(subsub3, "QUESTION3", answers, theCorrectAnswer1);
+        createQuestion(subsub4, "QUESTION1", answers, theCorrectAnswer1);
+        createQuestion(subsub4, "QUESTION2", answers, theCorrectAnswer1);
+        createQuestion(subsub4, "QUESTION3", answers, theCorrectAnswer1);
+        createQuestion(subsub5, "QUESTION1", answers, theCorrectAnswer1);
+        createQuestion(subsub6, "QUESTION2", answers, theCorrectAnswer1);
+        createQuestion(subsub6, "QUESTION3", answers, theCorrectAnswer1);
+
+        get("/withQuizzes").then().statusCode(200).body("size()", is(2));
+
+        given().get("/withQuizzes")
+                .then()
+                .statusCode(200)
+                .body("id", hasItems(cat1, cat2))
+                .body("name", hasItems("Category1", "Category2"))
+                .body("name", not("Category3"));
+    }
+
+     @Test
+     public void testGetAllSubSubCategoriesWithAtLeastOneQuiz() {
+
+         String cat1 = createCategory("Category1");
+         String cat2 = createCategory("Category2");
+         String cat3 = createCategory("Category3");
+
+         String sub1 = createSubCategory(cat1, "Sub1");
+         String sub2 = createSubCategory(cat2, "Sub2");
+         String sub3 = createSubCategory(cat3, "Sub3");
+
+         String subsub1 = createSubSubCategory(sub1, "Subsub1");
+         String subsub2 = createSubSubCategory(sub1, "Subsub2");
+         String subsub3 = createSubSubCategory(sub1, "Subsub3");
+         String subsub4 = createSubSubCategory(sub2, "Subsub4");
+         String subsub5 = createSubSubCategory(sub2, "Subsub5");
+         String subsub6 = createSubSubCategory(sub2, "Subsub6");
+
+
+         List<String> answers = getAnswers();
+
+         String theCorrectAnswer1 = answers.get(2);
+
+         createQuestion(subsub1, "QUESTION1", answers, theCorrectAnswer1);
+         createQuestion(subsub1, "QUESTION2", answers, theCorrectAnswer1);
+         createQuestion(subsub3, "QUESTION3", answers, theCorrectAnswer1);
+         createQuestion(subsub4, "QUESTION1", answers, theCorrectAnswer1);
+         createQuestion(subsub4, "QUESTION2", answers, theCorrectAnswer1);
+         createQuestion(subsub4, "QUESTION3", answers, theCorrectAnswer1);
+         createQuestion(subsub5, "QUESTION1", answers, theCorrectAnswer1);
+         createQuestion(subsub6, "QUESTION2", answers, theCorrectAnswer1);
+         createQuestion(subsub6, "QUESTION3", answers, theCorrectAnswer1);
+
+         get("/withQuizzes/subsubcategories").then().statusCode(200).body("size()", is(5));
+
+         given().get("/withQuizzes/subsubcategories")
+                 .then()
+                 .statusCode(200)
+                 .body("id", hasItems(subsub1, subsub3, subsub4, subsub5, subsub6))
+                 .body("name", hasItems("Subsub1", "Subsub3", "Subsub4", "Subsub5", "Subsub6"))
+                 .body("name", not("Subsub2"));
+
+}
+
+     @Test
+     public void testGetAllSubCategoriesFromCategory() {
+         String cat1 = createCategory("Category1");
+         String cat2 = createCategory("Category2");
+         String cat3 = createCategory("Category3");
+
+         String sub1 = createSubCategory(cat1, "Sub1");
+         String sub2 = createSubCategory(cat2, "Sub2");
+         String sub3 = createSubCategory(cat2, "Sub3");
+         String sub4 = createSubCategory(cat3, "Sub4");
+         String sub5 = createSubCategory(cat3, "Sub5");
+
+         given().pathParam("id", cat1)
+                 .get("id/{id}/subcategories")
+                 .then()
+                 .statusCode(200)
+                 .body("id", hasItems(sub1))
+                 .body("name",hasItems("Sub1"));
+
+         given().pathParam("id", cat2)
+                 .get("id/{id}/subcategories")
+                 .then()
+                 .statusCode(200)
+                 .body("id", hasItems(sub2, sub3))
+                 .body("name",hasItems("Sub2", "Sub3"));
+
+         given().pathParam("id", cat3)
+                 .get("id/{id}/subcategories")
+                 .then()
+                 .statusCode(200)
+                 .body("id", hasItems(sub4, sub5))
+                 .body("name",hasItems("Sub4", "Sub5"));
+
+     }
+
+    @Test
+    public void testGetAllSubSubCategoriesForSubCategory() {
+        String sub1 = createSubCategory(createCategory("cat1"), "Sub1");
+        String sub2 = createSubCategory(createCategory("cat2"), "Sub2");
+        String sub3 = createSubCategory(createCategory("cat3"), "Sub3");
+
+        String subsub1 = createSubSubCategory(sub1, "Subsub1");
+        String subsub2 = createSubSubCategory(sub2, "Subsub2");
+        String subsub3 = createSubSubCategory(sub2, "Subsub3");
+        String subsub4 = createSubSubCategory(sub3, "Subsub4");
+        String subsub5 = createSubSubCategory(sub3, "Subsub5");
+
+        given().pathParam("id", sub1)
+                .get("subcategories/id/{id}/subsubcategories")
+                .then()
+                .statusCode(200)
+                .body("id", hasItems(subsub1))
+                .body("name", hasItems("Subsub1"));
+
+        given().pathParam("id", sub2)
+                .get("subcategories/id/{id}/subsubcategories")
+                .then()
+                .statusCode(200)
+                .body("id", hasItems(subsub2, subsub3))
+                .body("name", hasItems("Subsub2", "Subsub3"));
+
+        given().pathParam("id", sub3)
+                .get("subcategories/id/{id}/subsubcategories")
+                .then()
+                .statusCode(200)
+                .body("id", hasItems(subsub4, subsub5))
+                .body("name", hasItems("Subsub4", "Subsub5"));
+    }
+
+     @Test
+     public void testGetAllQuestionsFromCategory() {
+         String cat1 = createCategory("Category1");
+
+         String sub1 = createSubCategory(cat1, "Sub1");
+         String sub2 = createSubCategory(cat1, "Sub2");
+
+         String subsub1 = createSubSubCategory(sub1, "Subsub1");
+         String subsub2 = createSubSubCategory(sub1, "Subsub2");
+         String subsub3 = createSubSubCategory(sub2, "Subsub3");
+
+         List<String> answers = getAnswers();
+         String theCorrectAnswer1 = answers.get(2);
+
+         createQuestion(subsub1, "QUESTION1", answers, theCorrectAnswer1);
+         createQuestion(subsub2, "QUESTION2", answers, theCorrectAnswer1);
+         createQuestion(subsub3, "QUESTION3", answers, theCorrectAnswer1);
+         createQuestion(subsub3, "QUESTION3", answers, theCorrectAnswer1);
+         createQuestion(subsub3, "QUESTION3", answers, theCorrectAnswer1);
+
+         given().pathParam("id", cat1)
+                 .get("quizzes/parent/{id}")
+                 .then()
+                 .statusCode(200)
+                 .body("size()", is(5));
+
+     }
 }

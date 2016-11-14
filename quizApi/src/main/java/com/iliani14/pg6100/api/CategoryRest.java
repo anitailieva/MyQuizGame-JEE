@@ -8,8 +8,6 @@ import com.iliani14.pg6100.ejb.CategoryEJB;
 import com.iliani14.pg6100.ejb.QuestionEJB;
 import com.iliani14.pg6100.ejb.SubCategoryEJB;
 import com.iliani14.pg6100.ejb.SubSubCategoryEJB;
-import com.iliani14.pg6100.entity.Category;
-import com.iliani14.pg6100.entity.SubSubCategory;
 import io.swagger.annotations.ApiParam;
 
 import javax.ejb.EJB;
@@ -20,7 +18,6 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -398,7 +395,48 @@ public class CategoryRest implements CategoryRestApi {
 
     @Override
     public void patchQuestion(@ApiParam(ID_PARAM) Long id, @ApiParam("Modifying the question") String jsonPatch) {
+        QuestionDto dto = QuestionConverter.transform(questionEJB.findQuestionById(id));
 
+        if(dto == null) {
+            throw new WebApplicationException("Cannot find quiz with id " + id, 404);
+        }
+
+        ObjectMapper jackson = new ObjectMapper();
+
+        JsonNode jsonNode;
+        try{
+            jsonNode = jackson.readValue(jsonPatch, JsonNode.class);
+        }catch (Exception e) {
+            throw new WebApplicationException("Invalid JSON data as input: " + e.getMessage(), 400);
+        }
+
+        if(jsonNode.has("id")) {
+            throw new WebApplicationException(
+                    "Cannot modify the question id from " + id + " to " + jsonNode.get("id"), 409);
+        }
+
+        if (jsonNode.has("subSubCategoryId")) {
+            throw new WebApplicationException(
+                    "Cannot modify the id of questions's parent category", 400);
+        }
+
+        String updatedQuestion = "Updated";
+
+        if(jsonNode.has("question")) {
+            JsonNode node = jsonNode.get("question");
+            if(node.isNull()) {
+                updatedQuestion = dto.question;
+            } else if (node.isTextual()) {
+                updatedQuestion = node.asText();
+            } else {
+                throw new WebApplicationException("Invalid JSON. Non-string title", 400);
+
+            }
+
+        }
+
+
+            questionEJB.updateQuestion(id, updatedQuestion);
     }
 
     @Override
@@ -406,27 +444,17 @@ public class CategoryRest implements CategoryRestApi {
 
     }
 
-
     // METHODS RETRIEVING A LIST ...
 
     @Override
-    public List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz(@ApiParam("Category with at least one quiz") String withQuizzes) {
-        if(withQuizzes != null && withQuizzes.isEmpty()) {
-            return CategoryConverter.transform(new ArrayList<Category>(categoryEJB.getAllCategoriesWithAtLeastOneQuiz()));
-        }
-
-        return CategoryConverter.transform(categoryEJB.getAllCategories());
+    public List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz() {
+        return CategoryConverter.transform(categoryEJB.getAllCategoriesWithAtLeastOneQuiz());
     }
 
     @Override
-    public List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz(@ApiParam("Subsubcategory with at least one quiz") String withQuizzes) {
-        if(withQuizzes != null && withQuizzes.isEmpty()) {
-            return SubSubCategoryConverter.transform(new ArrayList<SubSubCategory>(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz()));
-        }
-
-        return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());
+    public List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz() {
+        return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz());
     }
-
 
     @Override
     public List<SubCategoryDto> getAllSubCategoriesFromCategory(@ApiParam(ID_PARAM) Long id) {
@@ -434,19 +462,8 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
-    public List<SubCategoryDto> getAllSubCategoriesByParentId(@ApiParam(ID_PARAM) Long id) {
-        return SubCategoryConverter.transform(categoryEJB.getAllSubCategoriesForACategory(id));
-    }
-
-    @Override
     public List<SubSubCategoryDto> getAllSubSubCategoriesFromSubCategory(@ApiParam(SUB_ID_PARAM) Long id) {
         return SubSubCategoryConverter.transform(subCategoryEJB.getAllSubSubCategoriesForSubCategory(id));
-    }
-
-    @Override
-    public List<SubSubCategoryDto> getAllSubSubCategoriesFromParent(@ApiParam(SUB_ID_PARAM) Long id) {
-        return SubSubCategoryConverter.transform(subCategoryEJB.getAllSubSubCategoriesForSubCategory(id));
-
     }
 
     @Override
@@ -510,7 +527,7 @@ public class CategoryRest implements CategoryRestApi {
                 .build();
     }
 
-    @Override
+    /* @Override
     public Response deprecatedGetAllCategoriesWithAtLeastOneQuiz() {
         return Response.status(301)
                 .location(UriBuilder.fromUri("category/").queryParam("withQuizzes", "")
@@ -524,7 +541,7 @@ public class CategoryRest implements CategoryRestApi {
                 .location(UriBuilder.fromUri("category/subsubcategories/").queryParam("withQuizzes")
                 .build())
                         .build();
-    }
+    }*/
 
     private WebApplicationException wrapException(Exception e) throws WebApplicationException {
         Throwable cause = Throwables.getRootCause(e);
