@@ -3,7 +3,6 @@ package com.iliani14.pg6100.ejb;
 import com.iliani14.pg6100.entity.Category;
 import com.iliani14.pg6100.entity.Question;
 import com.iliani14.pg6100.entity.SubCategory;
-import com.iliani14.pg6100.entity.SubSubCategory;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -11,6 +10,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -71,10 +71,20 @@ public class CategoryEJB {
     public List<Category> getAllCategoriesWithAtLeastOneQuiz() {
         List<Question> questions = em.createNamedQuery(Question.GET_ALL_QUESTIONS).getResultList();
 
+        if(questions.size() == 0) {
+            return new ArrayList<>();
+        }
 
-        return questions.stream().map(Question::getSubSubCategories).collect(Collectors.toList())
-                .stream().map(SubSubCategory::getSubCategories).collect(Collectors.toList())
-                .stream().map(SubCategory::getCategory).collect(Collectors.toList());
+        Set<Long> categories = questions
+                .stream()
+                .map(q -> q.getSubSubCategories().getSubCategories().getCategory().getId())
+                .collect(Collectors.toSet());
+
+
+        return getAllCategories()
+                .stream()
+                .filter(c -> categories.contains(c.getId()))
+                .collect(Collectors.toList());
     }
 
     public List<SubCategory> getAllSubCategoriesForACategory(Long id) {
