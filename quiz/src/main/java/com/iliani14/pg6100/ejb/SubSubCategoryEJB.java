@@ -27,6 +27,8 @@ public class SubSubCategoryEJB {
     @EJB
     private SubCategoryEJB subCategoryEJB;
 
+    @EJB
+    private QuestionEJB questionEJB;
 
     public Long createSubSubCategory(Long subCategoryId, String name){
         SubCategory sub = subCategoryEJB.findSubCategoryById(subCategoryId);
@@ -102,7 +104,7 @@ public class SubSubCategoryEJB {
     }
 
         public List<SubSubCategory> getAllSubSubCategoriesWithAtLeastOneQuiz() {
-            List<Question> questions = em.createNamedQuery(Question.GET_ALL_QUESTIONS).getResultList();
+            List<Question> questions = questionEJB.getAllQuestions();
 
             if(questions.size() == 0) {
                 return new ArrayList<>();
