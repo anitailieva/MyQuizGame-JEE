@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>com.iliani14.pg6100</groupId>
-            <artifactId>restApi</artifactId>
+            <artifactId>quizApi</artifactId>
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
