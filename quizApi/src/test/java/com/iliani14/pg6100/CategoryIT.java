@@ -16,9 +16,8 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 
-
 /**
- * Created by anitailieva on 28/10/2016.
+ * Created by anitailieva on 28/10/2016
  */
 public class CategoryIT extends CategoryTestBase {
 
@@ -98,6 +97,16 @@ public class CategoryIT extends CategoryTestBase {
                 .body("name", hasItems("Science", "Sports", "History"));
 
     }
+    @Test
+    public void testCreateCategoryWithNullName() {
+        CategoryDto dto = new CategoryDto(null, null);
+
+        given().contentType(ContentType.JSON)
+                .body(dto)
+                .post()
+                .then()
+                .statusCode(400);
+    }
 
     @Test
     public void testCreateAndGetCategory() {
@@ -123,6 +132,31 @@ public class CategoryIT extends CategoryTestBase {
                 .body("name", is(name));
     }
 
+    @Test
+    public void testCreateAndGetCategoryWithNewPath() {
+        String name = "Name";
+        CategoryDto dto = new CategoryDto(null, name);
+
+        get().then().statusCode(200).body("size()", is(0));
+
+        String id = given().contentType(ContentType.JSON)
+                .body(dto)
+                .post()
+                .then()
+                .statusCode(200)
+                .extract().asString();
+
+        get().then().statusCode(200).body("size()", is(1));
+
+        given().pathParam("id", id)
+                .get("/{id}")
+                .then()
+                .statusCode(200)
+                .body("id", is(id))
+                .body("name", is(name));
+
+
+    }
     @Test
     public void testDeleteCategory() {
         String id = given().contentType(ContentType.JSON)
@@ -255,6 +289,30 @@ public class CategoryIT extends CategoryTestBase {
     }
 
     @Test
+    public void testCreateAndGetSubCategoryWithNewPath(){
+        String subcategory = "Subcategory";
+
+        SubCategoryDto dto = new SubCategoryDto(null, createParentCategory(), subcategory);
+
+        get("/subcategories").then().statusCode(200).body("size()", is(0));
+
+        String id = given().contentType(ContentType.JSON)
+                .body(dto)
+                .post("/subcategories")
+                .then()
+                .statusCode(200)
+                .extract().asString();
+
+        given().pathParam("id", id)
+                .get("subcategories/{id}")
+                .then()
+                .statusCode(200)
+                .body("id", is(id))
+                .body("name", is(subcategory));
+
+    }
+
+    @Test
     public void testDeleteSubcategory() {
         String id = given().contentType(ContentType.JSON)
                 .body(new SubCategoryDto(null, createParentCategory(), "SUB name"))
@@ -377,6 +435,31 @@ public class CategoryIT extends CategoryTestBase {
     }
 
     @Test
+    public void testCreateAndGetSubSubCategoryWithNewPath(){
+        String subsubcategory = "Some name";
+
+        SubSubCategoryDto dto = new SubSubCategoryDto(null, createSubCategory(createParentCategory(), "Name"), subsubcategory);
+
+        get("subsubcategories").then().statusCode(200).body("size()", is(0));
+
+        String id = given().contentType(ContentType.JSON)
+                .body(dto)
+                .post("/subsubcategories")
+                .then()
+                .statusCode(200)
+                .extract().asString();
+
+        get("subsubcategories").then().statusCode(200).body("size()", is(1));
+
+        given().pathParam("id", id)
+                .get("/subsubcategories/{id}")
+                .then()
+                .statusCode(200)
+                .body("id", is(id))
+                .body("name", is(subsubcategory));
+    }
+
+    @Test
     public void testDeleteSubSubCategory() {
         String id = given().contentType(ContentType.JSON)
                 .body(new SubSubCategoryDto(null, createSubCategory(createParentCategory(), "SubCategory name"), "SubSubcategory name"))
@@ -492,7 +575,7 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get().then().statusCode(200).body("size()", is(1));
+        get("/questions").then().statusCode(200).body("size()", is(1));
 
 
         given().pathParam("id", id)
@@ -504,6 +587,41 @@ public class CategoryIT extends CategoryTestBase {
                 .body("question", is(question))
                 .body("answers", is(answers))
                 .body("theCorrectAnswer", is(theCorrectAnswer));
+    }
+
+    @Test
+    public void testCreateAndGetQuestionWithNewPath() {
+    String category = createCategory("Category");
+    String subcategory = createSubCategory(category, "Subcategory");
+    String subsubcategory = createSubSubCategory(subcategory, "Subsubcategory");
+
+    String question = "Question?";
+    List<String> answers = getAnswers();
+    String correctAnswer = "Correct";
+
+    QuestionDto questionDto = new QuestionDto(null, subsubcategory, question, answers, correctAnswer);
+
+    String id = given().contentType(ContentType.JSON)
+            .body(questionDto)
+            .post("/questions")
+            .then()
+            .statusCode(200)
+            .extract().asString();
+
+        get("/questions").then().statusCode(200).body("size()", is(1));
+
+        given().pathParam("id", id)
+                .get("/questions/{id}")
+                .then()
+                .statusCode(200)
+                .body("id", is(id))
+                .body("subSubCategoryId", is(subsubcategory))
+                .body("question", is(question))
+                .body("answers", is(answers))
+                .body("theCorrectAnswer", is(correctAnswer));
+
+
+
     }
     @Test
     public void testDeleteQuestion() {
