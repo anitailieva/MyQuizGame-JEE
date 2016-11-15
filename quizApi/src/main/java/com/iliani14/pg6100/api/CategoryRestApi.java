@@ -244,7 +244,7 @@ public interface CategoryRestApi {
 
     @ApiOperation("Get a question by id")
     @GET
-    @Path("/questions/id/{id}")
+    @Path("/questions/{id}")
     QuestionDto getQuestionById(
             @ApiParam(QUESTION_ID_PARAM)
             @PathParam("id")
