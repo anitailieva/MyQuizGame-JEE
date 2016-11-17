@@ -286,11 +286,10 @@ public interface CategoryRestApi {
 
 
 
-    @ApiOperation("Get all categories with at least one quiz")
+    @ApiOperation("Get all the categories with at least one quiz")
     @GET
-    @Path("/withQuizzes")
     List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz(
-            @ApiParam("True if only want categories with quizzes")
+            @ApiParam("True if categories has quizzes")
             @QueryParam("withQuizzes")
                     Boolean withQuizzes
     );
@@ -300,7 +299,7 @@ public interface CategoryRestApi {
     @GET
     @Path("/subsubcategories?withQuizzes")
     List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz(
-            @ApiParam("True if only want categories with quizzes")
+            @ApiParam("True if subsubcategories has quizzes")
             @QueryParam("withQuizzes")
                     Boolean withQuizzes
     );
@@ -460,5 +459,5 @@ public interface CategoryRestApi {
     @GET
     @Path("/withQuizzes/subsubcategories")
     @Deprecated
-    Response deprecatedGetAllSubSubCategoriesWithQuizzes();
+    Response deprecatedGetAllSubSubCategoriesWithAtLeastOneQuiz();
 }
