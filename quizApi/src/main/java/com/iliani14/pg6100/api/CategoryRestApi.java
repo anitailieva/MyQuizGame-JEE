@@ -289,14 +289,21 @@ public interface CategoryRestApi {
     @ApiOperation("Get all categories with at least one quiz")
     @GET
     @Path("/withQuizzes")
-    List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz();
+    List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz(
+            @ApiParam("True if only want categories with quizzes")
+            @QueryParam("withQuizzes")
+                    Boolean withQuizzes
+    );
 
 
     @ApiOperation("Get all subsubcategories with at least one quiz")
     @GET
-    @Path("/withQuizzes/subsubcategories")
-    List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz();
-
+    @Path("/subsubcategories?withQuizzes")
+    List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz(
+            @ApiParam("True if only want categories with quizzes")
+            @QueryParam("withQuizzes")
+                    Boolean withQuizzes
+    );
 
 
     @ApiOperation("Get all subcategories with a specified category id")
@@ -435,8 +442,23 @@ public interface CategoryRestApi {
     );
 
 
-    //withQuizzes
+
+    @ApiOperation("Get all categories with at least one quiz")
+    @ApiResponses({
+            @ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")
+    })
+    @GET
+    @Path("/withQuizzes")
+    @Deprecated
+    Response deprecatedGetAllCategoriesWithAtLeastOneQuiz();
 
 
-    ///withQuizzes/subsubcategories
+    @ApiOperation("Get all subsubcategories with at least one quiz")
+    @ApiResponses({
+            @ApiResponse(code = 301, message = "Deprecated URI. Moved permanently.")
+    })
+    @GET
+    @Path("/withQuizzes/subsubcategories")
+    @Deprecated
+    Response deprecatedGetAllSubSubCategoriesWithQuizzes();
 }
