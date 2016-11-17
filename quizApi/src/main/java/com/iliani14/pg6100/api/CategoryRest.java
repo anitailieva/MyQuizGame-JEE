@@ -447,13 +447,21 @@ public class CategoryRest implements CategoryRestApi {
     // METHODS RETRIEVING A LIST ...
 
     @Override
-    public List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz() {
-        return CategoryConverter.transform(categoryEJB.getAllCategoriesWithAtLeastOneQuiz());
+    public List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz(@ApiParam("Categories has at least one quiz") Boolean withQuizzes) {
+        if (withQuizzes != null)
+            if (withQuizzes)
+                return CategoryConverter.transform(categoryEJB.getAllCategoriesWithAtLeastOneQuiz());
+
+        return CategoryConverter.transform(categoryEJB.getAllCategories());
     }
 
     @Override
-    public List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz() {
-        return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz());
+    public List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz(@ApiParam("Subsubcategories has at least one quiz") Boolean withQuizzes) {
+        if(withQuizzes != null)
+            if(withQuizzes)
+                return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz());
+        return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());
+
     }
 
     @Override
@@ -527,21 +535,23 @@ public class CategoryRest implements CategoryRestApi {
                 .build();
     }
 
-    /* @Override
+    @Override
     public Response deprecatedGetAllCategoriesWithAtLeastOneQuiz() {
         return Response.status(301)
-                .location(UriBuilder.fromUri("category/").queryParam("withQuizzes", "")
-                .build())
+                .location(UriBuilder.fromUri("category").queryParam("withQuizzes", "")
+                        .build())
                 .build();
     }
+
+
 
     @Override
     public Response deprecatedGetAllSubSubCategoriesWithAtLeastOneQuiz() {
         return Response.status(301)
-                .location(UriBuilder.fromUri("category/subsubcategories/").queryParam("withQuizzes")
-                .build())
-                        .build();
-    }*/
+                .location(UriBuilder.fromUri("category/subsubcategories").queryParam("withQuizzes", "")
+                        .build())
+                .build();
+    }
 
     private WebApplicationException wrapException(Exception e) throws WebApplicationException {
         Throwable cause = Throwables.getRootCause(e);
