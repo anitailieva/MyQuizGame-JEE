@@ -706,7 +706,6 @@ public class CategoryIT extends CategoryTestBase {
         assertEquals(id, dto.id);
 
     }
-
     @Test
     public void testGetAllCategoriesWithAtLeastOneQuiz() {
 
@@ -731,12 +730,15 @@ public class CategoryIT extends CategoryTestBase {
         createQuestion(subsub1, "QUESTION1", answers, theCorrectAnswer1);
         createQuestion(subsub2, "QUESTION3", answers, theCorrectAnswer1);
         createQuestion(subsub4, "QUESTION1", answers, theCorrectAnswer1);
+        createQuestion(subsub4, "QUESTION1", answers, theCorrectAnswer1);
+        createQuestion(subsub5, "QUESTION3", answers, theCorrectAnswer1);
+        createQuestion(subsub5, "QUESTION1", answers, theCorrectAnswer1);
 
 
         get("/withQuizzes")
                 .then()
                 .statusCode(200)
-                .body("size()", is(3));
+                .body("size()", is(2));
 
         given().get("/withQuizzes")
                 .then()
@@ -746,12 +748,16 @@ public class CategoryIT extends CategoryTestBase {
                 .body("name", not("Category3"));
     }
 
-     @Test
-     public void testGetAllSubSubCategoriesWithAtLeastOneQuiz() {
 
-         String sub1 = createSubCategory(createCategory("Category1"), "Sub1");
-         String sub2 = createSubCategory(createCategory("Category2"), "Sub2");
-         String sub3 = createSubCategory(createCategory("Category3"), "Sub3");
+    @Test
+     public void testGetAllSubSubCategoriesWithAtLeastOneQuiz() {
+         String cat1 = createCategory("Category1");
+         String cat2 = createCategory("Category2");
+         String cat3 = createCategory("Category3");
+
+         String sub1 = createSubCategory(cat1, "Sub1");
+         String sub2 = createSubCategory(cat2, "Sub2");
+         String sub3 = createSubCategory(cat3, "Sub3");
 
          String subsub1 = createSubSubCategory(sub1, "Subsub1");
          String subsub2 = createSubSubCategory(sub1, "Subsub2");
@@ -775,20 +781,16 @@ public class CategoryIT extends CategoryTestBase {
          createQuestion(subsub6, "QUESTION3", answers, theCorrectAnswer1);
 
 
-         get("/withQuizzes/subsubcategories").then().statusCode(200).body("size()", is(6));
+         get("/withQuizzes/subsubcategories").then().statusCode(200).body("size()", is(4));
 
          given().get("/withQuizzes/subsubcategories")
                  .then()
                  .statusCode(200)
-                 .body("id", hasItems(subsub1,
-                         subsub3,
-                         subsub4,
-                         subsub5,
-                         subsub6))
-                 .body("name", hasItems("Subsub1", "Subsub3", "Subsub4", "Subsub5", "Subsub6"))
+                 .body("id", hasItems(subsub1, subsub4, subsub5, subsub6))
+                 .body("name", hasItems("Subsub1", "Subsub4", "Subsub5", "Subsub6"))
                  .body("name", not("Subsub2"));
+     }
 
-}
 
      @Test
      public void testGetAllSubCategoriesFromCategory() {
