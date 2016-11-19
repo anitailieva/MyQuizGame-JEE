@@ -13,12 +13,14 @@
     <packaging>war</packaging>
 
 
+
+
     <dependencies>
         <dependency>
             <groupId>com.iliani14.pg6100</groupId>
             <artifactId>quiz</artifactId>
-            <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
@@ -36,6 +38,7 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -44,6 +47,7 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
@@ -52,6 +56,7 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs</artifactId>
@@ -60,6 +65,7 @@
             <groupId>io.swagger</groupId>
             <artifactId>swagger-hibernate-validations</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-api</artifactId>
@@ -78,18 +84,20 @@
             <version>3.0.0-beta2</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
+
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+                <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
 
             <plugin>
@@ -102,12 +110,6 @@
                 <artifactId>wildfly-maven-plugin</artifactId>
                 <configuration>
                     <skip>false</skip>
-                    <!--
-                        This is quite complex (ie Java Agents and bytecode instrumentantion on the fly)...
-                        for now just copy&paste it.
-                        If you are really interested in understanding what it is actually doing,
-                        ask me in the breaks after the lectures
-                    -->
                     <java-opts>
                         -javaagent:${settings.localRepository}${fs}org${fs}jacoco${fs}org.jacoco.agent${fs}${version.jacoco}${fs}org.jacoco.agent-${version.jacoco}-runtime.jar=destfile=${basedir}${fs}target${fs}jacoco-it.exec
                     </java-opts>
@@ -115,5 +117,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
