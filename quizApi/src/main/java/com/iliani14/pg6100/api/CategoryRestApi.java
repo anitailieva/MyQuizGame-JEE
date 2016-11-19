@@ -41,9 +41,12 @@ public interface CategoryRestApi {
                     CategoryDto dto);
 
 
-    @ApiOperation("Get all the categories")
+    @ApiOperation("Get all the categories with a quiz")
     @GET
-    List<CategoryDto> get();
+    List<CategoryDto> get(
+            @ApiParam("Retrieving categories with quizzes")
+            @QueryParam("withQuizzes")
+    Boolean withQuizzes);
 
 
     @ApiOperation("Get a category specified by id")
@@ -176,7 +179,10 @@ public interface CategoryRestApi {
     @ApiOperation("Get all the subsubcategories")
     @GET
     @Path("/subsubcategories")
-    List<SubSubCategoryDto> getAllSubSubCategories();
+    List<SubSubCategoryDto> getAllSubSubCategories(
+            @ApiParam("Retrieving subsubcategories with quizzes")
+            @QueryParam("withQuizzes")
+                    Boolean  withQuizzes);
 
 
     @ApiOperation("Get a subsubcategory by id")
@@ -283,27 +289,6 @@ public interface CategoryRestApi {
             @PathParam("id")
                     Long id
     );
-
-
-
-    @ApiOperation("Get all the categories with at least one quiz")
-    @GET
-    List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz(
-            @ApiParam("True if categories has quizzes")
-            @QueryParam("withQuizzes")
-                    Boolean withQuizzes
-    );
-
-
-    @ApiOperation("Get all subsubcategories with at least one quiz")
-    @GET
-    @Path("/subsubcategories?withQuizzes")
-    List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz(
-            @ApiParam("True if subsubcategories has quizzes")
-            @QueryParam("withQuizzes")
-                    Boolean withQuizzes
-    );
-
 
     @ApiOperation("Get all subcategories with a specified category id")
     @GET
