@@ -18,6 +18,7 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -59,13 +60,19 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
+    public List<CategoryDto> get(@ApiParam("Retrieving categories with quizzes") Boolean withQuizzes) {
+        if(withQuizzes != null) {
+            if(withQuizzes)
+            return CategoryConverter.transform(new ArrayList<>(categoryEJB.getAllCategoriesWithAtLeastOneQuiz()));
+        }
+        return CategoryConverter.transform(categoryEJB.getAllCategories());
+    }
+
+
+    @Override
     public CategoryDto getById(Long id) {
         return CategoryConverter.transform(categoryEJB.findCategoryById(id));
     }
-
-    @Override
-    public List<CategoryDto> get() {return CategoryConverter.transform(categoryEJB.getAllCategories());}
-
 
     @Override
     public void updateCategoryName(Long id, String name) {
@@ -271,15 +278,19 @@ public class CategoryRest implements CategoryRestApi {
 
         return id;
     }
+
+    @Override
+    public List<SubSubCategoryDto> getAllSubSubCategories(@ApiParam("Retrieving subsubcategories with quizzes") Boolean withQuizzes) {
+        if(withQuizzes != null)
+            if(withQuizzes)
+                return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz());
+        return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());
+    }
+
     @Override
     public SubSubCategoryDto getSubSubCategoryById(Long id) {
         return SubSubCategoryConverter.transform(subSubCategoryEJB.findSubSubCategoryById(id));
     }
-
-
-    @Override
-    public List<SubSubCategoryDto> getAllSubSubCategories() { return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());}
-
 
     @Override
     public void updateSubSubCategoryName(Long id, String name) {
@@ -447,24 +458,6 @@ public class CategoryRest implements CategoryRestApi {
     // METHODS RETRIEVING A LIST ...
 
     @Override
-    public List<CategoryDto> getAllCategoriesWithAtLeastOneQuiz(@ApiParam("Categories has at least one quiz") Boolean withQuizzes) {
-        if (withQuizzes != null)
-            if (withQuizzes)
-                return CategoryConverter.transform(categoryEJB.getAllCategoriesWithAtLeastOneQuiz());
-
-        return CategoryConverter.transform(categoryEJB.getAllCategories());
-    }
-
-    @Override
-    public List<SubSubCategoryDto> getAllSubSubCategoriesWithAtLeastOneQuiz(@ApiParam("Subsubcategories has at least one quiz") Boolean withQuizzes) {
-        if(withQuizzes != null)
-            if(withQuizzes)
-                return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz());
-        return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());
-
-    }
-
-    @Override
     public List<SubCategoryDto> getAllSubCategoriesFromCategory(@ApiParam(ID_PARAM) Long id) {
         return SubCategoryConverter.transform(categoryEJB.getAllSubCategoriesForACategory(id));
     }
@@ -538,19 +531,16 @@ public class CategoryRest implements CategoryRestApi {
     @Override
     public Response deprecatedGetAllCategoriesWithAtLeastOneQuiz() {
         return Response.status(301)
-                .location(UriBuilder.fromUri("category").queryParam("withQuizzes", "")
-                        .build())
+                .location(UriBuilder.fromUri("category").queryParam("withQuizzes", true).build())
                 .build();
     }
-
-
 
     @Override
     public Response deprecatedGetAllSubSubCategoriesWithAtLeastOneQuiz() {
         return Response.status(301)
-                .location(UriBuilder.fromUri("category/subsubcategories").queryParam("withQuizzes", "")
-                        .build())
+                .location(UriBuilder.fromUri("category/subsubcategories").queryParam("withQuizzes", true).build())
                 .build();
+
     }
 
     private WebApplicationException wrapException(Exception e) throws WebApplicationException {
