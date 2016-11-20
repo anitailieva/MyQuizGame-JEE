@@ -891,6 +891,7 @@ public class CategoryIT extends CategoryTestBase {
 
      @Test
      public void testGetRandomQuiz() {
+
      String category1 = createCategory("cat1");
      String category2 = createCategory("cat2");
 
