@@ -11,6 +11,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -120,5 +121,14 @@ public class SubSubCategoryEJB {
                     .stream()
                     .filter(c -> subsubcategories.contains(c.getId()))
                     .collect(Collectors.toList());
+    }
+    public List<Long> getRandomQuizzesForSubSubCategory(Long subsubId, int n) {
+        List<Question> questions = em.find(SubSubCategory.class, subsubId).getListOfQuestions();
+        List<Long> id = new ArrayList<>();
+
+        while (id.size() != n && questions.size() != 0) {
+            id.add(questions.remove(new Random().nextInt(questions.size())).getId());
+        }
+        return id;
     }
 }
