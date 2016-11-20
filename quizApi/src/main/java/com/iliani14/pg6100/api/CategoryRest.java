@@ -18,8 +18,10 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by anitailieva on 27/10/2016.
@@ -471,6 +473,70 @@ public class CategoryRest implements CategoryRestApi {
     public List<QuestionDto> getAllQuestionsWithParent(@ApiParam(ID_PARAM) Long id) {
         return QuestionConverter.transform(categoryEJB.getAllQuizzesForCategory(id));
     }
+
+    @Override
+    public Response getRandomQuiz(@ApiParam("ID of category/subcategory/subsubcategory to get a quiz from") Long id) {
+        Long quizId;
+        Random r = new Random();
+        List<QuestionDto> questions = QuestionConverter.transform(questionEJB.getAllQuestions());
+
+
+        if(questions == null || questions.size() < 1)
+            return Response.status(400).build();
+
+        if(id == null) {
+            quizId = Long.parseLong(questions.get(r.nextInt(questions.size())).id);
+
+        } else if(categoryEJB.findCategoryById(id) != null) {
+            Long rootCategoryId = Long.parseLong(categoryEJB.findCategoryById(id).toString());
+
+            quizId = categoryEJB.getRandomQuizzesForCategory(rootCategoryId, 1).get(0);
+
+            if (quizId == null) {
+                return Response.status(404).build();
+            }
+
+            return Response.status(307)
+                    .location(URI.create("category/questions/" + quizId))
+                    .build();
+
+
+            }  else  if(subCategoryEJB.findSubCategoryById(id) != null) {
+
+            Long subId = Long.parseLong(subCategoryEJB.findSubCategoryById(id).toString());
+
+            quizId = subCategoryEJB.getRandomQuizzesForSubCategory(subId, 1).get(0);
+
+            if (quizId == null) {
+                return Response.status(404).build();
+            }
+
+            return Response.status(307)
+                    .location(URI.create("category/questions/" + quizId))
+                    .build();
+
+            } else if(subSubCategoryEJB.findSubSubCategoryById(id) != null) {
+
+            Long subsubId = Long.parseLong(subSubCategoryEJB.findSubSubCategoryById(id).toString());
+
+
+            quizId = subSubCategoryEJB.getRandomQuizzesForSubSubCategory(subsubId, 1).get(0);
+
+                    if(quizId == null) {
+                        return Response.status(404).build();
+                    }
+
+                    return Response.status(307)
+                            .location(URI.create("category/questions/" + quizId))
+                            .build();
+
+                 }
+
+        return Response.status(307)
+                .location(URI.create("category/questions/" + questionEJB.getRandomQuizzes(1).get(0)))
+                .build();
+    }
+
 
     // DEPRECATED METHODS
 
