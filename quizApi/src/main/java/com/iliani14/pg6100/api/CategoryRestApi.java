@@ -316,6 +316,18 @@ public interface CategoryRestApi {
                                          @PathParam("id")
                                                  Long id);
 
+    @ApiOperation("Retrieve a category(subcategory/subsubcategory with a random quiz")
+    @ApiResponses({
+            @ApiResponse(code = 307, message = "Temporary redirect to your quiz!"),
+            @ApiResponse(code = 404, message = "No categories can be found with that id"),
+            @ApiResponse(code = 409, message = "No questions created for that id")
+    })
+    @GET
+    public Response getRandomQuiz(
+            @ApiParam("ID of category/subcategory/subsubcategory to get a quiz from")
+            @QueryParam("filter")
+                   Long id);
+
 
     // DEPRECATED
 
