@@ -8,7 +8,9 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by anitailieva on 26/10/2016.
@@ -75,6 +77,16 @@ public class QuestionEJB {
             question.setQuestion(newName);
 
         }
+    }
+
+    public List<Long> getRandomQuizzes(int n) {
+        List<Question> questions = getAllQuestions();
+        List<Long> id = new ArrayList<>();
+
+        while (id.size() != n && questions.size() != 0) {
+            id.add(questions.remove(new Random().nextInt(questions.size())).getId());
+        }
+        return id;
     }
 
 }
