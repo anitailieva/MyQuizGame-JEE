@@ -1,6 +1,7 @@
 package com.iliani14.pg6100.ejb;
 
 import com.iliani14.pg6100.entity.Category;
+import com.iliani14.pg6100.entity.Question;
 import com.iliani14.pg6100.entity.SubCategory;
 import com.iliani14.pg6100.entity.SubSubCategory;
 
@@ -11,6 +12,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by anitailieva on 26/10/2016.
@@ -90,6 +92,15 @@ public class SubCategoryEJB {
 
     public List<SubSubCategory> getAllSubSubCategoriesForSubCategory(Long id) {
         return new ArrayList<>(findSubCategoryById(id).getSubSubCategories());
+    }
+    public List<Long> getRandomQuizzesForSubCategory(Long subId, int n) {
+        List<Question> questions = em.find(SubCategory.class, subId).getListOfQuestions();
+        List<Long> id = new ArrayList<>();
+
+        while (id.size() != n && questions.size() != 0) {
+            id.add(questions.remove(new Random().nextInt(questions.size())).getId());
+        }
+        return id;
     }
 
 }
