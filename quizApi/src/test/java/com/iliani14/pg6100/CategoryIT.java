@@ -888,4 +888,54 @@ public class CategoryIT extends CategoryTestBase {
                  .body("size()", is(5));
 
      }
+
+     @Test
+     public void testGetRandomQuiz() {
+     String category1 = createCategory("cat1");
+     String category2 = createCategory("cat2");
+
+     String subcategory1 = createSubCategory(category1, "sub1");
+     String subcategory2 = createSubCategory(category2, "sub2");
+
+     String subsubcategory1 = createSubSubCategory(subcategory1, "subsub1");
+     String subsubcategory2 = createSubSubCategory(subcategory1, "subsub2");
+     String subsubcategory3 = createSubSubCategory(subcategory2, "subsub3");
+
+
+         List<String> answers = getAnswers();
+         String theCorrectAnswer1 = answers.get(2);
+
+
+         createQuestion(subsubcategory1, "QUESTION1", answers, theCorrectAnswer1);
+         createQuestion(subsubcategory2, "QUESTION2", answers, theCorrectAnswer1);
+         createQuestion(subsubcategory2, "QUESTION3", answers, theCorrectAnswer1);
+         createQuestion(subsubcategory2, "QUESTION3", answers, theCorrectAnswer1);
+
+
+    given().queryParam("filter", subsubcategory2)
+                .get()
+                .then()
+                .statusCode(200)
+                .body("size()", is(2));
+
+    given().queryParam("filter", subsubcategory1)
+                .get()
+                .then()
+                .statusCode(200)
+                .body("size()", is(2));
+
+    given().queryParam("filter", subcategory1)
+                .get()
+                .then()
+                .statusCode(200)
+                .body("size()", is(2));
+
+    given().queryParam("filter", category1)
+                .get()
+                .then()
+                .statusCode(200)
+                .body("size()", is(2));
+
+}
+
 }
