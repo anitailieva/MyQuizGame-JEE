@@ -488,7 +488,7 @@ public class CategoryRest implements CategoryRestApi {
             quizId = Long.parseLong(questions.get(r.nextInt(questions.size())).id);
 
         } else if(categoryEJB.findCategoryById(id) != null) {
-            Long rootCategoryId = Long.parseLong(categoryEJB.findCategoryById(id).toString());
+            Long rootCategoryId = Long.parseLong(categoryEJB.getAllCategories().get(0).getId().toString());
 
             quizId = categoryEJB.getRandomQuizzesForCategory(rootCategoryId, 1).get(0);
 
@@ -503,7 +503,7 @@ public class CategoryRest implements CategoryRestApi {
 
             }  else  if(subCategoryEJB.findSubCategoryById(id) != null) {
 
-            Long subId = Long.parseLong(subCategoryEJB.findSubCategoryById(id).toString());
+            Long subId = Long.parseLong(subCategoryEJB.getAllSubCategories().get(0).getId().toString());
 
             quizId = subCategoryEJB.getRandomQuizzesForSubCategory(subId, 1).get(0);
 
@@ -517,7 +517,7 @@ public class CategoryRest implements CategoryRestApi {
 
             } else if(subSubCategoryEJB.findSubSubCategoryById(id) != null) {
 
-            Long subsubId = Long.parseLong(subSubCategoryEJB.findSubSubCategoryById(id).toString());
+                    Long subsubId = Long.parseLong(subSubCategoryEJB.getAllSubSubCategories().get(0).getId().toString());
 
 
             quizId = subSubCategoryEJB.getRandomQuizzesForSubSubCategory(subsubId, 1).get(0);
