@@ -46,13 +46,13 @@ public class CategoryRest implements CategoryRestApi {
 
     @Override
     public Long createCategory(CategoryDto dto) {
-        if(dto.id != null) {
+        if (dto.id != null) {
             throw new WebApplicationException("Cannot specify id for a newly generated category", 400);
         }
         Long id;
-        try{
+        try {
             id = categoryEJB.createCategory(dto.name);
-        }catch (Exception e){
+        } catch (Exception e) {
 
             throw wrapException(e);
         }
@@ -63,9 +63,9 @@ public class CategoryRest implements CategoryRestApi {
 
     @Override
     public List<CategoryDto> get(@ApiParam("Retrieving categories with quizzes") Boolean withQuizzes) {
-        if(withQuizzes != null) {
-            if(withQuizzes)
-            return CategoryConverter.transform(new ArrayList<>(categoryEJB.getAllCategoriesWithAtLeastOneQuiz()));
+        if (withQuizzes != null) {
+            if (withQuizzes)
+                return CategoryConverter.transform(new ArrayList<>(categoryEJB.getAllCategoriesWithAtLeastOneQuiz()));
         }
         return CategoryConverter.transform(categoryEJB.getAllCategories());
     }
@@ -78,13 +78,13 @@ public class CategoryRest implements CategoryRestApi {
 
     @Override
     public void updateCategoryName(Long id, String name) {
-        if(categoryEJB.findCategoryById(id) == null){
-            throw new WebApplicationException("Cannot find category with id: "+id, 404);
+        if (categoryEJB.findCategoryById(id) == null) {
+            throw new WebApplicationException("Cannot find category with id: " + id, 404);
         }
 
         try {
-            categoryEJB.updateCategory(id, name );
-        } catch (Exception e){
+            categoryEJB.updateCategory(id, name);
+        } catch (Exception e) {
             throw wrapException(e);
         }
     }
@@ -94,25 +94,25 @@ public class CategoryRest implements CategoryRestApi {
 
         CategoryDto dto = CategoryConverter.transform(categoryEJB.findCategoryById(id));
 
-        if( dto == null){
+        if (dto == null) {
             throw new WebApplicationException("Cannot find category with id " + id, 404);
         }
 
         ObjectMapper jackson = new ObjectMapper();
         JsonNode jsonNode;
-        try{
-            jsonNode = jackson.readValue(jsonPatch,JsonNode.class);
-        }catch (Exception e){
+        try {
+            jsonNode = jackson.readValue(jsonPatch, JsonNode.class);
+        } catch (Exception e) {
             throw new WebApplicationException("Invalid JSON data as input: " + e.getMessage(), 400);
         }
-        if(jsonNode.has("id")) {
+        if (jsonNode.has("id")) {
             throw new WebApplicationException(
                     "Cannot modify the category id from " + id + " to " + jsonNode.get("id"), 409);
         }
 
         String newName = dto.name;
 
-        if(jsonNode.has("name")) {
+        if (jsonNode.has("name")) {
             JsonNode nameNode = jsonNode.get("name");
             if (nameNode.isNull()) {
                 newName = null;
@@ -130,30 +130,29 @@ public class CategoryRest implements CategoryRestApi {
     @Override
     public void update(Long id, CategoryDto dto) {
         long theId;
-        try{
+        try {
             theId = Long.parseLong(dto.id);
-        }catch (Exception e){
-            throw new WebApplicationException("Invalid id: "+dto.id, 400);
+        } catch (Exception e) {
+            throw new WebApplicationException("Invalid id: " + dto.id, 400);
 
         }
 
-        if(id != theId){
+        if (id != theId) {
             // in this case, 409 (Conflict) sounds more appropriate than the generic 400
             throw new WebApplicationException("Now allowed to change the id of the resource", 409);
         }
 
-        if(categoryEJB.findCategoryById(id) == null){
-            throw new WebApplicationException("Not allowed to create a category with PUT, and cannot find category with id: "+id, 404);
+        if (categoryEJB.findCategoryById(id) == null) {
+            throw new WebApplicationException("Not allowed to create a category with PUT, and cannot find category with id: " + id, 404);
         }
 
 
-        try{
+        try {
             categoryEJB.updateCategory(id, dto.name);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw wrapException(e);
         }
     }
-
 
 
     @Override
@@ -171,14 +170,14 @@ public class CategoryRest implements CategoryRestApi {
             throw new WebApplicationException("Cannot specify id for a newly generated subcategory", 400);
         }
 
-        if (dto.categoryId == null){
+        if (dto.categoryId == null) {
             throw new WebApplicationException("Cannot specify category id", 400);
         }
         Long id;
-        try{
+        try {
             id = subCategoryEJB.createSubCategory(Long.parseLong(dto.categoryId), dto.name);
-        }catch (Exception e){
-            throw  wrapException(e);
+        } catch (Exception e) {
+            throw wrapException(e);
         }
         return id;
     }
@@ -190,18 +189,20 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
-    public List<SubCategoryDto> getAllSubCategories() { return SubCategoryConverter.transform(subCategoryEJB.getAllSubCategories());}
+    public List<SubCategoryDto> getAllSubCategories() {
+        return SubCategoryConverter.transform(subCategoryEJB.getAllSubCategories());
+    }
 
 
     @Override
     public void updateSubCategoryName(Long id, String name) {
-        if(subCategoryEJB.findSubCategoryById(id) == null){
-            throw new WebApplicationException("Cannot find subcategory with id: "+id, 404);
+        if (subCategoryEJB.findSubCategoryById(id) == null) {
+            throw new WebApplicationException("Cannot find subcategory with id: " + id, 404);
         }
 
         try {
             subCategoryEJB.updateSubCategory(id, name);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw wrapException(e);
         }
     }
@@ -211,16 +212,16 @@ public class CategoryRest implements CategoryRestApi {
 
         SubCategoryDto dto = SubCategoryConverter.transform(subCategoryEJB.findSubCategoryById(id));
 
-        if( dto == null) {
+        if (dto == null) {
             throw new WebApplicationException("Cannot find subcategory with id " + id, 404);
         }
 
         ObjectMapper jackson = new ObjectMapper();
         JsonNode jsonNode;
 
-        try{
+        try {
             jsonNode = jackson.readValue(jsonPatch, JsonNode.class);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new WebApplicationException("Invalid JSON data as input: " + e.getMessage(), 400);
         }
 
@@ -230,7 +231,7 @@ public class CategoryRest implements CategoryRestApi {
         }
 
 
-        if(jsonNode.has("categoryId")) {
+        if (jsonNode.has("categoryId")) {
             throw new WebApplicationException(
                     "Cannot modify the subcategory's id", 409);
         }
@@ -240,9 +241,8 @@ public class CategoryRest implements CategoryRestApi {
         if (jsonNode.has("name")) {
             JsonNode nameNode = jsonNode.get("name");
             if (nameNode.isNull()) {
-                anotherName= dto.name;
-            } else
-            if (nameNode.isTextual()) {
+                anotherName = dto.name;
+            } else if (nameNode.isTextual()) {
                 anotherName = nameNode.asText();
             } else {
                 throw new WebApplicationException("Invalid JSON. Non-string name", 400);
@@ -262,19 +262,19 @@ public class CategoryRest implements CategoryRestApi {
 
     @Override
     public Long createSubSubCategory(SubSubCategoryDto dto) {
-        if (dto.id != null){
+        if (dto.id != null) {
             throw new WebApplicationException("Cannot specify id for a newly generated subsubcategory", 400);
         }
 
-        if (dto.subcategoryId == null){
+        if (dto.subcategoryId == null) {
             throw new WebApplicationException("Cannot specify subcategory id", 400);
         }
 
         Long id;
         Long parentId = Long.parseLong(dto.subcategoryId);
-        try{
+        try {
             id = subSubCategoryEJB.createSubSubCategory(parentId, dto.name);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw wrapException(e);
         }
 
@@ -283,8 +283,8 @@ public class CategoryRest implements CategoryRestApi {
 
     @Override
     public List<SubSubCategoryDto> getAllSubSubCategories(@ApiParam("Retrieving subsubcategories with quizzes") Boolean withQuizzes) {
-        if(withQuizzes != null)
-            if(withQuizzes)
+        if (withQuizzes != null)
+            if (withQuizzes)
                 return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz());
         return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());
     }
@@ -296,14 +296,14 @@ public class CategoryRest implements CategoryRestApi {
 
     @Override
     public void updateSubSubCategoryName(Long id, String name) {
-        if(subSubCategoryEJB.findSubSubCategoryById(id) == null) {
-            throw new WebApplicationException("Cannot find subsubcategory with id: "+id, 404);
+        if (subSubCategoryEJB.findSubSubCategoryById(id) == null) {
+            throw new WebApplicationException("Cannot find subsubcategory with id: " + id, 404);
         }
 
-        try{
+        try {
             subSubCategoryEJB.updateSubSubCategory(id, name);
-        }catch (Exception e){
-            throw  wrapException(e);
+        } catch (Exception e) {
+            throw wrapException(e);
         }
     }
 
@@ -312,34 +312,34 @@ public class CategoryRest implements CategoryRestApi {
 
         SubSubCategoryDto dto = SubSubCategoryConverter.transform(subSubCategoryEJB.findSubSubCategoryById(id));
 
-        if(dto == null) {
+        if (dto == null) {
             throw new WebApplicationException("Cannot find subsubcategory with id " + id, 404);
         }
         ObjectMapper jackson = new ObjectMapper();
         JsonNode jsonNode;
 
-        try{
-        jsonNode = jackson.readValue(jsonPatch, JsonNode.class);
-        }catch (Exception e) {
+        try {
+            jsonNode = jackson.readValue(jsonPatch, JsonNode.class);
+        } catch (Exception e) {
             throw new WebApplicationException("Invalid JSON data as input: " + e.getMessage(), 400);
         }
 
-        if(jsonNode.has("id")) {
+        if (jsonNode.has("id")) {
             throw new WebApplicationException(
                     "Cannot modify the subsubcategory's id from " + id + " to " + jsonNode.get("id"), 409);
         }
-        if(jsonNode.has("subcategoryId")) {
+        if (jsonNode.has("subcategoryId")) {
             throw new WebApplicationException(
                     "Cannot modify the id of subsubcategory", 400);
         }
 
         String someName = dto.name;
 
-        if(jsonNode.has("name")) {
+        if (jsonNode.has("name")) {
             JsonNode jn = jsonNode.get("name");
-            if(jn.isNull()) {
+            if (jn.isNull()) {
                 someName = dto.name;
-            } else if(jn.isTextual()) {
+            } else if (jn.isTextual()) {
                 someName = jn.asText();
             } else {
                 throw new WebApplicationException("Invalid JSON", 400);
@@ -360,20 +360,20 @@ public class CategoryRest implements CategoryRestApi {
     @Override
     public Long createQuestion(QuestionDto dto) {
 
-        if(dto.id != null){
+        if (dto.id != null) {
             throw new WebApplicationException("Cannot specify id for a newly generated question", 400);
         }
 
-        if (dto.subSubCategoryId == null){
+        if (dto.subSubCategoryId == null) {
             throw new WebApplicationException("Cannot specify subsubcategory id", 400);
         }
 
 
         Long id;
         Long parentId = Long.parseLong(dto.subSubCategoryId);
-        try{
+        try {
             id = questionEJB.createQuestion(parentId, dto.question, dto.answers, dto.theCorrectAnswer);
-        }catch (Exception e){
+        } catch (Exception e) {
 
             throw wrapException(e);
         }
@@ -388,19 +388,20 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
-    public List<QuestionDto> getAllQuestions() { return QuestionConverter.transform(questionEJB.getAllQuestions());
+    public List<QuestionDto> getAllQuestions() {
+        return QuestionConverter.transform(questionEJB.getAllQuestions());
     }
 
 
     @Override
     public void updateQuestion(Long id, String question) {
-        if(questionEJB.findQuestionById(id) == null) {
-            throw new WebApplicationException("Cannot find question with id: "+id, 404);
+        if (questionEJB.findQuestionById(id) == null) {
+            throw new WebApplicationException("Cannot find question with id: " + id, 404);
         }
 
-        try{
+        try {
             questionEJB.updateQuestion(id, question);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw wrapException(e);
         }
 
@@ -410,20 +411,20 @@ public class CategoryRest implements CategoryRestApi {
     public void patchQuestion(@ApiParam(ID_PARAM) Long id, @ApiParam("Modifying the question") String jsonPatch) {
         QuestionDto dto = QuestionConverter.transform(questionEJB.findQuestionById(id));
 
-        if(dto == null) {
+        if (dto == null) {
             throw new WebApplicationException("Cannot find quiz with id " + id, 404);
         }
 
         ObjectMapper jackson = new ObjectMapper();
 
         JsonNode jsonNode;
-        try{
+        try {
             jsonNode = jackson.readValue(jsonPatch, JsonNode.class);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new WebApplicationException("Invalid JSON data as input: " + e.getMessage(), 400);
         }
 
-        if(jsonNode.has("id")) {
+        if (jsonNode.has("id")) {
             throw new WebApplicationException(
                     "Cannot modify the question id from " + id + " to " + jsonNode.get("id"), 409);
         }
@@ -435,9 +436,9 @@ public class CategoryRest implements CategoryRestApi {
 
         String updatedQuestion = "Updated";
 
-        if(jsonNode.has("question")) {
+        if (jsonNode.has("question")) {
             JsonNode node = jsonNode.get("question");
-            if(node.isNull()) {
+            if (node.isNull()) {
                 updatedQuestion = dto.question;
             } else if (node.isTextual()) {
                 updatedQuestion = node.asText();
@@ -449,11 +450,12 @@ public class CategoryRest implements CategoryRestApi {
         }
 
 
-            questionEJB.updateQuestion(id, updatedQuestion);
+        questionEJB.updateQuestion(id, updatedQuestion);
     }
 
     @Override
-    public void deleteQuestion(Long id) { questionEJB.deleteQuestion(id);
+    public void deleteQuestion(Long id) {
+        questionEJB.deleteQuestion(id);
 
     }
 
@@ -481,31 +483,16 @@ public class CategoryRest implements CategoryRestApi {
         List<QuestionDto> questions = QuestionConverter.transform(questionEJB.getAllQuestions());
 
 
-        if(questions == null || questions.size() < 1)
-            return Response.status(400).build();
+        if (questions == null || questions.size() < 1)
+            return Response.status(404).build();
 
-        if(id == null) {
+        if (id == null) {
             quizId = Long.parseLong(questions.get(r.nextInt(questions.size())).id);
+        }
 
-        } else if(categoryEJB.findCategoryById(id) != null) {
-            Long rootCategoryId = Long.parseLong(categoryEJB.getAllCategories().get(0).getId().toString());
+       if (categoryEJB.findCategoryById(id) != null) {
 
-            quizId = categoryEJB.getRandomQuizzesForCategory(rootCategoryId, 1).get(0);
-
-            if (quizId == null) {
-                return Response.status(404).build();
-            }
-
-            return Response.status(307)
-                    .location(URI.create("category/questions/" + quizId))
-                    .build();
-
-
-            }  else  if(subCategoryEJB.findSubCategoryById(id) != null) {
-
-            Long subId = Long.parseLong(subCategoryEJB.getAllSubCategories().get(0).getId().toString());
-
-            quizId = subCategoryEJB.getRandomQuizzesForSubCategory(subId, 1).get(0);
+            quizId = categoryEJB.getRandomQuizzesForCategory(id, 1).get(0);
 
             if (quizId == null) {
                 return Response.status(404).build();
@@ -515,28 +502,104 @@ public class CategoryRest implements CategoryRestApi {
                     .location(URI.create("category/questions/" + quizId))
                     .build();
 
-            } else if(subSubCategoryEJB.findSubSubCategoryById(id) != null) {
 
-                    Long subsubId = Long.parseLong(subSubCategoryEJB.getAllSubSubCategories().get(0).getId().toString());
+        } else if (subCategoryEJB.findSubCategoryById(id) != null) {
 
+            quizId = subCategoryEJB.getRandomQuizzesForSubCategory(id, 1).get(0);
 
-            quizId = subSubCategoryEJB.getRandomQuizzesForSubSubCategory(subsubId, 1).get(0);
+            if (quizId == null) {
+                return Response.status(404).build();
+            }
 
-                    if(quizId == null) {
-                        return Response.status(404).build();
-                    }
+            return Response.status(307)
+                    .location(URI.create("category/questions/" + quizId))
+                    .build();
 
-                    return Response.status(307)
-                            .location(URI.create("category/questions/" + quizId))
-                            .build();
+            } else if (subSubCategoryEJB.findSubSubCategoryById(id) != null) {
 
-                 }
+            quizId = subSubCategoryEJB.getRandomQuizzesForSubSubCategory(id, 1).get(0);
+
+            if (quizId == null) {
+                return Response.status(404).build();
+            }
+
+            return Response.status(307)
+                    .location(URI.create("category/questions/" + quizId))
+                    .build();
+
+        }
 
         return Response.status(307)
                 .location(URI.create("category/questions/" + questionEJB.getRandomQuizzes(1).get(0)))
                 .build();
     }
 
+
+    @Override
+    public List<Long> getRandomQuizzes(@ApiParam("ID of category/subcategory/subsubcategory to get a quiz from") Long id, @ApiParam("Default number of questions") int numberOfQuestions) {
+        List<Long> quizId;
+
+        List<QuestionDto> questions = QuestionConverter.transform(questionEJB.getAllQuestions());
+
+        if(questionEJB.getAllQuestions().isEmpty()){
+            throw new WebApplicationException("No quizzes yet.", 404);
+
+        }
+
+        int nOfQuizzes;
+        if(numberOfQuestions != 0){
+
+            nOfQuizzes = numberOfQuestions;
+            } else {
+
+            nOfQuizzes = 5;
+        }
+
+
+        if(id == null) {
+            throw new WebApplicationException("Value is not correct, is null", 404);
+
+        }
+
+        if(categoryEJB.findCategoryById(id) != null) {
+
+            quizId = categoryEJB.getRandomQuizzesForCategory(id, nOfQuizzes);
+
+            if(quizId.size() < nOfQuizzes) {
+                throw new WebApplicationException("Number of quizzes is less than the default (5).", 404);
+
+            }
+
+        } else if(subCategoryEJB.findSubCategoryById(id) != null) {
+            quizId = subCategoryEJB.getRandomQuizzesForSubCategory(id, nOfQuizzes);
+
+            if(quizId.size() < nOfQuizzes) {
+                throw new WebApplicationException("Number of quizzes is less than the default (5).", 404);
+
+            }
+
+        } else if (subSubCategoryEJB.findSubSubCategoryById(id) != null) {
+
+            quizId = subSubCategoryEJB.getRandomQuizzesForSubSubCategory(id, nOfQuizzes);
+
+            if(quizId.size() < nOfQuizzes) {
+                throw new WebApplicationException("Number of quizzes is less than the default (5).", 404);
+
+            }
+
+        } else {
+            throw new WebApplicationException("No category,subcategory or subsubcategory with id " + id, 404);
+        }
+
+        quizId = questionEJB.getRandomQuizzes(nOfQuizzes);
+
+        if(quizId.size() < nOfQuizzes) {
+            throw new WebApplicationException("Number of quizzes is less than the default (5).", 404);
+
+        }
+
+        return quizId;
+    }
 
     // DEPRECATED METHODS
 
