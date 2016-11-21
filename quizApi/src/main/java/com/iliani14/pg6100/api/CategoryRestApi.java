@@ -323,10 +323,26 @@ public interface CategoryRestApi {
             @ApiResponse(code = 409, message = "No questions created for that id")
     })
     @GET
-    public Response getRandomQuiz(
+    @Path(("/randomQuiz"))
+    Response getRandomQuiz(
             @ApiParam("ID of category/subcategory/subsubcategory to get a quiz from")
             @QueryParam("filter")
                    Long id);
+
+
+
+
+    @ApiOperation("Retrieve a category(subcategory/subsubcategory with a random quiz")
+    @POST
+    @Path(("/randomQuizzes"))
+    List<Long> getRandomQuizzes(
+            @ApiParam("ID of category/subcategory/subsubcategory to get a quiz from")
+            @QueryParam("filter")
+                    Long id,
+            @ApiParam("Default number of questions")
+            @QueryParam("nOfQuestions")
+            int numberOfQuestions
+);
 
 
     // DEPRECATED
