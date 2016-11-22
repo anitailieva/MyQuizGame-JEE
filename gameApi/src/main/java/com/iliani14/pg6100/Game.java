@@ -1,7 +1,5 @@
 package com.iliani14.pg6100;
 
-import com.iliani14.pg6100.entity.Question;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +7,10 @@ import java.util.List;
 /**
  * Created by anitailieva on 20/11/2016.
  */
+@NamedQueries({
+        @NamedQuery(name = Game.GET_ALL_ACTIVE_GAMES, query = "select g from Game g where isActive = TRUE"),
+})
 
-@NamedQuery(name = Game.GET_ALL_ACTIVE_GAMES, query = "SELECT g FROM Game g WHERE g.isActive = true")
 @Entity
 public class Game {
 
@@ -24,7 +24,7 @@ public class Game {
 
         private boolean isActive;
 
-        @OneToMany(fetch = FetchType.EAGER)
+        @ElementCollection(fetch = FetchType.EAGER)
         private List<Long> questions;
 
         public Game(){
