@@ -1,7 +1,7 @@
 package com.iliani14.pg6100;
 
 
-import com.iliani14.pg6100.api.QuizRestImpl;
+import com.iliani14.pg6100.api.GameRestImpl;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
@@ -12,10 +12,10 @@ import io.swagger.jaxrs.listing.ApiListingResource;
 /**
  * Created by anitailieva on 15/11/2016.
  */
-public class QuizApplication extends Application<QuizConfiguration> {
+public class GameApplication extends Application<GameConfiguration> {
 
     public static void main(String[] args) throws Exception {
-        new QuizApplication().run(args);
+        new GameApplication().run(args);
     }
 
     @Override
@@ -24,7 +24,7 @@ public class QuizApplication extends Application<QuizConfiguration> {
     }
 
     @Override
-    public void initialize(Bootstrap<QuizConfiguration> bootstrap) {
+    public void initialize(Bootstrap<GameConfiguration> bootstrap) {
         bootstrap.addBundle(new AssetsBundle("/assets", "/", null, "a"));
         bootstrap.addBundle(new AssetsBundle("/assets/css", "/css", null, "b"));
         bootstrap.addBundle(new AssetsBundle("/assets/fonts", "/fonts", null, "c"));
@@ -34,9 +34,9 @@ public class QuizApplication extends Application<QuizConfiguration> {
     }
 
     @Override
-    public void run(QuizConfiguration configuration, Environment environment) {
+    public void run(GameConfiguration configuration, Environment environment) {
         environment.jersey().setUrlPattern("/game/api/*");
-        environment.jersey().register(new QuizRestImpl());
+        environment.jersey().register(new GameRestImpl());
 
         //swagger
         environment.jersey().register(new ApiListingResource());
