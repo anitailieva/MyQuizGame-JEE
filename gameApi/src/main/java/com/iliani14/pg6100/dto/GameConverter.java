@@ -1,6 +1,6 @@
 package com.iliani14.pg6100.dto;
 
-import com.iliani14.pg6100.entity.Game;
+import com.iliani14.pg6100.Game;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +19,14 @@ public class GameConverter {
         GameDto dto = new GameDto();
         dto.id = String.valueOf(entity.getId());
         dto.numberOfQuestions = entity.getQuestions().size();
-        dto.answer = entity.getAnswer();
+        dto.numberOfAnswers = entity.getNumberOfAnswers();
+        dto.isActive = entity.isActive();
+
+        if(entity.isActive()){
+            dto.uri = "http://<...>/quizzes/{id}" +  entity.getQuestions().get(entity.getNumberOfAnswers());
+        } else {
+            dto.uri = "No uri available, the game is not active.";
+        }
 
         return dto;
     }
