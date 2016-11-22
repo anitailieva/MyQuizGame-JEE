@@ -6,5 +6,5 @@ import io.dropwizard.Configuration;
 /**
  * Created by anitailieva on 15/11/2016.
  */
-public class QuizConfiguration extends Configuration{
+public class GameConfiguration extends Configuration{
 }
