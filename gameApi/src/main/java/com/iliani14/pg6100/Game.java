@@ -25,7 +25,7 @@ public class Game {
         private boolean isActive;
 
         @OneToMany(fetch = FetchType.EAGER)
-        private List<Question> questions;
+        private List<Long> questions;
 
         public Game(){
         }
@@ -54,14 +54,14 @@ public class Game {
             isActive = isActive;
             }
 
-        public List<Question> getQuestions(){
+        public List<Long> getQuestions(){
             if(questions == null)
             return new ArrayList<>();
 
             return questions;
         }
 
-        public void setQuestions(List<Question> questions){
+        public void setQuestions(List<Long> questions){
             this.questions = questions;
         }
 
