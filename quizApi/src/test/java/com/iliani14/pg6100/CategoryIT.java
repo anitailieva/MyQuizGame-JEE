@@ -259,9 +259,7 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .body("id", hasItems(subcategory1, subcategory2, subcategory3))
                 .body("name", hasItems("Subcategory1", "Subcategory2", "Subcategory3"));
-
     }
-
 
     @Test
     public void testCreateAndGetSubCategory() {
@@ -287,7 +285,6 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .body("id", is(id))
                 .body("name", is(subcategoryName));
-
     }
 
     @Test
