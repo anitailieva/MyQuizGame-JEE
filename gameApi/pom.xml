@@ -19,9 +19,12 @@
         <dependency>
             <groupId>com.iliani14.pg6100</groupId>
             <artifactId>quiz</artifactId>
-            <version>${project.version}</version>
-
         </dependency>
+
+        <!--
+            Make sure that the "provided" dependencies of "news"
+            module are marked as "compile" here
+          -->
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
@@ -108,12 +111,27 @@
             <artifactId>jackson-databind</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+        </dependency>
 
     </dependencies>
 
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+
+            <!-- make sure we calculate code coverage -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -156,7 +174,7 @@
                                 This will specify the entry point of the packaged jar, ie the
                                 class with the "main(String[] args)" method
                             -->
-                            <mainClass>com.iliani14.pg6100.QuizApplication</mainClass>
+                            <mainClass>com.iliani14.pg6100.GameApplication</mainClass>
                         </transformer>
                     </transformers>
                 </configuration>
