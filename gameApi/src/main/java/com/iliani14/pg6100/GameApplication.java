@@ -46,7 +46,7 @@ public class GameApplication extends Application<GameConfiguration> {
         beanConfig.setSchemes(new String[]{"http"});
         beanConfig.setHost("localhost:8080");
         beanConfig.setBasePath("/game");
-        beanConfig.setResourcePackage("com.iliani14.pg6100");
+        beanConfig.setResourcePackage("com.iliani14.pg6100.api");
         beanConfig.setScan(true);
 
         environment.jersey().register(new io.swagger.jaxrs.listing.ApiListingResource());
