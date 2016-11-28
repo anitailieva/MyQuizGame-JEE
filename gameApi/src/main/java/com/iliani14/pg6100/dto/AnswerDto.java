@@ -10,12 +10,12 @@ import io.swagger.annotations.ApiModelProperty;
 public class AnswerDto {
 
     @ApiModelProperty("If answer is correct")
-    public boolean correct;
+    public Boolean correct;
 
     public AnswerDto() {
     }
 
-    public AnswerDto(boolean correct) {
+    public AnswerDto(Boolean correct) {
         this.correct = correct;
     }
 }
