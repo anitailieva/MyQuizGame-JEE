@@ -3,6 +3,8 @@ package com.iliani14.pg6100.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.List;
+
 /**
  * Created by anitailieva on 20/11/2016.
  */
@@ -25,20 +27,19 @@ public class GameDto {
     @ApiModelProperty("The uri of the quiz")
     public String uri;
 
-    @ApiModelProperty("The answer to the question")
-    public String correctAnswer;
+
+    public List<Long> questionIds;
 
 
 
     public GameDto() {
     }
 
-    public GameDto(String id, int numberOfQuestions, int numberOfAnswers, boolean isActive, String uri, String correctAnswer){
+    public GameDto(String id, int numberOfQuestions, int numberOfAnswers, boolean isActive, String uri){
         this.id = id;
         this.numberOfQuestions = numberOfQuestions;
         this.numberOfAnswers = numberOfAnswers;
         this.isActive = isActive;
         this.uri = uri;
-        this.correctAnswer = correctAnswer;
     }
 }
