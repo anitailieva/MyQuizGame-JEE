@@ -3,6 +3,7 @@ package com.iliani14.pg6100.ejb;
 import com.iliani14.pg6100.entity.Category;
 import com.iliani14.pg6100.entity.Question;
 import com.iliani14.pg6100.entity.SubCategory;
+import com.iliani14.pg6100.entity.SubSubCategory;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -31,7 +31,7 @@ public class CategoryEJB {
     @EJB
     private QuestionEJB questionEJB;
 
-    public Long createCategory(String name){
+    public long createCategory(String name){
         Category c = new Category();
         c.setName(name);
 
@@ -45,11 +45,32 @@ public class CategoryEJB {
         return em.find(Category.class, id);
     }
 
-    public List<Category> getAllCategories(){
-        Query query = em.createNamedQuery(Category.GET_ALL_CATEGORIES);
-        List<Category> categories = query.getResultList();
+    public Category getCategory(long id, boolean expand){
+        Category category = findCategoryById(id);
+        if(expand){
+            category.getSubCategories()
+                    .forEach(subCategory -> subCategory.getSubSubCategories().size());
+        }
+        return category;
+    }
 
-        return categories;
+
+    public List<Category> getAllCategories(int limit, boolean expand){
+
+        List<Category> list =
+                em.createNamedQuery(Category.GET_ALL_CATEGORIES).setMaxResults(limit).getResultList();
+
+        if(expand) {
+            list.forEach(rootCategory -> rootCategory.getSubCategories().size());
+
+            List<SubCategory> subCategories = new ArrayList<>();
+            list.forEach(rootCategory -> subCategories.addAll(rootCategory.getSubCategories()));
+
+            subCategories.forEach(subCategory -> subCategory.getSubSubCategories().size());
+        }
+
+        return list;
+
 
     }
 
@@ -59,54 +80,58 @@ public class CategoryEJB {
         return (Category) query.getSingleResult();
     }
 
-    public void deleteCategory(long id){
+    public boolean deleteCategory(long id){
         Category category = em.find(Category.class, id);
-        if(category != null){
-            em.remove(category);
-        }
+        if(category == null) return false;
+        em.remove(category);
+        return true;
+
     }
 
-    public void updateCategory(long id, String newName){
+    public boolean updateCategory(long id, String newName){
         Category category = em.find(Category.class, id);
-        if(category!=null)
-            {
-                category.setName(newName);
-
-        }
+        if (category == null) return false;
+        category.setName(newName);
+        return true;
     }
 
-    public List<Category> getAllCategoriesWithAtLeastOneQuiz() {
-        List<Question> questions = questionEJB.getAllQuestions();
+    public List<Category> getAllCategoriesWithAtLeastOneQuiz(int limit) {
+        List<Question> questions =em.createNamedQuery(Question.GET_ALL_QUESTIONS).getResultList();
 
-        if(questions.size() == 0) {
-            return new ArrayList<>();
-        }
+        Set<Category> categories = questions.stream().map(Question::getSubSubCategories).collect(toSet())
+                .stream().map(SubSubCategory::getSubCategories).collect(toSet())
+                .stream().map(SubCategory::getCategory).collect(toSet());
 
-        Set<Long> categories = questions
-                .stream()
-                .map(q -> q.getSubSubCategories().getSubCategories().getCategory().getId())
-                .collect(toSet());
+        int size = categories.size();
 
-
-        return getAllCategories()
-                .stream()
-                .filter(c -> categories.contains(c.getId()))
-                .collect(Collectors.toList());
+        return new ArrayList<>(categories).subList(0, limit > size ? size : limit);
     }
 
-    public List<SubCategory> getAllSubCategoriesForACategory(Long id) {
-        return new ArrayList<>(findCategoryById(id).getSubCategories());
+    public List<SubCategory> getAllSubCategoriesForACategory(long id, int limit) {
+        return em.createQuery("select s from SubCategory s where s.category.id = :id")
+                .setParameter("id", id)
+                .setMaxResults(limit)
+                .getResultList();
+
     }
 
-    public List<Question> getAllQuizzesForCategory(Long id){
+    public List<Question> getAllQuestionsForCategory(long id) {
         Category category = em.find(Category.class, id);
-
-        if (category == null) throw new IllegalArgumentException("There is no category with the id: " + id);
+        if (category == null) throw new IllegalArgumentException("There is no category with id: " + id);
 
         return category.getListOfQuestions();
     }
 
-    public List<Long> getRandomQuizzesForCategory(Long catId, int n) {
+    public List<Question> getAllQuestionsForCategory(long id, int max) {
+        Category category = em.find(Category.class, id);
+        if (category == null) throw new IllegalArgumentException("There is no category with id: " + id);
+
+        int sizeOfList = category.getListOfQuestions().size();
+
+        return category.getListOfQuestions().subList(0, max > sizeOfList ? sizeOfList : max);
+    }
+
+    public List<Long> getRandomQuizzesForCategory(long catId, int n) {
         List<Question> questions = em.find(Category.class, catId).getListOfQuestions();
         List<Long> id = new ArrayList<>();
 
