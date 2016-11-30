@@ -27,7 +27,7 @@ public class SubCategoryEJB {
     @EJB
     private CategoryEJB categoryEJB;
 
-    public Long createSubCategory(Long categoryId, String name) {
+    public long createSubCategory(long categoryId, String name) {
         Category c = categoryEJB.findCategoryById(categoryId);
         SubCategory sub = new SubCategory();
         sub.setName(name);
@@ -36,13 +36,18 @@ public class SubCategoryEJB {
         em.persist(sub);
 
         c.getSubCategories().add(sub);
-        em.persist(c);
 
         return sub.getId();
     }
 
     public SubCategory findSubCategoryById(Long id) {
         return em.find(SubCategory.class, id);
+    }
+
+    public List<SubCategory> getSubCategoriesList(int limit) {
+        return em.createNamedQuery(SubCategory.GET_ALL_SUBCATEGORIES).setMaxResults(limit)
+                .getResultList();
+
     }
 
     public List<SubCategory> getAllSubCategories() {
@@ -64,7 +69,7 @@ public class SubCategoryEJB {
 
         return query.getResultList();
     }
-    public SubCategory getSubCategoryByCategoryIdAndOwnId(Long categoryId, Long id) {
+    public SubCategory getSubCategoryByCategoryIdAndOwnId(long categoryId, long id) {
         Query query = em.createQuery("SELECT s FROM SubCategory s WHERE s.category.id = ?1 AND s.id = ?2");
         query.setParameter(1, categoryId);
         query.setParameter(2, id);
@@ -75,25 +80,39 @@ public class SubCategoryEJB {
             return null;
         }
     }
-    public void deleteSubCategory(Long id) {
-        SubCategory subCategory = em.find(SubCategory.class, id);
-        if (subCategory != null) {
-            em.remove(subCategory);
+    public boolean deleteSubCategory(long id) {
+            SubCategory subCategory = em.find(SubCategory.class, id);
+            if (subCategory == null) return false;
+            Category category = em.find(Category.class, subCategory.getCategory().getId());
+            category.getSubCategories().remove(id);
+            return true;
         }
-    }
 
-    public void updateSubCategory(Long id, String newName) {
+    public boolean updateSubCategory(long id, String newName) {
         SubCategory subCategory = em.find(SubCategory.class, id);
-        if (subCategory != null) {
+        if (subCategory == null) return false;
             subCategory.setName(newName);
+        return true;
+    }
 
+    public List<SubSubCategory> getAllSubSubCategoriesForSubCategory(long id, int limit) {
+        return em.createQuery("select ssb from SubSubCategory ssb where ssb.subCategories.id = :id")
+                .setParameter("id", id)
+                .setMaxResults(limit)
+                .getResultList();
+
+    }
+
+    public List<Long> getRandomQuizzesForSubSubCategory(Long subSubCategoryId, int numberOfQuestions) {
+        List<Question> questions = em.find(SubSubCategory.class, subSubCategoryId).getListOfQuestions();
+        List<Long> ids = new ArrayList<>();
+        while(ids.size() != numberOfQuestions && questions.size() != 0) {
+            ids.add(questions.remove(new Random().nextInt(questions.size())).getId());
         }
+        return ids;
     }
 
-    public List<SubSubCategory> getAllSubSubCategoriesForSubCategory(Long id) {
-        return new ArrayList<>(findSubCategoryById(id).getSubSubCategories());
-    }
-    public List<Long> getRandomQuizzesForSubCategory(Long subId, int n) {
+    public List<Long> getRandomQuizzesForSubCategory(long subId, int n) {
         List<Question> questions = em.find(SubCategory.class, subId).getListOfQuestions();
         List<Long> id = new ArrayList<>();
 
