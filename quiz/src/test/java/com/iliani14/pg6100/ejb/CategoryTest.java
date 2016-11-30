@@ -47,6 +47,9 @@ public class CategoryTest {
     @EJB
     private DeleterEJB deleterEJB;
 
+    @EJB
+    private QuestionEJB questionEJB;
+
     @Before
     @After
     public void clearDatabase(){
@@ -77,21 +80,16 @@ public class CategoryTest {
         categoryEJB.createCategory("Sports");
 
 
-        assertEquals(2, categoryEJB.getAllCategories().size());
+
+        assertEquals(2, categoryEJB.getAllCategories(2, false).size());
     }
 
     @Test
     public void testDeleteCategory(){
-        String name = "Science";
-        categoryEJB.createCategory(name);
-
-        List<Category> categories = categoryEJB.getAllCategories();
-        assertEquals(1, categories.size());
-
-        long id = categories.get(0).getId();
+        long id = categoryEJB.createCategory("Science");
         categoryEJB.deleteCategory(id);
 
-        assertEquals(0, categoryEJB.getAllCategories().size());
+        assertNull(categoryEJB.findCategoryById(id));
     }
 
     @Test
@@ -99,14 +97,9 @@ public class CategoryTest {
         String name1 = "Science";
         String name2 = "Sports";
 
-        categoryEJB.createCategory(name1);
-        assertEquals(name1, categoryEJB.getAllCategories().get(0).getName());
-
-        List<Category> categories = categoryEJB.getAllCategories();
-        long id = categories.get(0).getId();
-        categoryEJB.updateCategory(id, name2);
-
-        assertEquals(name2, categoryEJB.getAllCategories().get(0).getName());
+        long id = categoryEJB.createCategory(name1);
+        assertTrue(categoryEJB.updateCategory(id, name2));
+        assertEquals(name2, categoryEJB.findCategoryById(id).getName());
     }
 
     @Test
@@ -133,15 +126,11 @@ public class CategoryTest {
     @Test
     public void testDeleteSubCategory(){
         long c = categoryEJB.createCategory("Science");
-        subCategoryEJB.createSubCategory(c, "Computer Science");
+        long s =  subCategoryEJB.createSubCategory(c, "Computer Science");
+        long ss = subSubCategoryEJB.createSubSubCategory(s, "Name");
 
-        List<SubCategory> subCategories = subCategoryEJB.getAllSubCategories();
-        assertEquals(1, subCategories.size());
+        assertTrue(subCategoryEJB.deleteSubCategory(s));
 
-        long id = subCategories.get(0).getId();
-        subCategoryEJB.deleteSubCategory(id);
-
-        assertEquals(0, subCategoryEJB.getAllSubCategories().size());
 
     }
 
@@ -151,13 +140,12 @@ public class CategoryTest {
         String sub2 = "Football";
 
         long c = categoryEJB.createCategory("Science");
-        subCategoryEJB.createSubCategory(c, "Computer Science");
-        assertEquals(sub1, subCategoryEJB.getAllSubCategories().get(0).getName());
+        long s = subCategoryEJB.createSubCategory(c, "Computer Science");
 
-        List<SubCategory> subCat= subCategoryEJB.getAllSubCategories();
-        long id = subCat.get(0).getId();
-        subCategoryEJB.updateSubCategory(id, sub2);
 
+        subCategoryEJB.updateSubCategory(s, sub2);
+
+        assertTrue(subCategoryEJB.updateSubCategory(s, sub2));
         assertEquals(sub2, subCategoryEJB.getAllSubCategories().get(0).getName());
 
     }
@@ -207,7 +195,6 @@ public class CategoryTest {
 
         assertTrue(subSubCategories.stream().anyMatch(s -> s.getName().equals("IOS")));
     }
-
     @Test
     public void testGetSubSubCategoryBySubCategoryName(){
         String categoryName = "Science";
@@ -253,17 +240,12 @@ public class CategoryTest {
 
     @Test
     public void testDeleteSubSubCategory(){
-        long c = categoryEJB.createCategory("Science");
-        long sub = subCategoryEJB.createSubCategory(c, "Computer Science");
-        subSubCategoryEJB.createSubSubCategory(sub, "IOS");
+        long catId = categoryEJB.createCategory("Cateogory");
+        long subId = subCategoryEJB.createSubCategory(catId, "Name");
+        long subSubId = subSubCategoryEJB.createSubSubCategory(subId, "Name");
 
-        List<SubSubCategory> subSubCategories = subSubCategoryEJB.getAllSubSubCategories();
-        assertEquals(1, subSubCategories.size());
+        assertTrue(subSubCategoryEJB.deleteSubSubCategory(subSubId));
 
-        long id = subSubCategories.get(0).getId();
-        subSubCategoryEJB.deleteSubSubCategory(id);
-
-        assertEquals(0, subSubCategoryEJB.getAllSubSubCategories().size());
     }
 
     @Test
@@ -273,16 +255,13 @@ public class CategoryTest {
 
         long c = categoryEJB.createCategory("Science");
         long sub = subCategoryEJB.createSubCategory(c, "Computer Science");
-        subSubCategoryEJB.createSubSubCategory(sub, subsub1);
+        long subsub = subSubCategoryEJB.createSubSubCategory(sub, subsub1);
 
-        assertEquals(subsub1, subSubCategoryEJB.getAllSubSubCategories().get(0).getName());
+        subSubCategoryEJB.updateSubSubCategory(subsub, subsub2);
 
-        List<SubSubCategory> subSubCategories = subSubCategoryEJB.getAllSubSubCategories();
-        long id = subSubCategories.get(0).getId();
-
-        subSubCategoryEJB.updateSubSubCategory(id, subsub2);
-
+        assertTrue(subSubCategoryEJB.updateSubSubCategory(subsub, subsub2));
         assertEquals(subsub2, subSubCategoryEJB.getAllSubSubCategories().get(0).getName());
+
 
     }
 
