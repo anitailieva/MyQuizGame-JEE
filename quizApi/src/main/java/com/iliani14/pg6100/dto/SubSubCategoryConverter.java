@@ -1,5 +1,6 @@
 package com.iliani14.pg6100.dto;
 
+import com.iliani14.pg6100.dto.collection.ListDto;
 import com.iliani14.pg6100.entity.SubSubCategory;
 
 import java.util.List;
@@ -25,10 +26,25 @@ public class SubSubCategoryConverter {
 
     }
 
-    public static List<SubSubCategoryDto> transform(List<SubSubCategory> entities){
-        Objects.requireNonNull(entities);
+    public static ListDto<SubSubCategoryDto> transform(List<SubSubCategory> entities, int offset, int limit){
 
-        return entities.stream().map(SubSubCategoryConverter::transform)
-                .collect(Collectors.toList());
+       List<SubSubCategoryDto> dtoList = null;
+       if(entities != null){
+           dtoList = entities.stream()
+                   .skip(offset)
+                   .limit(limit)
+                   .map(SubSubCategoryConverter::transform)
+                   .collect(Collectors.toList());
+       }
+
+       ListDto<SubSubCategoryDto> dto = new ListDto<>();
+       dto.list = dtoList;
+       dto._links = new ListDto.ListLinks();
+       dto.rangeMin = offset;
+       assert dtoList != null;
+       dto.rangeMax = dto.rangeMin + dtoList.size() - 1;
+       dto.totalSize = entities.size();
+
+       return dto;
     }
 }
