@@ -33,7 +33,7 @@ public class SubCategory {
     private String name;
 
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "subCategories")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "subCategories")
     private List<SubSubCategory> subSubCategories;
 
 
