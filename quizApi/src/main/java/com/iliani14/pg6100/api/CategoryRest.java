@@ -4,10 +4,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 import com.iliani14.pg6100.dto.*;
+import com.iliani14.pg6100.dto.collection.ListDto;
+import com.iliani14.pg6100.dto.hal.HalLink;
 import com.iliani14.pg6100.ejb.CategoryEJB;
 import com.iliani14.pg6100.ejb.QuestionEJB;
 import com.iliani14.pg6100.ejb.SubCategoryEJB;
 import com.iliani14.pg6100.ejb.SubSubCategoryEJB;
+import com.iliani14.pg6100.entity.Category;
+import com.iliani14.pg6100.entity.Question;
+import com.iliani14.pg6100.entity.SubCategory;
+import com.iliani14.pg6100.entity.SubSubCategory;
 import io.swagger.annotations.ApiParam;
 
 import javax.ejb.EJB;
@@ -15,9 +21,12 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.validation.ConstraintViolationException;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +51,9 @@ public class CategoryRest implements CategoryRestApi {
     @EJB
     private QuestionEJB questionEJB;
 
+    @Context
+    UriInfo uriInfo;
+
     //CATEGORY
 
     @Override
@@ -62,19 +74,72 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
-    public List<CategoryDto> get(@ApiParam("Retrieving categories with quizzes") Boolean withQuizzes) {
-        if (withQuizzes != null) {
-            if (withQuizzes)
-                return CategoryConverter.transform(new ArrayList<>(categoryEJB.getAllCategoriesWithAtLeastOneQuiz()));
-        }
-        return CategoryConverter.transform(categoryEJB.getAllCategories());
-    }
+    public ListDto<CategoryDto> get(Integer offset, Integer limit, String withQuizzes, Boolean expand) {
 
+        if(offset < 0){
+            throw new WebApplicationException("Negative offset: " + offset, 400);
+        }
+
+        if(limit < 1){
+            throw new WebApplicationException("Limit should be at least 1: " + limit, 400);
+        }
+
+        if(expand == null) expand = false;
+
+        int maxFromDb = 50;
+
+        List<Category> categories;
+
+        if(withQuizzes != null && (withQuizzes.isEmpty() || withQuizzes.equals("true"))) {
+            categories = categoryEJB.getAllCategoriesWithAtLeastOneQuiz(maxFromDb);
+        } else {
+            categories = categoryEJB.getAllCategories(maxFromDb, expand);
+        }
+
+        if(offset != 0 && offset >=  categories.size()){
+            throw new WebApplicationException("Offset "+ offset + " out of bound "+ categories.size(), 400);
+        }
+
+        ListDto<CategoryDto> dto = CategoryConverter.transform(
+                categories, offset, limit, expand);
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder()
+                .path("/category")
+                .queryParam("expand", expand)
+                .queryParam("limit", limit);
+
+        if(withQuizzes != null){
+            builder = builder.queryParam("withQuizzes", withQuizzes);
+        }
+
+        dto._links.self = new HalLink(builder.clone()
+                .queryParam("offset", offset)
+                .build().toString()
+        );
+
+        if (!categories.isEmpty() && offset > 0) {
+            dto._links.previous = new HalLink(builder.clone()
+                    .queryParam("offset", Math.max(offset - limit, 0))
+                    .build().toString()
+            );
+        }
+        if (offset + limit < categories.size()) {
+            dto._links.next = new HalLink(builder.clone()
+                    .queryParam("offset", offset + limit)
+                    .build().toString()
+            );
+        }
+
+        return dto;
+
+    }
 
     @Override
-    public CategoryDto getById(Long id) {
-        return CategoryConverter.transform(categoryEJB.findCategoryById(id));
+    public CategoryDto getById(@ApiParam(ID_PARAM) Long id,  @DefaultValue("false") Boolean expand) {
+            if(expand == null) expand = false;
+            return CategoryConverter.transform(categoryEJB.getCategory(id, expand));
     }
+
 
     @Override
     public void updateCategoryName(Long id, String name) {
@@ -189,8 +254,41 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
-    public List<SubCategoryDto> getAllSubCategories() {
-        return SubCategoryConverter.transform(subCategoryEJB.getAllSubCategories());
+    public ListDto<SubCategoryDto> getAllSubCategories(Integer offset, Integer limit) {
+
+        if(offset < 0){
+            throw new WebApplicationException("Negative offset: " + offset, 400);
+        }
+
+        if(limit < 1){
+            throw new WebApplicationException("Limit should be at least 1: " + limit, 400);
+        }
+
+        int maxFromDb = 50;
+
+        List<SubCategory> list = subCategoryEJB.getSubCategoriesList(maxFromDb);
+
+        if(offset != 0 && offset >= list.size()){
+            throw new WebApplicationException("Offset "+ offset + " out of bound "+ list.size(), 400);
+        }
+
+        ListDto<SubCategoryDto> listDto = SubCategoryConverter.transform(list, offset, limit);
+        UriBuilder builder = uriInfo.getBaseUriBuilder()
+                .path("/category/subcategories")
+                .queryParam("limit", limit);
+
+        listDto._links.self = new HalLink(builder.clone()
+            .queryParam("offset", offset)
+            .build().toString());
+
+        if(!list.isEmpty() && offset > 0){
+            listDto._links.previous = new HalLink(builder.clone()
+                .queryParam("offset", Math.max(offset + limit, 0))
+                .build().toString());
+
+        }
+
+        return listDto;
     }
 
 
@@ -282,11 +380,62 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
-    public List<SubSubCategoryDto> getAllSubSubCategories(@ApiParam("Retrieving subsubcategories with quizzes") Boolean withQuizzes) {
-        if (withQuizzes != null)
-            if (withQuizzes)
-                return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategoriesWithAtLeastOneQuiz());
-        return SubSubCategoryConverter.transform(subSubCategoryEJB.getAllSubSubCategories());
+    public ListDto<SubSubCategoryDto> getAllSubSubCategories(Integer offset, Integer limit,  String withQuizzes) {
+
+        if(offset < 0){
+            throw new WebApplicationException("Negative offset: " + offset, 400);
+        }
+
+        if(limit < 1){
+            throw new WebApplicationException("Limit should be at least 1: " + limit, 400);
+        }
+
+        int maxFromDb = 50;
+
+        List<SubSubCategory> subSubCategories;
+
+        if(withQuizzes != null && (withQuizzes.isEmpty() || withQuizzes.equals(true))) {
+            subSubCategories = new ArrayList<>(subSubCategoryEJB.getAllSubSubCategoriesWithAtleastOneQuiz(maxFromDb));
+        } else {
+            subSubCategories = subSubCategoryEJB.getAllSubSubCategories();
+        }
+
+        if(offset != 0 && offset >= subSubCategories.size()){
+            throw new WebApplicationException("Offset "+ offset + " out of bound "+ subSubCategories.size(), 400);
+        }
+
+        ListDto<SubSubCategoryDto> dto = SubSubCategoryConverter.transform(
+                subSubCategories, offset, limit
+        );
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder()
+                .path("/category/subsubcategories")
+                .queryParam("limit", limit);
+
+        if(withQuizzes != null){
+            builder = builder.queryParam("withQuizzes", withQuizzes);
+        }
+
+        dto._links.self = new HalLink(builder.clone()
+            .queryParam("offset", offset)
+            .build().toString());
+
+        if(!subSubCategories.isEmpty() && offset > 0) {
+            dto._links.previous = new HalLink(builder.clone()
+                    .queryParam("offset", Math.max(offset - limit, 0))
+                    .build().toString());
+        }
+
+
+        if (offset + limit < subSubCategories.size()) {
+            dto._links.next = new HalLink(builder.clone()
+                 .queryParam("offset", offset + limit)
+                 .build().toString()
+                );
+        }
+
+        return dto;
+
     }
 
     @Override
@@ -364,13 +513,22 @@ public class CategoryRest implements CategoryRestApi {
             throw new WebApplicationException("Cannot specify id for a newly generated question", 400);
         }
 
+
+        Long parentId;
+        try {
+            parentId= Long.parseLong(dto.subSubCategoryId);
+        } catch (NumberFormatException e) {
+            throw new WebApplicationException("Id of the subsubcategory is not numeric", 400);
+        }
+
+
         if (dto.subSubCategoryId == null) {
             throw new WebApplicationException("Cannot specify subsubcategory id", 400);
         }
 
 
         Long id;
-        Long parentId = Long.parseLong(dto.subSubCategoryId);
+
         try {
             id = questionEJB.createQuestion(parentId, dto.question, dto.answers, dto.theCorrectAnswer);
         } catch (Exception e) {
@@ -383,15 +541,55 @@ public class CategoryRest implements CategoryRestApi {
     }
 
     @Override
-    public QuestionDto getQuestionById(Long id) {
-        return QuestionConverter.transform(questionEJB.findQuestionById(id));
+    public ListDto<QuestionDto> getAllQuestions( Integer offset, @DefaultValue("10") Integer limit) {
+
+        if(offset < 0){
+            throw new WebApplicationException("Negative offset: "+offset, 400);
+        }
+
+        if(limit < 1){
+            throw new WebApplicationException("Limit should be at least 1: "+limit, 400);
+        }
+
+        int maxFromDb = 50;
+
+        List<Question> list = questionEJB.getListOfQuestions(maxFromDb);
+
+        if(offset != 0 && offset >=  list.size()){
+            throw new WebApplicationException("Offset "+ offset + " out of bound "+ list.size(), 400);
+        }
+
+        ListDto<QuestionDto> listDto = QuestionConverter.transform(list, offset, limit);
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder()
+                .path("/category/questions")
+                .queryParam("limit", limit);
+
+        listDto._links.self = new HalLink(builder.clone()
+                .queryParam("offset", offset)
+                .build().toString()
+        );
+
+        if (!list.isEmpty() && offset > 0) {
+            listDto._links.previous = new HalLink(builder.clone()
+                    .queryParam("offset", Math.max(offset - limit, 0))
+                    .build().toString()
+            );
+        }
+        if (offset + limit < list.size()) {
+            listDto._links.next = new HalLink(builder.clone()
+                    .queryParam("offset", offset + limit)
+                    .build().toString()
+            );
+        }
+
+        return listDto;
     }
 
     @Override
-    public List<QuestionDto> getAllQuestions() {
-        return QuestionConverter.transform(questionEJB.getAllQuestions());
+    public QuestionDto getQuestionById(Long id) {
+        return QuestionConverter.transform(questionEJB.findQuestionById(id));
     }
-
 
     @Override
     public void updateQuestion(Long id, String question) {
@@ -461,34 +659,143 @@ public class CategoryRest implements CategoryRestApi {
 
     // METHODS RETRIEVING A LIST ...
 
+
     @Override
-    public List<SubCategoryDto> getAllSubCategoriesFromCategory(@ApiParam(ID_PARAM) Long id) {
-        return SubCategoryConverter.transform(categoryEJB.getAllSubCategoriesForACategory(id));
+    public ListDto<SubCategoryDto> getAllSubCategoriesFromCategory(@ApiParam(ID_PARAM) Long id, @ApiParam("Offset in the list of categories") @DefaultValue("0") Integer offset, @ApiParam("Limit of subcategories in a single retrieved page") @DefaultValue("10") Integer limit) {
+
+        if(offset < 0){
+            throw new WebApplicationException("Negative offset: "+offset, 400);
+        }
+
+        if(limit < 1){
+            throw new WebApplicationException("Limit should be at least 1: "+limit, 400);
+        }
+
+        int maxFromDb = 50;
+
+        List<SubCategory> list = categoryEJB.getAllSubCategoriesForACategory(id, maxFromDb);
+
+        if(offset != 0 && offset >= list.size()) {
+            throw new WebApplicationException("Offset "+ offset + " out of bound "+ list.size(), 400);
+        }
+        ListDto<SubCategoryDto> listDto = SubCategoryConverter.transform(list, offset, limit);
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder()
+                .path("/category/" + id + "/subcategories")
+                .queryParam("limit", limit);
+
+        listDto._links.self = new HalLink(builder.clone()
+            .queryParam("offset", offset)
+            .build().toString());
+
+        if(!list.isEmpty() && offset > 0){
+            listDto._links.previous = new HalLink(builder.clone()
+            .queryParam("offset", Math.max(offset - limit, 0))
+            .build().toString());
+        }
+
+        if(offset + limit < list.size()) {
+            listDto._links.next = new HalLink(builder.clone()
+            .build().toString());
+        }
+
+        return listDto;
     }
 
     @Override
-    public List<SubSubCategoryDto> getAllSubSubCategoriesFromSubCategory(@ApiParam(SUB_ID_PARAM) Long id) {
-        return SubSubCategoryConverter.transform(subCategoryEJB.getAllSubSubCategoriesForSubCategory(id));
+    public ListDto<SubSubCategoryDto> getAllSubSubCategoriesFromSubCategory(@ApiParam(SUB_ID_PARAM) Long id, @ApiParam("Offset in the list of categories") @DefaultValue("0") Integer offset, @ApiParam("Limit of subsubcategories in a single retrieved page") @DefaultValue("10") Integer limit) {
+        if(offset < 0){
+            throw new WebApplicationException("Negative offset: "+offset, 400);
+        }
+
+        if(limit < 1){
+            throw new WebApplicationException("Limit should be at least 1: "+limit, 400);
+        }
+
+        int maxFromDb = 50;
+
+        List<SubSubCategory> list = subCategoryEJB.getAllSubSubCategoriesForSubCategory(id, maxFromDb);
+
+        if(offset != 0 && offset >= list.size()) {
+            throw new WebApplicationException("Offset "+ offset + " out of bound "+ list.size(), 400);
+        }
+        ListDto<SubSubCategoryDto> listDto = SubSubCategoryConverter.transform(list, offset, limit);
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder()
+                .path("/category/subcategories/" + id + "/subsubcategories")
+                .queryParam("limit", limit);
+
+        listDto._links.self = new HalLink(builder.clone()
+                .queryParam("offset", offset)
+                .build().toString());
+
+        if(!list.isEmpty() && offset > 0){
+            listDto._links.previous = new HalLink(builder.clone()
+                    .queryParam("offset", Math.max(offset - limit, 0))
+                    .build().toString());
+        }
+
+        if(offset + limit < list.size()) {
+            listDto._links.next = new HalLink(builder.clone()
+                    .build().toString());
+        }
+
+        return listDto;
     }
 
     @Override
-    public List<QuestionDto> getAllQuestionsWithParent(@ApiParam(ID_PARAM) Long id) {
-        return QuestionConverter.transform(categoryEJB.getAllQuizzesForCategory(id));
+    public ListDto<QuestionDto> getAllQuestionsWithParent(@ApiParam("Offset in the list of categories") @DefaultValue("0") Integer offset, @ApiParam("Limit of questions in a single retrieved page") @DefaultValue("10") Integer limit, @ApiParam(ID_PARAM) Long id) {
+        if(offset < 0){
+            throw new WebApplicationException("Negative offset: "+offset, 400);
+        }
+
+        if(limit < 1){
+            throw new WebApplicationException("Limit should be at least 1: "+limit, 400);
+        }
+
+        int maxFromDb = 50;
+
+        List<Question> list = categoryEJB.getAllQuestionsForCategory(id, maxFromDb);
+
+        if( offset != 0 && offset >= list.size()) {
+            throw new WebApplicationException("Offset "+ offset + " out of bound "+ list.size(), 400);
+        }
+        ListDto<QuestionDto> listDto = QuestionConverter.transform(list, offset, limit);
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder()
+                .path("/category/quizzes/parent/" + id)
+                .queryParam("limit", limit);
+
+        listDto._links.self = new HalLink(builder.clone()
+            .queryParam("offset", offset)
+            .build().toString());
+
+        if (!list.isEmpty() && offset > 0) {
+            listDto._links.previous = new HalLink(builder.clone()
+                    .queryParam("offset", Math.max(offset - limit, 0))
+                    .build().toString()
+            );
+        }
+        if (offset + limit < list.size()) {
+            listDto._links.next = new HalLink(builder.clone()
+                    .queryParam("offset", offset + limit)
+                    .build().toString()
+            );
+        }
+
+        return listDto;
     }
+
 
     @Override
     public Response getRandomQuiz(@ApiParam("ID of category/subcategory/subsubcategory to get a quiz from") Long id) {
         Long quizId;
         Random r = new Random();
-        List<QuestionDto> questions = QuestionConverter.transform(questionEJB.getAllQuestions());
 
-
-        if (questions == null || questions.size() < 1)
+        if (questionEJB.getAllQuestions().isEmpty()) {
             return Response.status(404).build();
-
-        if (id == null) {
-            quizId = Long.parseLong(questions.get(r.nextInt(questions.size())).id);
         }
+
 
        if (categoryEJB.findCategoryById(id) != null) {
 
@@ -539,7 +846,6 @@ public class CategoryRest implements CategoryRestApi {
     public List<Long> getRandomQuizzes(@ApiParam("ID of category/subcategory/subsubcategory to get a quiz from") Long id, @ApiParam("Default number of questions") int numberOfQuestions) {
         List<Long> quizId;
 
-        List<QuestionDto> questions = QuestionConverter.transform(questionEJB.getAllQuestions());
 
         if(questionEJB.getAllQuestions().isEmpty()){
             throw new WebApplicationException("No quizzes yet.", 404);
@@ -660,14 +966,14 @@ public class CategoryRest implements CategoryRestApi {
     @Override
     public Response deprecatedGetAllCategoriesWithAtLeastOneQuiz() {
         return Response.status(301)
-                .location(UriBuilder.fromUri("category").queryParam("withQuizzes", true).build())
+                .location(UriBuilder.fromUri("category").queryParam("withQuizzes", "").build())
                 .build();
     }
 
     @Override
     public Response deprecatedGetAllSubSubCategoriesWithAtLeastOneQuiz() {
         return Response.status(301)
-                .location(UriBuilder.fromUri("category/subsubcategories").queryParam("withQuizzes", true).build())
+                .location(UriBuilder.fromUri("category/subsubcategories").queryParam("withQuizzes", "").build())
                 .build();
 
     }
