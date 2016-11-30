@@ -35,22 +35,26 @@ public class QuestionEJB {
         q.setTheCorrectAnswer(theCorrectAnswer);
         q.setSubSubCategories(subsub);
 
-        subsub.getQuestions().add(q);
         em.persist(q);
+        subsub.getQuestions().add(q);
+
 
         return q.getId();
     }
 
-    public Question findQuestionById(Long id) {
+    public Question findQuestionById(long id) {
         return em.find(Question.class, id);
     }
 
     public List<Question> getAllQuestions() {
-        Query query = em.createNamedQuery(Question.GET_ALL_QUESTIONS);
-        List<Question> questions = query.getResultList();
-
-        return questions;
+       return em.createNamedQuery(Question.GET_ALL_QUESTIONS).getResultList();
     }
+
+
+    public List<Question> getListOfQuestions(int limit) {
+        return em.createNamedQuery(Question.GET_ALL_QUESTIONS).setMaxResults(limit).getResultList();
+    }
+
 
     public List<Question> getQuestionBySubSubCategoryName(String subSubCategoryName) {
         Query query = em.createNamedQuery(Question.GET_QUESTION_BY_SUBSUBCATEGORY);
@@ -60,23 +64,22 @@ public class QuestionEJB {
     }
 
 
-    public void deleteQuestion(Long id) {
-        Question q = em.find(Question.class, id);
-        if (q == null) {
-            return;
-        }
-        SubSubCategory subSubCategory = em.find(SubSubCategory.class, q.getSubSubCategories().getId());
-        subSubCategory.getQuestions().remove(q);
-        em.persist(subSubCategory);
-        em.remove(q);
+    public boolean deleteQuestion(long id){
+        Question question = em.find(Question.class, id);
+        if (question == null) return false;
+        SubSubCategory subSubCategory = em.find(SubSubCategory.class,
+                question.getSubSubCategories().getId());
+        subSubCategory.getQuestions().remove(id);
+        return true;
+
     }
 
-    public void updateQuestion(Long id, String newName) {
+    public boolean updateQuestion(Long id, String newName) {
         Question question= em.find(Question.class, id);
-        if (question != null) {
-            question.setQuestion(newName);
+        if (question == null) return false;
+        question.setQuestion(newName);
+            return true;
 
-        }
     }
 
     public List<Long> getRandomQuizzes(int n) {
