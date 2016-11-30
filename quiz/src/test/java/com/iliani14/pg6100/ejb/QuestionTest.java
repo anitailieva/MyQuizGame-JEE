@@ -18,8 +18,7 @@ import javax.ejb.EJB;
 import java.util.Arrays;
 import java.util.List;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.*;
 
 /**
  * Created by anitailieva on 26/10/2016.
@@ -86,15 +85,9 @@ public class QuestionTest {
 
         String theCorrectAnswer = "2000";
 
-        questionEJB.createQuestion(ssc, "When was C# created?", answers, theCorrectAnswer);
+        long q = questionEJB.createQuestion(ssc, "When was C# created?", answers, theCorrectAnswer);
 
-        List<Question> questions = questionEJB.getAllQuestions();
-        assertEquals(1, questions.size());
-
-        long id = questions.get(0).getId();
-        questionEJB.deleteQuestion(id);
-
-        assertEquals(0, questionEJB.getAllQuestions().size());
+        assertTrue(questionEJB.deleteQuestion(q));
     }
 
 
@@ -117,7 +110,7 @@ public class QuestionTest {
         long id = questions.get(0).getId();
         String question2 = "What year was Java created?";
 
-        questionEJB.updateQuestion(id, question2);
+        assertTrue(questionEJB.updateQuestion(id, question2));
 
         assertEquals(question2, questionEJB.getAllQuestions().get(0).getQuestion());
 
