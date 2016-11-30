@@ -12,8 +12,6 @@ import javax.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by anitailieva on 26/10/2016.
@@ -40,8 +38,6 @@ public class SubSubCategoryEJB {
         em.persist(subsub);
 
         sub.getSubSubCategories().add(subsub);
-        em.persist(sub);
-
 
         return subsub.getId();
     }
@@ -49,13 +45,6 @@ public class SubSubCategoryEJB {
     public SubSubCategory findSubSubCategoryById(Long id){
         return em.find(SubSubCategory.class, id);
 
-    }
-
-    public List<SubSubCategory> getAllSubSubCategories(){
-        Query query = em.createNamedQuery(SubSubCategory.GET_ALL_SUBSUBCATEGORIES);
-        List<SubSubCategory> subSubCategories = query.getResultList();
-
-        return subSubCategories;
     }
 
 
@@ -90,38 +79,33 @@ public class SubSubCategoryEJB {
         return query.getResultList();
     }
 
-    public void deleteSubSubCategory(Long id){
-        SubSubCategory subSubCategory = em.find(SubSubCategory.class, id);
-        if(subSubCategory != null){
-            em.remove(subSubCategory);
-        }
+    public boolean deleteSubSubCategory(Long id) {
+      SubSubCategory ss = em.find(SubSubCategory.class, id);
+        if (ss == null) return false;
+        SubCategory subCategory = em.find(SubCategory.class, ss.getSubCategories().getId());
+        subCategory.getSubSubCategories().remove(id);
+        return true;
+
     }
-    public void updateSubSubCategory(Long id, String newName) {
+    public boolean updateSubSubCategory(Long id, String newName) {
         SubSubCategory subSubCategory = em.find(SubSubCategory.class, id);
-        if (subSubCategory != null) {
+        if (subSubCategory == null) return false;
             subSubCategory.setName(newName);
 
-        }
+        return true;
     }
 
-        public List<SubSubCategory> getAllSubSubCategoriesWithAtLeastOneQuiz() {
-            List<Question> questions = questionEJB.getAllQuestions();
-
-            if(questions.size() == 0) {
-                return new ArrayList<>();
-            }
-
-            Set<Long> subsubcategories = questions
-                    .stream()
-                    .map(q -> q.getSubSubCategories().getId())
-                    .collect(Collectors.toSet());
-
-
-            return getAllSubSubCategories()
-                    .stream()
-                    .filter(c -> subsubcategories.contains(c.getId()))
-                    .collect(Collectors.toList());
+    public List<SubSubCategory> getAllSubSubCategories() {
+        return em.createNamedQuery(SubSubCategory.GET_ALL_SUBSUBCATEGORIES)
+                .getResultList();
     }
+
+    public List<SubSubCategory> getAllSubSubCategoriesWithAtleastOneQuiz(int limit){
+        return em.createQuery("select s from SubSubCategory s where s.questions.size > 0")
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
     public List<Long> getRandomQuizzesForSubSubCategory(Long subsubId, int n) {
         List<Question> questions = em.find(SubSubCategory.class, subsubId).getListOfQuestions();
         List<Long> id = new ArrayList<>();
