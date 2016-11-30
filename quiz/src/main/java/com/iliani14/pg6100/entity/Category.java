@@ -33,7 +33,7 @@ public class Category {
     @Size(min = 1, max = 50)
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "category")
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL, mappedBy = "category")
     private List<SubCategory> subCategories;
 
 
