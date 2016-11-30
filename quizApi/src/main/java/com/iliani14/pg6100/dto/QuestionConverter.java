@@ -1,5 +1,6 @@
 package com.iliani14.pg6100.dto;
 
+import com.iliani14.pg6100.dto.collection.ListDto;
 import com.iliani14.pg6100.entity.Question;
 
 import java.util.List;
@@ -26,11 +27,27 @@ public class QuestionConverter {
         return dto;
     }
 
-    public static List<QuestionDto> transform(List<Question> questions){
-        Objects.requireNonNull(questions);
+    public static ListDto<QuestionDto> transform(List<Question> questions, int offset, int limit) {
 
-        return questions.stream()
-                .map(QuestionConverter::transform)
-                .collect(Collectors.toList());
+        List<QuestionDto> dtoList = null;
+        if (questions != null) {
+            dtoList = questions.stream()
+                    .skip(offset)
+                    .limit(limit)
+                    .map(QuestionConverter::transform)
+                    .collect(Collectors.toList());
+        }
+
+        ListDto<QuestionDto> dto = new ListDto<>();
+            dto.list = dtoList;
+            dto._links = new ListDto.ListLinks();
+            dto.rangeMin = offset;
+            dto.rangeMax = dto.rangeMin + dtoList.size() - 1;
+            dto.totalSize = questions.size();
+
+            return dto;
+
     }
+
+
 }
