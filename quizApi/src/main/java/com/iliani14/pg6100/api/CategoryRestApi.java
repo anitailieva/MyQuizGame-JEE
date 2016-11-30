@@ -4,9 +4,12 @@ import com.iliani14.pg6100.dto.CategoryDto;
 import com.iliani14.pg6100.dto.QuestionDto;
 import com.iliani14.pg6100.dto.SubCategoryDto;
 import com.iliani14.pg6100.dto.SubSubCategoryDto;
+import com.iliani14.pg6100.dto.collection.ListDto;
 import io.swagger.annotations.*;
 import io.swagger.jaxrs.PATCH;
 
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -17,10 +20,8 @@ import java.util.List;
  */
 @Api(value = "/category", description = "Handling and retrieving categories" )
 @Path("/category")
-@Produces({
-        Formats.V2_JSON,
-        Formats.BASE_JSON
-})
+@Produces(Formats.V1_JSON)
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public interface CategoryRestApi {
 
     String ID_PARAM = "The numeric id of the category";
@@ -33,8 +34,7 @@ public interface CategoryRestApi {
 
     @ApiOperation("Create a category")
     @POST
-    @Consumes({Formats.V2_JSON, Formats.BASE_JSON})
-    @Produces(Formats.BASE_JSON)
+    @Consumes(Formats.V1_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created category")
     Long createCategory(
             @ApiParam("Name and id of the category")
@@ -43,10 +43,23 @@ public interface CategoryRestApi {
 
     @ApiOperation("Get all the categories with a quiz")
     @GET
-    List<CategoryDto> get(
+    ListDto<CategoryDto> get(
+            @ApiParam("Offset in the list of categories")
+            @QueryParam("offset")
+            @DefaultValue("0")
+                Integer offset,
+            @ApiParam("Limit of categories in a single retrieved page")
+            @QueryParam("limit")
+            @DefaultValue("10")
+                Integer limit,
             @ApiParam("Retrieving categories with quizzes")
             @QueryParam("withQuizzes")
-    Boolean withQuizzes);
+                String withQuizzes,
+            @ApiParam("Whether to retrieve or not categories.")
+            @QueryParam("expand")
+            @DefaultValue("false")
+                Boolean expand
+    );
 
 
     @ApiOperation("Get a category specified by id")
@@ -55,7 +68,11 @@ public interface CategoryRestApi {
     CategoryDto getById(
             @ApiParam(ID_PARAM)
             @PathParam("id")
-                    Long id);
+                    Long id,
+             @ApiParam("Whether to retrieve or not categories by given id.")
+             @QueryParam("expand")
+             @DefaultValue("false")
+                     Boolean expand);
 
 
     @ApiOperation("Update an existing category")
@@ -86,7 +103,7 @@ public interface CategoryRestApi {
     @ApiOperation("Modify the category")
     @Path("/id/{id}")
     @PATCH
-    @Consumes(Formats.V2_JSON)
+    @Consumes(Formats.V1_JSON_MERGE)
     void patchCategory(@ApiParam(ID_PARAM)
                        @PathParam("id")
                         Long id,
@@ -108,8 +125,7 @@ public interface CategoryRestApi {
     @ApiOperation("Create a subcategory")
     @POST
     @Path("/subcategories")
-    @Consumes({Formats.V2_JSON, Formats.BASE_JSON})
-    @Produces(Formats.BASE_JSON)
+    @Consumes(Formats.V1_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created subcategory")
     Long createSubCategory(
             @ApiParam("Id of subcategory, id of category and subcategory name")
@@ -118,12 +134,21 @@ public interface CategoryRestApi {
     @ApiOperation("Get all the subcategories")
     @GET
     @Path("/subcategories")
-    List<SubCategoryDto> getAllSubCategories();
+    ListDto<SubCategoryDto> getAllSubCategories(
+            @ApiParam("Offset in the list of categories")
+            @QueryParam("offset")
+            @DefaultValue("0")
+                    Integer offset,
+            @ApiParam("Limit of subcategories in a single retrieved page")
+            @QueryParam("limit")
+            @DefaultValue("10")
+                    Integer limit
+    );
 
 
     @ApiOperation("Get a subcategory by id")
     @GET
-    @Path("subcategories/{id}")
+    @Path("/subcategories/{id}")
     SubCategoryDto getSubCategoryById(
             @ApiParam(SUB_ID_PARAM)
             @PathParam("id")
@@ -146,7 +171,7 @@ public interface CategoryRestApi {
     @ApiOperation("Modify the subcategory")
     @Path("/subcategories/id/{id}")
     @PATCH
-    @Consumes(Formats.V2_JSON)
+    @Consumes(Formats.V1_JSON_MERGE)
     void patchSubCategory(@ApiParam(ID_PARAM)
                        @PathParam("id")
                                Long id,
@@ -168,8 +193,7 @@ public interface CategoryRestApi {
     @ApiOperation("Create a subsubcategory")
     @POST
     @Path("/subsubcategories")
-    @Consumes({Formats.V2_JSON, Formats.BASE_JSON})
-    @Produces(Formats.BASE_JSON)
+    @Consumes(Formats.V1_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created subsubcategory")
     Long createSubSubCategory(
             @ApiParam("Id of the subsubcategory, Id of the subcategory and name of subsubcategory ")
@@ -179,10 +203,19 @@ public interface CategoryRestApi {
     @ApiOperation("Get all the subsubcategories")
     @GET
     @Path("/subsubcategories")
-    List<SubSubCategoryDto> getAllSubSubCategories(
+    ListDto<SubSubCategoryDto> getAllSubSubCategories(
+            @ApiParam("Offset in the list of categories")
+            @QueryParam("offset")
+            @DefaultValue("0")
+                    Integer offset,
+            @ApiParam("Limit of subsubcategories in a single retrieved page")
+            @QueryParam("limit")
+            @DefaultValue("10")
+                    Integer limit,
             @ApiParam("Retrieving subsubcategories with quizzes")
             @QueryParam("withQuizzes")
-                    Boolean  withQuizzes);
+                    String withQuizzes
+    );
 
 
     @ApiOperation("Get a subsubcategory by id")
@@ -210,7 +243,7 @@ public interface CategoryRestApi {
     @ApiOperation("Modify the subsubcategory")
     @Path("/subsubcategories/id/{id}")
     @PATCH
-    @Consumes(Formats.V2_JSON)
+    @Consumes(Formats.V1_JSON_MERGE)
     void patchSubSubCategory(@ApiParam(ID_PARAM)
                           @PathParam("id")
                                   Long id,
@@ -233,8 +266,7 @@ public interface CategoryRestApi {
     @ApiOperation("Create a question")
     @POST
     @Path("/questions")
-    @Consumes({Formats.V2_JSON, Formats.BASE_JSON})
-    @Produces(Formats.BASE_JSON)
+    @Consumes(Formats.V1_JSON)
     @ApiResponse(code = 200, message = "The id of the newly created question")
     Long createQuestion(
             @ApiParam("Id of the question, id of subsubcategory,  the question, list of answers and the correct answer")
@@ -244,7 +276,17 @@ public interface CategoryRestApi {
     @ApiOperation("Get all questions")
     @GET
     @Path("/questions")
-    List<QuestionDto> getAllQuestions();
+    @Produces(Formats.HAL_V1)
+    ListDto<QuestionDto> getAllQuestions(
+            @ApiParam("Offset in the list of categories")
+            @QueryParam("offset")
+            @DefaultValue("0")
+                    Integer offset,
+            @ApiParam("Limit of questions in a single retrieved page")
+            @QueryParam("limit")
+            @DefaultValue("10")
+                    Integer limit
+    );
 
 
 
@@ -272,7 +314,7 @@ public interface CategoryRestApi {
     @ApiOperation("Modify the question")
     @Path("/questions/id/{id}")
     @PATCH
-    @Consumes(Formats.V2_JSON)
+    @Consumes(Formats.V1_JSON_MERGE)
     void patchQuestion(@ApiParam(ID_PARAM)
                           @PathParam("id")
                                   Long id,
@@ -293,28 +335,55 @@ public interface CategoryRestApi {
     @ApiOperation("Get all subcategories with a specified category id")
     @GET
     @Path("/{id}/subcategories")
-    List<SubCategoryDto> getAllSubCategoriesFromCategory(
+    ListDto<SubCategoryDto> getAllSubCategoriesFromCategory(
             @ApiParam(ID_PARAM)
             @PathParam("id")
-            Long id
+            Long id,
+            @ApiParam("Offset in the list of categories")
+            @QueryParam("offset")
+            @DefaultValue("0")
+                    Integer offset,
+            @ApiParam("Limit of subcategories in a single retrieved page")
+            @QueryParam("limit")
+            @DefaultValue("10")
+                    Integer limit
     );
 
 
     @ApiOperation("Get all subsubcategories with a specified subcategory id")
     @GET
     @Path("/subcategories/{id}/subsubcategories")
-    List<SubSubCategoryDto> getAllSubSubCategoriesFromSubCategory(
+    ListDto<SubSubCategoryDto> getAllSubSubCategoriesFromSubCategory(
             @ApiParam(SUB_ID_PARAM)
             @PathParam("id")
-                    Long id
+                    Long id,
+            @ApiParam("Offset in the list of categories")
+            @QueryParam("offset")
+            @DefaultValue("0")
+                    Integer offset,
+            @ApiParam("Limit of subsubcategories in a single retrieved page")
+            @QueryParam("limit")
+            @DefaultValue("10")
+                    Integer limit
     );
 
     @ApiOperation("Get all questions with parent specified by id")
     @GET
     @Path("/quizzes/parent/{id}")
-    List<QuestionDto> getAllQuestionsWithParent(@ApiParam(ID_PARAM)
-                                         @PathParam("id")
-                                                 Long id);
+    @Produces(Formats.HAL_V1)
+    ListDto<QuestionDto> getAllQuestionsWithParent(
+            @ApiParam("Offset in the list of categories")
+            @QueryParam("offset")
+            @DefaultValue("0")
+                    Integer offset,
+            @ApiParam("Limit of questions in a single retrieved page")
+            @QueryParam("limit")
+            @DefaultValue("10")
+                    Integer limit,
+            @ApiParam(ID_PARAM)
+            @PathParam("id")
+                    Long id
+    );
 
     @ApiOperation("Retrieve a category(subcategory/subsubcategory with a random quiz")
     @ApiResponses({
