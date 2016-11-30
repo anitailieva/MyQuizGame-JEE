@@ -1,4 +1,3 @@
-
 package com.iliani14.pg6100;
 
 import com.iliani14.pg6100.dto.CategoryDto;
@@ -23,7 +22,7 @@ public class CategoryIT extends CategoryTestBase {
 
     private String createCategory(String name) {
         return given().contentType(ContentType.JSON)
-                .body(new CategoryDto(null, name))
+                .body(new CategoryDto(null, name, null, null))
                 .post()
                 .then()
                 .statusCode(200)
@@ -59,6 +58,7 @@ public class CategoryIT extends CategoryTestBase {
                 .then()
                 .statusCode(200)
                 .extract().asString();
+
     }
 
     private List<String> getAnswers() {
@@ -76,31 +76,31 @@ public class CategoryIT extends CategoryTestBase {
     public void testCleanDB() {
         get().then()
                 .statusCode(200)
-                .body("size()", is(0));
+                .body("list.size()", is(0));
     }
 
     @Test
     public void testGetAllCategories() {
-        get().then().body("size()", is(0));
+        get().then().body("list.size()", is(0));
 
         String category1 = createCategory("Science");
         String category2 = createCategory("Sports");
         String category3 = createCategory("History");
 
 
-        get().then().body("size()", is(3));
+        get().then().body("list.size()", is(3));
 
         given().get()
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(category1, category2, category3))
-                .body("name", hasItems("Science", "Sports", "History"));
+                .body("list.id", hasItems(category1, category2, category3))
+                .body("list.name", hasItems("Science", "Sports", "History"));
 
     }
 
     @Test
     public void testCreateCategoryWithNullName() {
-        CategoryDto dto = new CategoryDto(null, null);
+        CategoryDto dto = new CategoryDto(null, null, null, null);
 
         given().contentType(ContentType.JSON)
                 .body(dto)
@@ -112,9 +112,9 @@ public class CategoryIT extends CategoryTestBase {
     @Test
     public void testCreateAndGetCategory() {
         String name = "Science";
-        CategoryDto dto = new CategoryDto(null, name);
+        CategoryDto dto = new CategoryDto(null, name, null, null);
 
-        get().then().statusCode(200).body("size()", is(0));
+        get().then().statusCode(200).body("list.size()", is(0));
 
         String id = given().contentType(ContentType.JSON)
                 .body(dto)
@@ -123,7 +123,7 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get().then().statusCode(200).body("size()", is(1));
+        get().then().statusCode(200).body("list.size()", is(1));
 
         given().pathParam("id", id)
                 .get("/id/{id}")
@@ -136,9 +136,9 @@ public class CategoryIT extends CategoryTestBase {
     @Test
     public void testCreateAndGetCategoryWithNewPath() {
         String name = "Name";
-        CategoryDto dto = new CategoryDto(null, name);
+        CategoryDto dto = new CategoryDto(null, name, null, null);
 
-        get().then().statusCode(200).body("size()", is(0));
+        get().then().statusCode(200).body("list.size()", is(0));
 
         String id = given().contentType(ContentType.JSON)
                 .body(dto)
@@ -147,7 +147,7 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get().then().statusCode(200).body("size()", is(1));
+        get().then().statusCode(200).body("list.size()", is(1));
 
         given().pathParam("id", id)
                 .get("/{id}")
@@ -162,13 +162,13 @@ public class CategoryIT extends CategoryTestBase {
     @Test
     public void testDeleteCategory() {
         String id = given().contentType(ContentType.JSON)
-                .body(new CategoryDto(null, "Movies"))
+                .body(new CategoryDto(null, "Movies", null, null))
                 .post()
                 .then()
                 .statusCode(200)
                 .extract().asString();
 
-        get().then().body("id", contains(id));
+        get().then().body("list.id", contains(id));
 
         delete("/id/" + id);
 
@@ -182,7 +182,7 @@ public class CategoryIT extends CategoryTestBase {
 
         //first create with a POST
         String id = given().contentType(ContentType.JSON)
-                .body(new CategoryDto(null, name))
+                .body(new CategoryDto(null, name, null, null))
                 .post()
                 .then()
                 .statusCode(200)
@@ -196,7 +196,7 @@ public class CategoryIT extends CategoryTestBase {
         //now change name with PUT
         given().contentType(ContentType.JSON)
                 .pathParam("id", id)
-                .body(new CategoryDto(id, "updated name"))
+                .body(new CategoryDto(id, "updated name", null, null))
                 .put("/id/{id}")
                 .then()
                 .statusCode(204);
@@ -244,7 +244,7 @@ public class CategoryIT extends CategoryTestBase {
 
     @Test
     public void testGetAllSubcategories() {
-        get("/subcategories").then().body("size()", is(0));
+        get("/subcategories").then().body("list.size()", is(0));
 
         String category = createCategory("Science");
 
@@ -252,13 +252,13 @@ public class CategoryIT extends CategoryTestBase {
         String subcategory2 = createSubCategory(category, "Subcategory2");
         String subcategory3 = createSubCategory(category, "Subcategory3");
 
-        get("/subcategories").then().body("size()", is(3));
+        get("/subcategories").then().body("list.size()", is(3));
 
         given().get("/subcategories")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(subcategory1, subcategory2, subcategory3))
-                .body("name", hasItems("Subcategory1", "Subcategory2", "Subcategory3"));
+                .body("list.id", hasItems(subcategory1, subcategory2, subcategory3))
+                .body("list.name", hasItems("Subcategory1", "Subcategory2", "Subcategory3"));
     }
 
     @Test
@@ -268,7 +268,7 @@ public class CategoryIT extends CategoryTestBase {
 
         SubCategoryDto dto = new SubCategoryDto(null, category, subcategoryName);
 
-        get("/subcategories").then().body("size()", is(0));
+        get("/subcategories").then().body("list.size()", is(0));
 
         String id = given().contentType(ContentType.JSON)
                 .body(dto)
@@ -277,7 +277,7 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get("/subcategories").then().body("size()", is(1));
+        get("/subcategories").then().body("list.size()", is(1));
 
         given().pathParam("id", id)
                 .get("/subcategories/id/{id}")
@@ -293,7 +293,7 @@ public class CategoryIT extends CategoryTestBase {
 
         SubCategoryDto dto = new SubCategoryDto(null, createParentCategory(), subcategory);
 
-        get("/subcategories").then().statusCode(200).body("size()", is(0));
+        get("/subcategories").then().statusCode(200).body("list.size()", is(0));
 
         String id = given().contentType(ContentType.JSON)
                 .body(dto)
@@ -320,7 +320,7 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get("/subcategories").then().body("id", contains(id));
+        get("/subcategories").then().body("list.id", contains(id));
 
         delete("/subcategories/id/" + id);
 
@@ -396,13 +396,13 @@ public class CategoryIT extends CategoryTestBase {
         String subsubcategory4 = createSubSubCategory(subcategory1, "Subsubcategory1");
 
 
-        get("/subsubcategories").then().body("size()", is(4));
+        get("/subsubcategories").then().body("list.size()", is(4));
 
         given().get("/subsubcategories")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(subsubcategory1, subsubcategory2, subsubcategory3, subsubcategory4))
-                .body("name", hasItems("Subsubcategory1", "Subsubcategory2", "Subsubcategory3", "Subsubcategory1"));
+                .body("list.id", hasItems(subsubcategory1, subsubcategory2, subsubcategory3, subsubcategory4))
+                .body("list.name", hasItems("Subsubcategory1", "Subsubcategory2", "Subsubcategory3", "Subsubcategory1"));
 
     }
 
@@ -415,7 +415,7 @@ public class CategoryIT extends CategoryTestBase {
 
         SubSubCategoryDto dto = new SubSubCategoryDto(null, subcategory, name);
 
-        get("subsubcategories").then().statusCode(200).body("size()", is(0));
+        get("/subsubcategories").then().statusCode(200).body("list.size()", is(0));
 
         String id = given().contentType(ContentType.JSON)
                 .body(dto)
@@ -424,7 +424,7 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get("/subsubcategories").then().statusCode(200).body("size()", is(1));
+        get("/subsubcategories").then().statusCode(200).body("list.size()", is(1));
 
         given().pathParam("id", id)
                 .get("/subsubcategories/id/{id}")
@@ -440,7 +440,7 @@ public class CategoryIT extends CategoryTestBase {
 
         SubSubCategoryDto dto = new SubSubCategoryDto(null, createSubCategory(createParentCategory(), "Name"), subsubcategory);
 
-        get("subsubcategories").then().statusCode(200).body("size()", is(0));
+        get("subsubcategories").then().statusCode(200).body("list.size()", is(0));
 
         String id = given().contentType(ContentType.JSON)
                 .body(dto)
@@ -449,7 +449,7 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get("subsubcategories").then().statusCode(200).body("size()", is(1));
+        get("subsubcategories").then().statusCode(200).body("list.size()", is(1));
 
         given().pathParam("id", id)
                 .get("/subsubcategories/{id}")
@@ -468,7 +468,7 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get("/subsubcategories").then().body("id", contains(id));
+        get("/subsubcategories").then().body("list.id", contains(id));
 
         delete("/subsubcategories/id/" + id);
 
@@ -546,29 +546,31 @@ public class CategoryIT extends CategoryTestBase {
         String question3 = createQuestion(subsubcategory1, "Question3", answers, theCorrectAnswer3);
 
 
-        get("/questions").then().body("size()", is(3));
+      //  get("/questions").then().body("list.size()", is(3));
 
         given().get("/questions")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(question1, question2, question3))
-                .body("question", hasItems("Question1", "Question2", "Question3"));
+                .body("list.id", hasItems(question1, question2, question3))
+                .body("list.question", hasItems("Question1", "Question2", "Question3"));
 
     }
 
     @Test
     public void testCreateAndGetQuestion() {
-        String category = createCategory("Science");
-        String subcategory = createSubCategory(category, "Subcategory");
-        String subsubcategory = createSubSubCategory(subcategory, "Subsubcategory");
+        String categoryId = createCategory("Category");
+        String subCategoryId = createSubCategory(categoryId, "Subcategory");
+        String subSubCategoryId = createSubSubCategory(subCategoryId, "SubSubCategory");
 
         String question = "Question";
 
         List<String> answers = getAnswers();
 
-        String theCorrectAnswer = answers.get(1);
+        String theCorrectAnswer = "Correct";
 
-        QuestionDto dto = new QuestionDto(null, subsubcategory, question, answers, theCorrectAnswer);
+        QuestionDto dto = new QuestionDto(null, subSubCategoryId, question, answers, theCorrectAnswer);
+
+        get("/questions").then().statusCode(200).body("list.size()", is(0));
 
         String id = given().contentType(ContentType.JSON)
                 .body(dto)
@@ -577,19 +579,19 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get("/questions").then().statusCode(200).body("size()", is(1));
-
+        get("/questions").then().statusCode(200).body("list.size()", is(1));
 
         given().pathParam("id", id)
-                .get("/questions/id/{id}")
+                .get("questions/id/{id}")
                 .then()
                 .statusCode(200)
                 .body("id", is(id))
-                .body("subSubCategoryId", is(subsubcategory))
+                .body("subSubCategoryId", is(subSubCategoryId))
                 .body("question", is(question))
                 .body("answers", is(answers))
                 .body("theCorrectAnswer", is(theCorrectAnswer));
-    }
+
+}
 
     @Test
     public void testCreateAndGetQuestionWithNewPath() {
@@ -610,7 +612,7 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get("/questions").then().statusCode(200).body("size()", is(1));
+        get("/questions").then().statusCode(200).body("list.size()", is(1));
 
         given().pathParam("id", id)
                 .get("/questions/{id}")
@@ -637,12 +639,11 @@ public class CategoryIT extends CategoryTestBase {
                 .statusCode(200)
                 .extract().asString();
 
-        get("/questions").then().body("id", contains(id));
+        get("/questions").then().body("list.id", contains(id));
 
         delete("/questions/id/" + id);
 
         get("/questions").then().body("id", not(contains(id)));
-
 
     }
 
@@ -739,17 +740,14 @@ public class CategoryIT extends CategoryTestBase {
         createQuestion(subsub5, "QUESTION1", answers, theCorrectAnswer1);
 
 
-        get("/withQuizzes")
-                .then()
-                .statusCode(200)
-                .body("size()", is(2));
+        get().then().statusCode(200).body("list.size()", is(3));
 
         given().get("/withQuizzes")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(cat1, cat2))
-                .body("name", hasItems("Category1", "Category2"))
-                .body("name", not("Category3"));
+                .body("list.id", hasItems(cat1, cat2))
+                .body("list.name", hasItems("Category1", "Category2"))
+                .body("list.name", not("Category3"));
     }
 
 
@@ -785,14 +783,14 @@ public class CategoryIT extends CategoryTestBase {
         createQuestion(subsub6, "QUESTION3", answers, theCorrectAnswer1);
 
 
-        get("/withQuizzes/subsubcategories").then().statusCode(200).body("size()", is(4));
+        get("/withQuizzes/subsubcategories").then().statusCode(200).body("list.size()", is(4));
 
         given().get("/withQuizzes/subsubcategories")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(subsub1, subsub4, subsub5, subsub6))
-                .body("name", hasItems("Subsub1", "Subsub4", "Subsub5", "Subsub6"))
-                .body("name", not("Subsub2"));
+                .body("list.id", hasItems(subsub1, subsub4, subsub5, subsub6))
+                .body("list.name", hasItems("Subsub1", "Subsub4", "Subsub5", "Subsub6"))
+                .body("list.name", not("Subsub2"));
     }
 
 
@@ -812,22 +810,22 @@ public class CategoryIT extends CategoryTestBase {
                 .get("id/{id}/subcategories")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(sub1))
-                .body("name", hasItems("Sub1"));
+                .body("list.id", hasItems(sub1))
+                .body("list.name", hasItems("Sub1"));
 
         given().pathParam("id", cat2)
                 .get("id/{id}/subcategories")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(sub2, sub3))
-                .body("name", hasItems("Sub2", "Sub3"));
+                .body("list.id", hasItems(sub2, sub3))
+                .body("list.name", hasItems("Sub2", "Sub3"));
 
         given().pathParam("id", cat3)
                 .get("id/{id}/subcategories")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(sub4, sub5))
-                .body("name", hasItems("Sub4", "Sub5"));
+                .body("list.id", hasItems(sub4, sub5))
+                .body("list.name", hasItems("Sub4", "Sub5"));
 
     }
 
@@ -844,28 +842,28 @@ public class CategoryIT extends CategoryTestBase {
         String subsub5 = createSubSubCategory(sub3, "Subsub5");
 
         given().pathParam("id", sub1)
-                .get("subcategories/id/{id}/subsubcategories")
+                .get("/subcategories/id/{id}/subsubcategories")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(subsub1))
-                .body("name", hasItems("Subsub1"));
+                .body("list.id", hasItems(subsub1))
+                .body("list.name", hasItems("Subsub1"));
 
         given().pathParam("id", sub2)
-                .get("subcategories/id/{id}/subsubcategories")
+                .get("/subcategories/id/{id}/subsubcategories")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(subsub2, subsub3))
-                .body("name", hasItems("Subsub2", "Subsub3"));
+                .body("list.id", hasItems(subsub2, subsub3))
+                .body("list.name", hasItems("Subsub2", "Subsub3"));
 
         given().pathParam("id", sub3)
-                .get("subcategories/id/{id}/subsubcategories")
+                .get("/subcategories/id/{id}/subsubcategories")
                 .then()
                 .statusCode(200)
-                .body("id", hasItems(subsub4, subsub5))
-                .body("name", hasItems("Subsub4", "Subsub5"));
+                .body("list.id", hasItems(subsub4, subsub5))
+                .body("list.name", hasItems("Subsub4", "Subsub5"));
     }
 
-    @Test
+   @Test
     public void testGetAllQuestionsFromCategory() {
         String cat1 = createCategory("Category1");
 
@@ -889,7 +887,7 @@ public class CategoryIT extends CategoryTestBase {
                 .get("quizzes/parent/{id}")
                 .then()
                 .statusCode(200)
-                .body("size()", is(5));
+                .body("list.size()", is(5));
 
     }
 
