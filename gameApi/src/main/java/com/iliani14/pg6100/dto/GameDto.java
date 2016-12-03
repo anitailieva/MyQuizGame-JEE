@@ -3,43 +3,36 @@ package com.iliani14.pg6100.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.List;
-
 /**
- * Created by anitailieva on 20/11/2016.
+ * Created by alexandershipunov on 19/11/2016.
+ * Game data transfer object
  */
-
 @ApiModel("A game")
 public class GameDto {
 
     @ApiModelProperty("The id of the game")
     public String id;
 
-    @ApiModelProperty("The number of questions")
-    public int numberOfQuestions;
-
-    @ApiModelProperty("The number of answers")
+    @ApiModelProperty("Number of answers so far")
     public int numberOfAnswers;
 
-    @ApiModelProperty("The game is active")
+    @ApiModelProperty("Number of questions in the game")
+    public int numberOfQuestions;
+
+    @ApiModelProperty("Is the game active")
     public boolean isActive;
 
-    @ApiModelProperty("The uri of the quiz")
-    public String uri;
-
-
-    public List<Long> questionIds;
-
-
+    @ApiModelProperty("URI to the current quiz")
+    public String currentQuizURI;
 
     public GameDto() {
     }
 
-    public GameDto(String id, int numberOfQuestions, int numberOfAnswers, boolean isActive, String uri){
+    public GameDto(String id, int numberOfAnswers, int numberOfQuestions, String currentQuizURI, boolean isActive) {
         this.id = id;
-        this.numberOfQuestions = numberOfQuestions;
         this.numberOfAnswers = numberOfAnswers;
+        this.numberOfQuestions = numberOfQuestions;
+        this.currentQuizURI = currentQuizURI;
         this.isActive = isActive;
-        this.uri = uri;
     }
 }
