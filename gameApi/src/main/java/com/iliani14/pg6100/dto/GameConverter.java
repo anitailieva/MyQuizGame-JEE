@@ -1,42 +1,54 @@
 package com.iliani14.pg6100.dto;
 
 import com.iliani14.pg6100.Game;
+import com.iliani14.pg6100.dto.collection.ListDTO;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * Created by anitailieva on 20/11/2016.
- */
+
 public class GameConverter {
 
-    private GameConverter(){};
+    private GameConverter(){}
 
     public static GameDto transform(Game entity){
         Objects.requireNonNull(entity);
 
         GameDto dto = new GameDto();
         dto.id = String.valueOf(entity.getId());
-        dto.numberOfQuestions = entity.getQuestions().size();
-        dto.numberOfAnswers = entity.getNumberOfAnswers();
-        dto.isActive = entity.isActive();
 
-        if(entity.isActive()){
-            dto.uri = "http://<...>/quizzes/{id}" +  entity.getQuestions().get(entity.getNumberOfAnswers());
+        dto.numberOfAnswers = entity.getNumberOfAnswers();
+        dto.numberOfQuestions = entity.getQuestions().size();
+        dto.isActive = entity.isActive();
+        if(!entity.isActive()){
+            dto.currentQuizURI = "not applicable";
         } else {
-            dto.uri = "No uri available, the game is not active.";
+            dto.currentQuizURI = "/quizApi/quizzes/" + entity.getQuestions().get(entity.getNumberOfAnswers());
         }
 
         return dto;
     }
 
-    public static List<GameDto> transform(List<Game> entities){
-        Objects.requireNonNull(entities);
+    public static ListDTO<GameDto> transform(List<Game> games, int offset,
+                                             int limit){
+        List<GameDto> dtoList = null;
+        if(games != null){
+            dtoList = games.stream()
+                    .skip(offset)
+                    .limit(limit)
+                    .map(GameConverter::transform)
+                    .collect(Collectors.toList());
+        }
 
-        return entities.stream()
-                .map(GameConverter::transform)
-                .collect(Collectors.toList());
+        ListDTO<GameDto> dto = new ListDTO<>();
+        dto.list = dtoList;
+        dto._links = new ListDTO.ListLinks();
+        dto.rangeMin = offset;
+        assert dtoList != null;
+        dto.rangeMax = dto.rangeMin + dtoList.size() - 1;
+        dto.totalSize = games.size();
+
+        return dto;
     }
-
 }
