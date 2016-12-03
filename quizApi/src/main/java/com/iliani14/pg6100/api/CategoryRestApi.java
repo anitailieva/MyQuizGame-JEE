@@ -1,9 +1,6 @@
 package com.iliani14.pg6100.api;
 
-import com.iliani14.pg6100.dto.CategoryDto;
-import com.iliani14.pg6100.dto.QuestionDto;
-import com.iliani14.pg6100.dto.SubCategoryDto;
-import com.iliani14.pg6100.dto.SubSubCategoryDto;
+import com.iliani14.pg6100.dto.*;
 import com.iliani14.pg6100.dto.collection.ListDto;
 import io.swagger.annotations.*;
 import io.swagger.jaxrs.PATCH;
@@ -13,7 +10,6 @@ import javax.ejb.TransactionAttributeType;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
  * Created by anitailieva on 27/10/2016.
@@ -388,8 +384,7 @@ public interface CategoryRestApi {
     @ApiOperation("Retrieve a category(subcategory/subsubcategory with a random quiz")
     @ApiResponses({
             @ApiResponse(code = 307, message = "Temporary redirect to your quiz!"),
-            @ApiResponse(code = 404, message = "No categories can be found with that id"),
-            @ApiResponse(code = 409, message = "No questions created for that id")
+            @ApiResponse(code = 404, message = "No categories can be found with that id")
     })
     @GET
     @Path(("/randomQuiz"))
@@ -401,18 +396,19 @@ public interface CategoryRestApi {
 
 
 
-    @ApiOperation("Retrieve a category(subcategory/subsubcategory with a random quiz")
+    @ApiOperation("Get a random quiz. Return a random quiz for category, sub- or subsubcategory" +
+            "depending on filter")
     @POST
     @Path(("/randomQuizzes"))
-    List<Long> getRandomQuizzes(
-            @ApiParam("ID of category/subcategory/subsubcategory to get a quiz from")
+    IdDto getRandomQuizzes(
+            @ApiParam("Number of quizzes")
+            @QueryParam("limit")
+                    String limit,
+            @ApiParam("Filter randomquizzes by category id")
             @QueryParam("filter")
-                    Long id,
-            @ApiParam("Default number of questions")
-            @QueryParam("nOfQuestions")
-            int numberOfQuestions
-);
-
+                    String filter
+    );
+    //endregion
 
     // DEPRECATED
 

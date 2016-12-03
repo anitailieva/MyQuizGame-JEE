@@ -2,6 +2,7 @@ package com.iliani14.pg6100.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.iliani14.pg6100.dto.*;
 import com.iliani14.pg6100.dto.collection.ListDto;
@@ -15,6 +16,7 @@ import com.iliani14.pg6100.entity.Question;
 import com.iliani14.pg6100.entity.SubCategory;
 import com.iliani14.pg6100.entity.SubSubCategory;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -841,70 +843,85 @@ public class CategoryRest implements CategoryRestApi {
                 .build();
     }
 
-
     @Override
-    public List<Long> getRandomQuizzes(@ApiParam("ID of category/subcategory/subsubcategory to get a quiz from") Long id, @ApiParam("Default number of questions") int numberOfQuestions) {
-        List<Long> quizId;
-
-
-        if(questionEJB.getAllQuestions().isEmpty()){
-            throw new WebApplicationException("No quizzes yet.", 404);
-
+    public IdDto getRandomQuizzes(String limit,  String filter) {
+        if(questionEJB.getAllQuestions().isEmpty()) {
+            throw new WebApplicationException("There are no quizzes yet.", 404);
         }
 
-        int nOfQuizzes;
-        if(numberOfQuestions != 0){
-
-            nOfQuizzes = numberOfQuestions;
-            } else {
-
-            nOfQuizzes = 5;
-        }
-
-
-        if(id == null) {
-            throw new WebApplicationException("Value is not correct, is null", 404);
-
-        }
-
-        if(categoryEJB.findCategoryById(id) != null) {
-
-            quizId = categoryEJB.getRandomQuizzesForCategory(id, nOfQuizzes);
-
-            if(quizId.size() < nOfQuizzes) {
-                throw new WebApplicationException("Number of quizzes is less than the default (5).", 404);
-
+        int numberOfQuestions;
+        if(!Strings.isNullOrEmpty(limit)) {
+            try {
+                numberOfQuestions = Integer.parseInt(limit);
+            } catch (NumberFormatException e) {
+                throw new WebApplicationException("Id of the root category is not numeric", 400);
             }
-
-        } else if(subCategoryEJB.findSubCategoryById(id) != null) {
-            quizId = subCategoryEJB.getRandomQuizzesForSubCategory(id, nOfQuizzes);
-
-            if(quizId.size() < nOfQuizzes) {
-                throw new WebApplicationException("Number of quizzes is less than the default (5).", 404);
-
-            }
-
-        } else if (subSubCategoryEJB.findSubSubCategoryById(id) != null) {
-
-            quizId = subSubCategoryEJB.getRandomQuizzesForSubSubCategory(id, nOfQuizzes);
-
-            if(quizId.size() < nOfQuizzes) {
-                throw new WebApplicationException("Number of quizzes is less than the default (5).", 404);
-
-            }
-
         } else {
-            throw new WebApplicationException("No category,subcategory or subsubcategory with id " + id, 404);
+            numberOfQuestions = 5;
         }
 
-        quizId = questionEJB.getRandomQuizzes(nOfQuizzes);
+        String[] parts;
 
-        if(quizId.size() < nOfQuizzes) {
-            throw new WebApplicationException("Number of quizzes is less than the default (5).", 404);
+        IdDto dtos = new IdDto();
+        dtos.ids = new ArrayList<>();
+        ArrayList<Long> quizIds;
 
+        if (!Strings.isNullOrEmpty(filter)) {
+            parts = filter.split("_");
+            if(parts.length != 2)
+                throw new WebApplicationException("Filter value has incorrect format", 404);
+
+            if(!StringUtils.isNumeric(parts[1])){
+                throw new WebApplicationException("Filter value has incorrect format", 404);
+            }
+
+            switch (parts[0]){
+                case "c":
+                    Long catId = Long.parseLong(parts[1]);
+
+                    quizIds = new ArrayList<>(categoryEJB.getRandomQuizzesForCategory(catId, numberOfQuestions));
+
+                    if(quizIds.size() < numberOfQuestions) {
+                        throw new WebApplicationException("There are not enough quizzes.", 404);
+                    }
+
+                    dtos.ids.addAll(quizIds);
+                    return dtos;
+                case "s":
+                    Long subcategoryId = Long.parseLong(parts[1]);
+
+                    quizIds = new ArrayList<>(subCategoryEJB.getRandomQuizzesForSubCategory(subcategoryId, numberOfQuestions));
+
+                    if(quizIds.size() < numberOfQuestions) {
+                        throw new WebApplicationException("There are not enough quizzes.", 404);
+                    }
+
+                    dtos.ids.addAll(quizIds);
+                    return dtos;
+                case "ss":
+                    Long specifyingCategoryId = Long.parseLong(parts[1]);
+
+                    quizIds = new ArrayList<>(subSubCategoryEJB.getRandomQuizzesForSubSubCategory(specifyingCategoryId, numberOfQuestions));
+
+                    if(quizIds.size() < numberOfQuestions) {
+                        throw new WebApplicationException("There are not enough quizzes.", 404);
+                    }
+
+                    dtos.ids.addAll(quizIds);
+                    return dtos;
+                default:
+                    throw new WebApplicationException("Filter value has incorrect format", 404);
+            }
         }
 
-        return quizId;
+        quizIds = new ArrayList<>(questionEJB.getRandomQuizzes(numberOfQuestions));
+
+        if(quizIds.size() < numberOfQuestions) {
+            throw new WebApplicationException("There are not enough quizzes.", 404);
+        }
+
+        dtos.ids.addAll(quizIds);
+        return dtos;
     }
 
     // DEPRECATED METHODS

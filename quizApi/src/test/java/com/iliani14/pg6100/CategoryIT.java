@@ -1,19 +1,18 @@
 package com.iliani14.pg6100;
 
-import com.iliani14.pg6100.dto.CategoryDto;
-import com.iliani14.pg6100.dto.QuestionDto;
-import com.iliani14.pg6100.dto.SubCategoryDto;
-import com.iliani14.pg6100.dto.SubSubCategoryDto;
+import com.iliani14.pg6100.dto.*;
 import io.restassured.http.ContentType;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by anitailieva on 28/10/2016
@@ -943,67 +942,82 @@ public class CategoryIT extends CategoryTestBase {
     }
     @Test
     public void testRandomQuizzes() {
-        String category1 = createCategory("cat1");
-        String category2 = createCategory("cat2");
-
-        String subcategory1 = createSubCategory(category1, "sub1");
-        String subcategory2 = createSubCategory(category2, "sub2");
-
-        String subsubcategory1 = createSubSubCategory(subcategory1, "subsub1");
-        String subsubcategory2 = createSubSubCategory(subcategory1, "subsub2");
-        String subsubcategory3 = createSubSubCategory(subcategory2, "subsub3");
-
+        String category = createCategory("cat");
+        String subcategory = createSubCategory(category, "sub");
+        String subsubcategory = createSubSubCategory(subcategory, "subsub");
 
         List<String> answers = getAnswers();
-        String theCorrectAnswer1 = answers.get(2);
+        String theCorrectAnswer = answers.get(2);
 
 
-        createQuestion(subsubcategory1, "QUESTION1", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory1, "QUESTION2", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory1, "QUESTION3", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory1, "QUESTION1", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory1, "QUESTION2", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory1, "QUESTION3", answers, theCorrectAnswer1);
+        String question1 = createQuestion(subsubcategory, "QUESTION", answers, theCorrectAnswer);
+        String question2 = createQuestion(subsubcategory, "QUESTION", answers, theCorrectAnswer);
+        String question3 = createQuestion(subsubcategory, "QUESTION", answers, theCorrectAnswer);
+        String question4 = createQuestion(subsubcategory, "QUESTION", answers, theCorrectAnswer);
+        String question5 = createQuestion(subsubcategory, "QUESTION", answers, theCorrectAnswer);
 
-        createQuestion(subsubcategory2, "QUESTION3", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory2, "QUESTION1", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory2, "QUESTION2", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory2, "QUESTION1", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory2, "QUESTION2", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory2, "QUESTION3", answers, theCorrectAnswer1);
-
-        createQuestion(subsubcategory3, "QUESTION3", answers, theCorrectAnswer1);
-        createQuestion(subsubcategory3, "QUESTION3", answers, theCorrectAnswer1);
+        post("/randomQuizzes")
+                .then()
+                .statusCode(200)
+                .body("ids.size()", is(5));
 
 
+        IdDto ids = post("/randomQuizzes")
+                .then()
+                .statusCode(200)
+                .extract().as(IdDto.class);
+
+        List<Long> questionId = Arrays.asList(Long.parseLong(question1),
+                    Long.parseLong(question2),
+                    Long.parseLong(question3),
+                    Long.parseLong(question4),
+                    Long.parseLong(question5));
+
+        assertTrue(questionId.containsAll(ids.ids));
 
 
-        given().queryParam("filter", subsubcategory2)
+        given().queryParam("limit", 3)
                 .post("/randomQuizzes")
                 .then()
                 .statusCode(200)
-                .body("size()", is(5));
+                .body("ids.size()", is(3));
 
-        given().queryParam("filter", subcategory1)
+        given().queryParam("filter", "c_" + category)
                 .post("/randomQuizzes")
                 .then()
                 .statusCode(200)
-                .body("size()", is(5));
+                .body("ids.size()", is(5));
 
-        given().queryParam("filter", subcategory2)
-                .post("/randomQuizzes")
-                .then()
-                .statusCode(404);
-
-        given().queryParam("filter", category1)
+        ids = given().queryParam("filter", "c_" + category)
                 .post("/randomQuizzes")
                 .then()
                 .statusCode(200)
-                .body("size()", is(5));
+                .extract().as(IdDto.class);
 
-        given().queryParam("filter", category2)
+        assertTrue(questionId.containsAll(ids.ids));
+
+        given().queryParam("limit", 3)
+                .and()
+                .queryParam("filter", "c_" + category)
                 .post("/randomQuizzes")
                 .then()
-                .statusCode(404);
+                .statusCode(200)
+                .body("ids.size()", is(3));
+
+        given().queryParam("limit", 2)
+                .and()
+                .queryParam("filter", "s_" + subcategory)
+                .post("/randomQuizzes")
+                .then()
+                .statusCode(200)
+                .body("ids.size()", is(2));
+
+        given().queryParam("limit", 1)
+                .and()
+                .queryParam("filter", "ss_" + subsubcategory)
+                .post("/randomQuizzes")
+                .then()
+                .statusCode(200)
+                .body("ids.size()", is(1));
     }
 }
