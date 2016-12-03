@@ -1,18 +1,17 @@
 package com.iliani14.pg6100;
 
-
 import com.iliani14.pg6100.api.GameRestImpl;
+import com.netflix.config.ConfigurationManager;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
+import org.apache.commons.configuration.AbstractConfiguration;
 
-/**
- * Created by anitailieva on 15/11/2016.
- */
-public class GameApplication extends Application<GameConfiguration> {
+
+ public class GameApplication extends Application<GameConfiguration> {
 
     public static void main(String[] args) throws Exception {
         new GameApplication().run(args);
@@ -20,7 +19,7 @@ public class GameApplication extends Application<GameConfiguration> {
 
     @Override
     public String getName() {
-        return "game";
+        return "GameApi written in DropWizard";
     }
 
     @Override
@@ -34,7 +33,7 @@ public class GameApplication extends Application<GameConfiguration> {
     }
 
     @Override
-    public void run(GameConfiguration configuration, Environment environment) {
+    public void run(GameConfiguration gameConfiguration, Environment environment) throws Exception {
         environment.jersey().setUrlPattern("/game/api/*");
         environment.jersey().register(new GameRestImpl());
 
@@ -45,12 +44,22 @@ public class GameApplication extends Application<GameConfiguration> {
         beanConfig.setVersion("0.0.1");
         beanConfig.setSchemes(new String[]{"http"});
         beanConfig.setHost("localhost:8080");
-        beanConfig.setBasePath("/game");
-        beanConfig.setResourcePackage("com.iliani14.pg6100.api");
+        beanConfig.setBasePath("/game/api");
+        beanConfig.setResourcePackage("com.iliani14.pg6100");
         beanConfig.setScan(true);
 
-        environment.jersey().register(new io.swagger.jaxrs.listing.ApiListingResource());
+        //add further configuration to activate SWAGGER
+        environment.jersey().register(new ApiListingResource());
         environment.jersey().register(new io.swagger.jaxrs.listing.SwaggerSerializers());
 
+        //Hystrix configuration
+        AbstractConfiguration conf = ConfigurationManager.getConfigInstance();
+        // how long to wait before giving up a request?
+        conf.setProperty("hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds", 2000); //default is 1000
+        // how many failures before activating the CB?
+        conf.setProperty("hystrix.command.default.circuitBreaker.requestVolumeThreshold", 20); //default 20
+        conf.setProperty("hystrix.command.default.circuitBreaker.errorThresholdPercentage", 50);
+        //for how long should the CB stop requests? after this, 1 single request will try to check if remote server is ok
+        conf.setProperty("hystrix.command.default.circuitBreaker.sleepWindowInMilliseconds", 5000);
     }
 }
