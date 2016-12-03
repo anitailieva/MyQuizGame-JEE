@@ -133,11 +133,10 @@ public class CategoryEJB {
 
     public List<Long> getRandomQuizzesForCategory(long catId, int n) {
         List<Question> questions = em.find(Category.class, catId).getListOfQuestions();
-        List<Long> id = new ArrayList<>();
-
-        while (id.size() != n && questions.size() != 0) {
-            id.add(questions.remove(new Random().nextInt(questions.size())).getId());
+        List<Long> ids = new ArrayList<>();
+        while(ids.size() != n && questions.size() != 0) {
+            ids.add(questions.remove(new Random().nextInt(questions.size())).getId());
         }
-        return id;
+        return ids;
     }
 }
