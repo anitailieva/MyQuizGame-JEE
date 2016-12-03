@@ -27,7 +27,7 @@ public class GameApplicationIT extends GameApplicationTestBase{
             throw new AssertionError("Jar file was not created at: " + jarLocation);
         }
 
-        String[] command = new String[]{"java", "-jar", jarLocation, "server"};
+        String[] command = new String[]{"java", "-DquizApiAddress=localhost:8099", "-jar", jarLocation, "server"};
 
         process = new ProcessBuilder().command(command).start();
 
