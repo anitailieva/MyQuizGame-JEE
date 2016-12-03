@@ -1,3 +1,5 @@
+package com.iliani14.pg6100;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -7,23 +9,21 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertTrue;
 
-/**
- * Created by anitailieva on 22/11/2016.
- */
+
 public class GameApplicationIT extends GameApplicationTestBase{
 
     private static Process process;
 
-
     @BeforeClass
     public static void startJar() throws Exception {
-        String version = "1.0-SNAPSHOT";
+
+        String version = "1.0-SNAPSHOT"; //NOTE: those could be system properties
         String jar = "gameApi-" + version + ".jar";
         String jarLocation = "target" + File.separator + jar;
 
-        if(!Files.exists(Paths.get(jarLocation))) {
+        if (!Files.exists(Paths.get(jarLocation))) {
             throw new AssertionError("Jar file was not created at: " + jarLocation);
         }
 
@@ -31,12 +31,7 @@ public class GameApplicationIT extends GameApplicationTestBase{
 
         process = new ProcessBuilder().command(command).start();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                stopProcess();
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(GameApplicationIT::stopProcess));
 
         assertTrue(process.isAlive());
 
@@ -44,22 +39,21 @@ public class GameApplicationIT extends GameApplicationTestBase{
         while (in.hasNext()) {
             String line = in.nextLine();
             System.out.println(line);
-            if(line.contains("Server: Started")) {
+            if (line.contains("Server: Started")) {
                 break;
             }
         }
     }
 
     @AfterClass
-    public static void stopJar(){
+    public static void stopJar() {
         stopProcess();
     }
 
     private static void stopProcess() {
-        if(process != null && process.isAlive()) {
+        if (process != null && process.isAlive()) {
             process.destroy();
             process = null;
         }
     }
-
 }
