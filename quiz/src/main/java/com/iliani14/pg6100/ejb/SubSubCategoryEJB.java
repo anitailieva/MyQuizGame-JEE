@@ -107,12 +107,12 @@ public class SubSubCategoryEJB {
     }
 
     public List<Long> getRandomQuizzesForSubSubCategory(Long subsubId, int n) {
-        List<Question> questions = em.find(SubSubCategory.class, subsubId).getListOfQuestions();
-        List<Long> id = new ArrayList<>();
-
-        while (id.size() != n && questions.size() != 0) {
-            id.add(questions.remove(new Random().nextInt(questions.size())).getId());
+        List<Question> quizzes = em.find(SubSubCategory.class, subsubId).getListOfQuestions();
+        List<Long> ids = new ArrayList<>();
+        while(ids.size() != n && quizzes.size() != 0) {
+            ids.add(quizzes.remove(new Random().nextInt(quizzes.size())).getId());
         }
-        return id;
+        return ids;
+
     }
 }
