@@ -47,7 +47,7 @@ public class QuestionEJB {
     }
 
     public List<Question> getAllQuestions() {
-       return em.createNamedQuery(Question.GET_ALL_QUESTIONS).getResultList();
+        return em.createNamedQuery(Question.GET_ALL_QUESTIONS).getResultList();
     }
 
 
@@ -64,7 +64,7 @@ public class QuestionEJB {
     }
 
 
-    public boolean deleteQuestion(long id){
+    public boolean deleteQuestion(long id) {
         Question question = em.find(Question.class, id);
         if (question == null) return false;
         SubSubCategory subSubCategory = em.find(SubSubCategory.class,
@@ -75,21 +75,20 @@ public class QuestionEJB {
     }
 
     public boolean updateQuestion(Long id, String newName) {
-        Question question= em.find(Question.class, id);
+        Question question = em.find(Question.class, id);
         if (question == null) return false;
         question.setQuestion(newName);
-            return true;
+        return true;
 
     }
 
     public List<Long> getRandomQuizzes(int n) {
-        List<Question> questions = getAllQuestions();
-        List<Long> id = new ArrayList<>();
-
-        while (id.size() != n && questions.size() != 0) {
-            id.add(questions.remove(new Random().nextInt(questions.size())).getId());
+        List<Question> quizzes = getAllQuestions();
+        List<Long> ids = new ArrayList<>();
+        while (ids.size() != n && quizzes.size() != 0) {
+            ids.add(quizzes.remove(new Random().nextInt(quizzes.size())).getId());
         }
-        return id;
-    }
+        return ids;
 
+    }
 }
