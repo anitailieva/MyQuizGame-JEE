@@ -1,4 +1,4 @@
-#PG6100 - Enterprise Programming 2 
+# JavaEE 
 
 
 School Exercise Project - MyQuizGame-JEE
